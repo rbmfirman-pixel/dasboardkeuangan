@@ -13,12 +13,12 @@
     <!-- Konfigurasi Tema (Auto Light/Dark Mode) -->
     <script>
         tailwind.config = {
-            darkMode: 'media', // Otomatis mengikuti pengaturan HP (Light/Dark)
+            darkMode: 'media',
             theme: {
                 extend: {
                     colors: {
-                        neon: '#0d9488', // Teal-600 untuk mode terang
-                        darkneon: '#2dd4bf', // Teal-400 untuk mode gelap
+                        neon: '#0d9488', 
+                        darkneon: '#2dd4bf', 
                         danger: '#f43f5e',
                         income: '#6366f1'
                     }
@@ -59,13 +59,12 @@
                     <div class="relative">
                         <i class="fa-solid fa-lock absolute left-4 top-3.5 text-gray-400 dark:text-gray-500"></i>
                         <input type="password" id="password" class="w-full bg-white dark:bg-slate-800 border border-gray-300 dark:border-gray-700 rounded-xl py-3 pl-12 pr-12 text-gray-900 dark:text-white focus:outline-none focus:border-neon dark:focus:border-darkneon transition-colors duration-300" placeholder="Masukkan password">
-                        <!-- Tombol Intip Password -->
                         <button onclick="togglePassword()" class="absolute right-4 top-3.5 text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
                             <i id="eye-icon" class="fa-solid fa-eye"></i>
                         </button>
                     </div>
                 </div>
-                <button onclick="login()" class="w-full bg-neon dark:bg-darkneon text-white dark:text-slate-900 font-bold rounded-xl py-3.5 mt-4 hover:opacity-90 transition shadow-lg">
+                <button id="login-btn" onclick="login()" class="w-full bg-neon dark:bg-darkneon text-white dark:text-slate-900 font-bold rounded-xl py-3.5 mt-4 hover:opacity-90 transition shadow-lg flex justify-center items-center gap-2">
                     Lihat Dashboard
                 </button>
             </div>
@@ -79,7 +78,7 @@
             <div class="p-6 pt-10 flex justify-between items-center bg-white/50 dark:bg-slate-800/50 rounded-b-3xl border-b border-gray-200 dark:border-slate-800 backdrop-blur-sm transition-colors duration-300">
                 <div>
                     <p class="text-xs text-gray-500 dark:text-gray-400">Selamat datang kembali,</p>
-                    <h2 class="text-xl font-bold text-gray-900 dark:text-white" id="user-display">Firman</h2>
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white" id="user-display">Pengguna</h2>
                 </div>
                 <div class="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center border border-teal-200 dark:border-teal-800 transition-colors duration-300">
                     <i class="fa-solid fa-user text-neon dark:text-darkneon"></i>
@@ -88,7 +87,7 @@
 
             <div class="p-5 flex-grow overflow-y-auto">
                 
-                <!-- Kartu Saldo -->
+                <!-- Kartu Saldo (Data Masih Dummy) -->
                 <div class="bg-gradient-to-br from-white to-gray-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-6 mb-6 border border-gray-200 dark:border-slate-700 shadow-xl relative overflow-hidden transition-colors duration-300">
                     <div class="absolute -right-4 -top-4 w-24 h-24 bg-neon dark:bg-darkneon opacity-10 rounded-full blur-xl"></div>
                     <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Sisa Uang Bulanan (Jan 2026)</p>
@@ -140,32 +139,10 @@
                         </div>
                         <p class="text-sm font-bold text-danger">- Rp 85.000</p>
                     </div>
-                    
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl flex justify-between items-center border border-gray-200 dark:border-slate-700 shadow-sm transition-colors duration-300">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center text-blue-500"><i class="fa-solid fa-car"></i></div>
-                            <div>
-                                <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Bensin Mobil</h4>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">27 Jan • Kendaraan</p>
-                            </div>
-                        </div>
-                        <p class="text-sm font-bold text-danger">- Rp 450.000</p>
-                    </div>
-                     
-                     <div class="bg-white dark:bg-slate-800 p-4 rounded-xl flex justify-between items-center border border-gray-200 dark:border-slate-700 shadow-sm transition-colors duration-300">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-income"><i class="fa-solid fa-wallet"></i></div>
-                            <div>
-                                <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Gaji Bulanan</h4>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">25 Jan • Pemasukan</p>
-                            </div>
-                        </div>
-                        <p class="text-sm font-bold text-neon dark:text-darkneon">+ Rp 15.000.000</p>
-                    </div>
                 </div>
             </div>
 
-            <!-- Bottom Navigation Bar yang Lebih Rapi -->
+            <!-- Bottom Navigation Bar -->
             <div class="absolute bottom-0 w-full bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 px-8 py-4 flex justify-between items-center z-20 transition-colors duration-300">
                 <button class="text-neon dark:text-darkneon flex flex-col items-center gap-1"><i class="fa-solid fa-house text-xl"></i><span class="text-[10px]">Home</span></button>
                 <button class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 flex flex-col items-center gap-1 transition"><i class="fa-solid fa-clock-rotate-left text-xl"></i><span class="text-[10px]">Riwayat</span></button>
@@ -178,44 +155,78 @@
 
     <!-- SCRIPT LOGIC -->
     <script>
-        // Logika Toggle Visibilitas Password
+        // URL API Google Apps Script (Sesuai dengan yang Anda berikan)
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzGOv26svKIlGAJg7pmzVfixFVPYtdAPjX9X8g2qYcGK8cwa0dNJTfjAUc2qNsXtQ/exec';
+
         function togglePassword() {
             const pwdInput = document.getElementById('password');
             const eyeIcon = document.getElementById('eye-icon');
             
             if (pwdInput.type === 'password') {
                 pwdInput.type = 'text';
-                eyeIcon.classList.remove('fa-eye');
-                eyeIcon.classList.add('fa-eye-slash');
+                eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
             } else {
                 pwdInput.type = 'password';
-                eyeIcon.classList.remove('fa-eye-slash');
-                eyeIcon.classList.add('fa-eye');
+                eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
             }
         }
 
-        // LOGIC LOGIN
-        function login() {
+        function showError(message) {
+            const errorMsg = document.getElementById('error-msg');
+            errorMsg.innerText = message;
+            errorMsg.classList.remove('hidden');
+        }
+
+        // LOGIC LOGIN DENGAN API GOOGLE SHEETS
+        async function login() {
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
+            const btn = document.getElementById('login-btn');
             
-            if(user === 'Firman123' && pass === 'Admin123') {
-                document.getElementById('login-page').classList.add('hidden');
-                document.getElementById('dashboard-page').classList.remove('hidden');
-                document.getElementById('dashboard-page').classList.add('flex');
-                document.getElementById('user-display').innerText = 'Mas Firman';
-                renderChart(); 
-            } else {
-                document.getElementById('error-msg').classList.remove('hidden');
+            document.getElementById('error-msg').classList.add('hidden');
+
+            if(!user || !pass) {
+                showError('Username dan Password harus diisi!');
+                return;
+            }
+
+            // Ubah tombol jadi status loading
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Memeriksa...';
+            btn.disabled = true;
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
+
+            try {
+                // Mengirim request ke Google Apps Script
+                const response = await fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(user)}&password=${encodeURIComponent(pass)}`);
+                const result = await response.json();
+
+                if(result.status === 'success') {
+                    // Jika sukses login
+                    document.getElementById('login-page').classList.add('hidden');
+                    document.getElementById('dashboard-page').classList.remove('hidden');
+                    document.getElementById('dashboard-page').classList.add('flex');
+                    document.getElementById('user-display').innerText = user; // Menampilkan nama dari username
+                    renderChart(); 
+                } else {
+                    // Jika gagal login (salah ketik)
+                    showError('Username atau Password salah!');
+                }
+            } catch (error) {
+                showError('Gagal terhubung ke server. Periksa koneksi internet Anda.');
+            } finally {
+                // Kembalikan tombol ke bentuk semula
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
             }
         }
 
         function logout() {
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
-            document.getElementById('password').type = 'password'; // Reset mata
-            document.getElementById('eye-icon').classList.remove('fa-eye-slash');
-            document.getElementById('eye-icon').classList.add('fa-eye');
+            document.getElementById('password').type = 'password';
+            document.getElementById('eye-icon').classList.replace('fa-eye-slash', 'fa-eye');
             
             document.getElementById('dashboard-page').classList.add('hidden');
             document.getElementById('dashboard-page').classList.remove('flex');
@@ -225,15 +236,11 @@
         // LOGIC GRAFIK
         function renderChart() {
             const ctx = document.getElementById('expenseChart').getContext('2d');
-            
             let gradient = ctx.createLinearGradient(0, 0, 0, 200);
             gradient.addColorStop(0, 'rgba(244, 63, 94, 0.5)'); 
             gradient.addColorStop(1, 'rgba(244, 63, 94, 0)');
 
-            // Cek apakah ada grafik sebelumnya agar tidak menumpuk saat login ulang
-            if(window.myChart) {
-                window.myChart.destroy();
-            }
+            if(window.myChart) window.myChart.destroy();
 
             window.myChart = new Chart(ctx, {
                 type: 'line',
