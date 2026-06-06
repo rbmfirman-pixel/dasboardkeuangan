@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FamilyWealth Dashboard</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#0f172a',
+                        cardbg: '#1e293b',
+                        neon: '#2dd4bf',
+                        danger: '#f43f5e',
+                        income: '#6366f1'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #000; }
+        /* Scrollbar tersembunyi untuk estetika aplikasi mobile */
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+    </style>
+</head>
+<body class="flex justify-center min-h-screen text-gray-200">
+
+    <div class="w-full max-w-md bg-darkbg min-h-screen relative shadow-2xl overflow-x-hidden flex flex-col">
+
+        <div id="login-page" class="flex flex-col justify-center h-screen px-8 relative z-10">
+            <div class="text-center mb-10">
+                <div class="w-20 h-20 bg-cardbg rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-[0_0_15px_rgba(45,212,191,0.3)] border border-neon/20">
+                    <i class="fa-solid fa-wallet text-4xl text-neon"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-white tracking-wide">Family<span class="text-neon">Wealth</span></h1>
+                <p class="text-sm text-gray-400 mt-2">Aplikasi Pencatatan Keuangan</p>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs text-gray-400 font-semibold mb-1 block">USERNAME</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-4 top-3.5 text-gray-500"></i>
+                        <input type="text" id="username" class="w-full bg-cardbg border border-gray-700 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-neon transition" placeholder="Masukkan username">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400 font-semibold mb-1 block">PASSWORD</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-4 top-3.5 text-gray-500"></i>
+                        <input type="password" id="password" class="w-full bg-cardbg border border-gray-700 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-neon transition" placeholder="Masukkan password">
+                    </div>
+                </div>
+                <button onclick="login()" class="w-full bg-neon text-darkbg font-bold rounded-xl py-3.5 mt-4 hover:bg-teal-300 transition shadow-[0_4px_14px_0_rgba(45,212,191,0.39)]">
+                    Masuk ke Dashboard
+                </button>
+            </div>
+            <p id="error-msg" class="text-danger text-center mt-4 text-sm hidden">Username atau Password salah!</p>
+        </div>
+
+        <div id="dashboard-page" class="hidden flex-col h-full pb-20">
+            
+            <div class="p-6 pt-10 flex justify-between items-center bg-cardbg/50 rounded-b-3xl border-b border-gray-800">
+                <div>
+                    <p class="text-xs text-gray-400">Selamat datang kembali,</p>
+                    <h2 class="text-xl font-bold text-white" id="user-display">Firman</h2>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-neon/20 flex items-center justify-center border border-neon/50">
+                    <i class="fa-solid fa-user text-neon"></i>
+                </div>
+            </div>
+
+            <div class="p-5 flex-grow overflow-y-auto">
+                
+                <div class="bg-gradient-to-br from-cardbg to-gray-800 rounded-2xl p-6 mb-6 border border-gray-700 shadow-lg relative overflow-hidden">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-neon opacity-10 rounded-full blur-xl"></div>
+                    <p class="text-sm text-gray-400 mb-1">Sisa Uang Bulanan (Jan 2026)</p>
+                    <h1 class="text-3xl font-bold text-white">Rp 5.250.000</h1>
+                    
+                    <div class="flex justify-between mt-6 gap-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-income/20 flex items-center justify-center"><i class="fa-solid fa-arrow-down text-income text-xs"></i></div>
+                            <div>
+                                <p class="text-[10px] text-gray-400 uppercase">Pemasukan</p>
+                                <p class="text-sm font-semibold text-white">Rp 15.000.000</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-danger/20 flex items-center justify-center"><i class="fa-solid fa-arrow-up text-danger text-xs"></i></div>
+                            <div>
+                                <p class="text-[10px] text-gray-400 uppercase">Pengeluaran</p>
+                                <p class="text-sm font-semibold text-white">Rp 9.750.000</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-cardbg rounded-2xl p-5 mb-6 border border-gray-800">
+                    <h3 class="text-sm font-semibold text-white mb-4">Tren Pengeluaran Harian</h3>
+                    <div class="h-40 w-full relative">
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="mb-4 flex justify-between items-end">
+                    <h3 class="text-sm font-semibold text-white">Transaksi Terakhir</h3>
+                    <div class="flex gap-2">
+                        <button class="text-xs text-neon bg-neon/10 px-3 py-1 rounded-lg border border-neon/30"><i class="fa-solid fa-filter mr-1"></i>Filter</button>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="bg-cardbg p-4 rounded-xl flex justify-between items-center border border-gray-800">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center text-orange-500"><i class="fa-solid fa-utensils"></i></div>
+                            <div>
+                                <h4 class="text-sm font-semibold text-white">Gofood Bakmi</h4>
+                                <p class="text-xs text-gray-400">28 Jan • Makan / Cemilan</p>
+                            </div>
+                        </div>
+                        <p class="text-sm font-bold text-danger">- Rp 85.000</p>
+                    </div>
+                    <div class="bg-cardbg p-4 rounded-xl flex justify-between items-center border border-gray-800">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-500"><i class="fa-solid fa-car"></i></div>
+                            <div>
+                                <h4 class="text-sm font-semibold text-white">Bensin Mobil</h4>
+                                <p class="text-xs text-gray-400">27 Jan • Kendaraan</p>
+                            </div>
+                        </div>
+                        <p class="text-sm font-bold text-danger">- Rp 450.000</p>
+                    </div>
+                     <div class="bg-cardbg p-4 rounded-xl flex justify-between items-center border border-gray-800">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-income/20 flex items-center justify-center text-income"><i class="fa-solid fa-wallet"></i></div>
+                            <div>
+                                <h4 class="text-sm font-semibold text-white">Gaji Bulanan</h4>
+                                <p class="text-xs text-gray-400">25 Jan • Pemasukan</p>
+                            </div>
+                        </div>
+                        <p class="text-sm font-bold text-neon">+ Rp 15.000.000</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute bottom-0 w-full bg-cardbg border-t border-gray-800 px-6 py-4 flex justify-between items-center z-20">
+                <button class="text-neon flex flex-col items-center gap-1"><i class="fa-solid fa-house text-xl"></i><span class="text-[10px]">Home</span></button>
+                <button class="text-gray-500 hover:text-gray-300 flex flex-col items-center gap-1 transition"><i class="fa-solid fa-chart-pie text-xl"></i><span class="text-[10px]">Laporan</span></button>
+                
+                <button class="w-14 h-14 bg-neon rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(45,212,191,0.5)] transform -translate-y-6 border-4 border-darkbg text-darkbg hover:scale-105 transition">
+                    <i class="fa-solid fa-plus text-2xl font-bold"></i>
+                </button>
+                
+                <button class="text-gray-500 hover:text-gray-300 flex flex-col items-center gap-1 transition"><i class="fa-solid fa-users text-xl"></i><span class="text-[10px]">Anggota</span></button>
+                <button onclick="logout()" class="text-gray-500 hover:text-danger flex flex-col items-center gap-1 transition"><i class="fa-solid fa-right-from-bracket text-xl"></i><span class="text-[10px]">Keluar</span></button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // LOGIC LOGIN DUMMY (Akan diganti API Google Sheets nanti)
+        function login() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            
+            // Mencocokkan dengan data yang ada di gambar (Firman123 / Admin123)
+            if(user === 'Firman123' && pass === 'Admin123') {
+                document.getElementById('login-page').classList.add('hidden');
+                document.getElementById('dashboard-page').classList.remove('hidden');
+                document.getElementById('dashboard-page').classList.add('flex');
+                document.getElementById('user-display').innerText = 'Mas Firman';
+                renderChart(); // Munculkan grafik saat login sukses
+            } else {
+                document.getElementById('error-msg').classList.remove('hidden');
+            }
+        }
+
+        function logout() {
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('dashboard-page').classList.add('hidden');
+            document.getElementById('dashboard-page').classList.remove('flex');
+            document.getElementById('login-page').classList.remove('hidden');
+        }
+
+        // LOGIC GRAFIK (Chart.js)
+        function renderChart() {
+            const ctx = document.getElementById('expenseChart').getContext('2d');
+            
+            // Buat efek gradient untuk line chart
+            let gradient = ctx.createLinearGradient(0, 0, 0, 200);
+            gradient.addColorStop(0, 'rgba(244, 63, 94, 0.5)'); // warna danger/merah
+            gradient.addColorStop(1, 'rgba(244, 63, 94, 0)');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Tgl 1', 'Tgl 5', 'Tgl 10', 'Tgl 15', 'Tgl 20', 'Tgl 25', 'Tgl 28'],
+                    datasets: [{
+                        label: 'Pengeluaran',
+                        data: [150000, 300000, 100000, 500000, 200000, 150000, 85000],
+                        borderColor: '#f43f5e',
+                        backgroundColor: gradient,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4, // membuat garis melengkung (smooth)
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } },
+                        y: { display: false } // Sembunyikan garis Y agar bersih
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
