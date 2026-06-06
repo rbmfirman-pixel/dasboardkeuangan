@@ -19,6 +19,7 @@
 
     <div class="w-full max-w-md bg-gray-50 dark:bg-slate-900 min-h-screen relative shadow-2xl overflow-x-hidden flex flex-col">
 
+        <!-- HALAMAN LOGIN -->
         <div id="login-page" class="flex flex-col justify-center h-screen px-8 relative z-10">
             <div class="text-center mb-10">
                 <div class="w-20 h-20 bg-white dark:bg-slate-800 rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-lg border border-gray-200 dark:border-slate-700">
@@ -31,14 +32,14 @@
                     <label class="text-xs font-semibold mb-1 block">USERNAME</label>
                     <div class="relative">
                         <i class="fa-solid fa-user absolute left-4 top-3.5 text-gray-400"></i>
-                        <input type="text" id="username" class="w-full bg-white dark:bg-slate-800 border border-gray-300 dark:border-gray-700 rounded-xl py-3 pl-12 pr-4 text-gray-900 dark:text-white focus:border-neon" placeholder="Masukkan username">
+                        <input type="text" id="username" class="w-full bg-white dark:bg-slate-800 border border-gray-300 dark:border-gray-700 rounded-xl py-3 pl-12 pr-4 text-gray-900 dark:text-white focus:border-neon outline-none" placeholder="Contoh: Firman123 / Suami / Istri">
                     </div>
                 </div>
                 <div>
                     <label class="text-xs font-semibold mb-1 block">PASSWORD</label>
                     <div class="relative">
                         <i class="fa-solid fa-lock absolute left-4 top-3.5 text-gray-400"></i>
-                        <input type="password" id="password" class="w-full bg-white dark:bg-slate-800 border border-gray-300 dark:border-gray-700 rounded-xl py-3 pl-12 pr-12 text-gray-900 dark:text-white focus:border-neon" placeholder="Masukkan password">
+                        <input type="password" id="password" class="w-full bg-white dark:bg-slate-800 border border-gray-300 dark:border-gray-700 rounded-xl py-3 pl-12 pr-12 text-gray-900 dark:text-white focus:border-neon outline-none" placeholder="Masukkan password">
                         <button onclick="togglePassword()" class="absolute right-4 top-3.5 text-gray-400"><i id="eye-icon" class="fa-solid fa-eye"></i></button>
                     </div>
                 </div>
@@ -47,57 +48,78 @@
             <p id="error-msg" class="text-danger text-center mt-4 text-sm hidden">Username/Password salah!</p>
         </div>
 
+        <!-- HALAMAN DASHBOARD -->
         <div id="dashboard-page" class="hidden flex-col h-full pb-20">
-            <div class="p-6 pt-10 flex justify-between items-center bg-white/50 dark:bg-slate-800/50 rounded-b-3xl border-b border-gray-200 dark:border-slate-800 backdrop-blur-sm">
+            <!-- Header -->
+            <div class="p-6 pt-10 pb-4 flex justify-between items-center bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border-b border-transparent">
                 <div>
                     <p class="text-xs text-gray-500 dark:text-gray-400">Selamat datang,</p>
-                    <h2 class="text-xl font-bold text-gray-900 dark:text-white" id="user-display">Pengguna</h2>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white" id="user-display">Pengguna</h2>
+                        <span id="role-badge" class="hidden bg-neon/20 text-neon text-[10px] font-bold px-2 py-0.5 rounded-md">ADMIN</span>
+                    </div>
                 </div>
                 <div class="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center border border-teal-200"><i class="fa-solid fa-user text-neon dark:text-darkneon"></i></div>
             </div>
 
-            <div id="loading-data" class="hidden flex-col items-center justify-center mt-20">
-                <i class="fa-solid fa-spinner fa-spin text-4xl text-neon dark:text-darkneon mb-4"></i>
-                <p class="text-sm text-gray-500">Menarik data dari Google Sheets...</p>
+            <!-- Filter Admin (Hanya muncul untuk Admin) -->
+            <div id="admin-filter-container" class="hidden px-6 pb-4 bg-white/50 dark:bg-slate-800/50 rounded-b-3xl border-b border-gray-200 dark:border-slate-800 shadow-sm">
+                <label class="text-[10px] uppercase font-bold text-gray-500 mb-1 block">Tampilan Data</label>
+                <div class="relative">
+                    <select id="admin-filter" onchange="fetchDataKeuangan()" class="w-full bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white outline-none appearance-none font-semibold">
+                        <option value="Semua">Semua Pencatat (Gabungan)</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-3 top-3 text-gray-400 text-xs"></i>
+                </div>
             </div>
 
+            <!-- LOADING SCREEN DATA (Posisi Tengah) -->
+            <div id="loading-data" class="hidden flex-col items-center justify-center flex-grow h-full min-h-[400px]">
+                <i class="fa-solid fa-spinner fa-spin text-4xl text-neon dark:text-darkneon mb-4"></i>
+                <p class="text-sm text-gray-500 font-medium">Sinkronisasi data...</p>
+            </div>
+
+            <!-- KONTEN UTAMA -->
             <div id="dashboard-content" class="p-5 flex-grow overflow-y-auto hidden">
-                <div class="bg-gradient-to-br from-white to-gray-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-6 mb-6 shadow-xl relative overflow-hidden">
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Sisa Uang Tersedia</p>
+                <!-- Kartu Saldo -->
+                <div class="bg-gradient-to-br from-white to-gray-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-6 mb-6 shadow-xl relative overflow-hidden border border-gray-100 dark:border-slate-700">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1 font-medium" id="saldo-title">Total Saldo Gabungan</p>
                     <h1 class="text-3xl font-bold text-gray-900 dark:text-white" id="sisa-uang">Rp 0</h1>
                     <div class="flex justify-between mt-6 gap-4">
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center"><i class="fa-solid fa-arrow-down text-income text-xs"></i></div>
                             <div>
-                                <p class="text-[10px] uppercase">Pemasukan</p>
+                                <p class="text-[10px] uppercase text-gray-500">Pemasukan</p>
                                 <p class="text-sm font-semibold" id="total-pemasukan">Rp 0</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center"><i class="fa-solid fa-arrow-up text-danger text-xs"></i></div>
                             <div>
-                                <p class="text-[10px] uppercase">Pengeluaran</p>
+                                <p class="text-[10px] uppercase text-gray-500">Pengeluaran</p>
                                 <p class="text-sm font-semibold" id="total-pengeluaran">Rp 0</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 mb-6 shadow-sm">
+                <!-- Grafik -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 mb-6 shadow-sm border border-gray-100 dark:border-slate-700">
                     <h3 class="text-sm font-semibold mb-4">Tren Pengeluaran Terakhir</h3>
                     <div class="h-40 w-full relative"><canvas id="expenseChart"></canvas></div>
                 </div>
 
+                <!-- Riwayat Transaksi -->
                 <h3 class="text-sm font-semibold mb-3">5 Transaksi Terakhir</h3>
-                <div class="space-y-3" id="transaction-list">
-                    </div>
+                <div class="space-y-3" id="transaction-list"></div>
             </div>
 
-            <div class="absolute bottom-0 w-full bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 px-8 py-4 flex justify-between items-center z-20">
+            <!-- Navbar Bawah -->
+            <div class="fixed bottom-0 w-full max-w-md bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 px-8 py-4 flex justify-between items-center z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
                 <button class="text-neon flex flex-col items-center gap-1"><i class="fa-solid fa-house text-xl"></i><span class="text-[10px]">Home</span></button>
-                <button class="text-gray-400 hover:text-gray-700 flex flex-col items-center gap-1"><i class="fa-solid fa-clock-rotate-left text-xl"></i><span class="text-[10px]">Riwayat</span></button>
-                <button class="text-gray-400 hover:text-gray-700 flex flex-col items-center gap-1"><i class="fa-solid fa-chart-pie text-xl"></i><span class="text-[10px]">Laporan</span></button>
-                <button onclick="logout()" class="text-gray-400 hover:text-danger flex flex-col items-center gap-1"><i class="fa-solid fa-right-from-bracket text-xl"></i><span class="text-[10px]">Keluar</span></button>
+                <button onclick="alert('Fitur Riwayat sedang dalam tahap pengembangan.')" class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 flex flex-col items-center gap-1 transition"><i class="fa-solid fa-clock-rotate-left text-xl"></i><span class="text-[10px]">Riwayat</span></button>
+                <button onclick="alert('Fitur Laporan sedang dalam tahap pengembangan.')" class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 flex flex-col items-center gap-1 transition"><i class="fa-solid fa-chart-pie text-xl"></i><span class="text-[10px]">Laporan</span></button>
+                <button onclick="logout()" class="text-gray-400 hover:text-danger flex flex-col items-center gap-1 transition"><i class="fa-solid fa-right-from-bracket text-xl"></i><span class="text-[10px]">Keluar</span></button>
             </div>
         </div>
     </div>
@@ -105,7 +127,41 @@
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzGOv26svKIlGAJg7pmzVfixFVPYtdAPjX9X8g2qYcGK8cwa0dNJTfjAUc2qNsXtQ/exec';
 
-        // Fungsi Format Rupiah (Contoh: 15000 jadi Rp 15.000)
+        document.addEventListener("DOMContentLoaded", () => { checkSession(); });
+
+        function checkSession() {
+            const sessionData = localStorage.getItem('fw_session');
+            if (sessionData) {
+                const session = JSON.parse(sessionData);
+                const now = new Date().getTime();
+                if (now - session.timestamp < (24 * 60 * 60 * 1000)) {
+                    session.timestamp = now; // Perpanjang waktu sesi
+                    localStorage.setItem('fw_session', JSON.stringify(session));
+                    masukKeDashboard(session.username, session.role);
+                } else {
+                    localStorage.removeItem('fw_session'); // Sesi kedaluwarsa
+                }
+            }
+        }
+
+        function masukKeDashboard(user, role) {
+            document.getElementById('login-page').classList.add('hidden');
+            document.getElementById('dashboard-page').classList.remove('hidden');
+            document.getElementById('dashboard-page').classList.add('flex');
+            document.getElementById('user-display').innerText = user;
+
+            if(role === 'Admin') {
+                document.getElementById('role-badge').classList.remove('hidden');
+                document.getElementById('admin-filter-container').classList.remove('hidden');
+            } else {
+                document.getElementById('role-badge').classList.add('hidden');
+                document.getElementById('admin-filter-container').classList.add('hidden');
+                // Hapus header transparan bawah jika bukan admin
+                document.getElementById('admin-filter-container').previousElementSibling.classList.add('rounded-b-3xl', 'shadow-sm', 'border-gray-200', 'dark:border-slate-800');
+            }
+            fetchDataKeuangan();
+        }
+
         function formatRupiah(angka) {
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
         }
@@ -133,13 +189,10 @@
                 const result = await response.json();
 
                 if(result.status === 'success') {
-                    document.getElementById('login-page').classList.add('hidden');
-                    document.getElementById('dashboard-page').classList.remove('hidden');
-                    document.getElementById('dashboard-page').classList.add('flex');
-                    document.getElementById('user-display').innerText = user;
-                    
-                    // Tarik Data Keuangan!
-                    fetchDataKeuangan();
+                    localStorage.setItem('fw_session', JSON.stringify({
+                        username: result.username, role: result.role, timestamp: new Date().getTime()
+                    }));
+                    masukKeDashboard(result.username, result.role);
                 } else {
                     document.getElementById('error-msg').innerText = "Username/Password salah!";
                     document.getElementById('error-msg').classList.remove('hidden');
@@ -152,56 +205,85 @@
             document.getElementById('loading-data').classList.remove('hidden');
             document.getElementById('dashboard-content').classList.add('hidden');
 
+            const session = JSON.parse(localStorage.getItem('fw_session'));
+            const user = session.username;
+            const role = session.role;
+            let filter = 'Semua';
+
+            if(role === 'Admin') {
+                filter = document.getElementById('admin-filter').value;
+            }
+
             try {
-                const response = await fetch(`${SCRIPT_URL}?action=getData`);
+                const response = await fetch(`${SCRIPT_URL}?action=getData&username=${encodeURIComponent(user)}&role=${encodeURIComponent(role)}&filterPencatat=${encodeURIComponent(filter)}`);
                 const result = await response.json();
 
                 if(result.status === 'success') {
                     const d = result.data;
                     
-                    // 1. Update Saldo & Header
+                    // 1. Update Saldo & Judul Saldo
                     document.getElementById('sisa-uang').innerText = formatRupiah(d.sisa);
                     document.getElementById('total-pemasukan').innerText = formatRupiah(d.pemasukan);
                     document.getElementById('total-pengeluaran').innerText = formatRupiah(d.pengeluaran);
-
-                    // 2. Render Riwayat List
-                    const listContainer = document.getElementById('transaction-list');
-                    listContainer.innerHTML = ''; // Bersihkan list
                     
-                    d.riwayat.forEach(trx => {
-                        // Menentukan warna dan ikon berdasarkan kategori / jenis
-                        let icon = 'fa-receipt'; let bg = 'bg-gray-100'; let color = 'text-gray-500';
-                        let isPemasukan = trx.jenis === 'Pemasukan';
+                    if (role === 'Admin') {
+                        document.getElementById('saldo-title').innerText = filter === 'Semua' ? 'Total Saldo Gabungan' : `Total Saldo ${filter}`;
                         
-                        if(isPemasukan) { icon = 'fa-wallet'; bg = 'bg-indigo-100 dark:bg-indigo-900/30'; color = 'text-income'; }
-                        else if(trx.kategori.toLowerCase().includes('makan')) { icon = 'fa-utensils'; bg = 'bg-orange-100 dark:bg-orange-900/30'; color = 'text-orange-500'; }
-                        else if(trx.kategori.toLowerCase().includes('kendaraan')) { icon = 'fa-car'; bg = 'bg-blue-100 dark:bg-blue-900/30'; color = 'text-blue-500'; }
+                        // Update Opsi Filter agar membaca dari Google Sheets (hanya nama pencatat yang ada di sana)
+                        const selectEl = document.getElementById('admin-filter');
+                        const currentVal = selectEl.value;
+                        selectEl.innerHTML = '<option value="Semua">Semua Pencatat (Gabungan)</option>';
+                        d.pencatatTersedia.forEach(p => {
+                            if(p) selectEl.innerHTML += `<option value="${p}">Data: ${p}</option>`;
+                        });
+                        if(d.pencatatTersedia.includes(currentVal) || currentVal === 'Semua') selectEl.value = currentVal;
+                        
+                    } else {
+                        document.getElementById('saldo-title').innerText = 'Total Saldo Anda';
+                    }
 
-                        const html = `
-                        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl flex justify-between items-center shadow-sm">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-xl ${bg} flex items-center justify-center ${color}"><i class="fa-solid ${icon}"></i></div>
-                                <div>
-                                    <h4 class="text-sm font-semibold truncate w-32">${trx.keterangan}</h4>
-                                    <p class="text-xs text-gray-500">${trx.tanggal} • ${trx.kategori}</p>
+                    // 2. Render Riwayat
+                    const listContainer = document.getElementById('transaction-list');
+                    listContainer.innerHTML = ''; 
+                    
+                    if(d.riwayat.length === 0) {
+                        listContainer.innerHTML = '<p class="text-center text-sm text-gray-400 mt-4">Belum ada transaksi</p>';
+                    } else {
+                        d.riwayat.forEach(trx => {
+                            let icon = 'fa-receipt'; let bg = 'bg-gray-100 dark:bg-slate-700'; let color = 'text-gray-500 dark:text-gray-300';
+                            let isPemasukan = trx.jenis === 'Pemasukan';
+                            
+                            if(isPemasukan) { icon = 'fa-wallet'; bg = 'bg-indigo-100 dark:bg-indigo-900/40'; color = 'text-income'; }
+                            else if(trx.kategori.toLowerCase().includes('makan')) { icon = 'fa-utensils'; bg = 'bg-orange-100 dark:bg-orange-900/40'; color = 'text-orange-500'; }
+                            else if(trx.kategori.toLowerCase().includes('kendaraan')) { icon = 'fa-car'; bg = 'bg-blue-100 dark:bg-blue-900/40'; color = 'text-blue-500'; }
+
+                            // Tampilkan nama pencatat kecil di bawah keterangan khusus Admin "Semua"
+                            let catatanAdmin = (role === 'Admin' && filter === 'Semua') ? `<span class="bg-gray-200 dark:bg-slate-600 px-1.5 py-0.5 rounded text-[9px] ml-1">${trx.pencatat}</span>` : '';
+
+                            const html = `
+                            <div class="bg-white dark:bg-slate-800 p-4 rounded-xl flex justify-between items-center shadow-sm border border-gray-100 dark:border-slate-700">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-xl ${bg} flex items-center justify-center ${color} min-w-[40px]"><i class="fa-solid ${icon}"></i></div>
+                                    <div class="overflow-hidden">
+                                        <h4 class="text-sm font-semibold truncate flex items-center">${trx.keterangan} ${catatanAdmin}</h4>
+                                        <p class="text-xs text-gray-500 truncate">${trx.tanggal} • ${trx.kategori}</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <p class="text-sm font-bold ${isPemasukan ? 'text-neon' : 'text-danger'}">
-                                ${isPemasukan ? '+' : '-'} ${formatRupiah(trx.nominal)}
-                            </p>
-                        </div>`;
-                        listContainer.innerHTML += html;
-                    });
+                                <p class="text-sm font-bold ${isPemasukan ? 'text-neon' : 'text-danger'} whitespace-nowrap pl-2">
+                                    ${isPemasukan ? '+' : '-'} ${formatRupiah(trx.nominal)}
+                                </p>
+                            </div>`;
+                            listContainer.innerHTML += html;
+                        });
+                    }
 
                     // 3. Render Grafik
                     renderChart(d.grafikLabels, d.grafikData);
-
-                    // Tampilkan konten
                     document.getElementById('loading-data').classList.add('hidden');
                     document.getElementById('dashboard-content').classList.remove('hidden');
                 }
             } catch (err) {
-                alert('Gagal mengambil data dari Spreadsheet');
+                alert('Gagal mengambil data. Pastikan koneksi internet lancar.');
             }
         }
 
@@ -230,10 +312,14 @@
         }
 
         function logout() {
+            localStorage.removeItem('fw_session'); // Hapus sesi
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
             document.getElementById('dashboard-page').classList.add('hidden');
+            document.getElementById('dashboard-page').classList.remove('flex');
             document.getElementById('login-page').classList.remove('hidden');
+            document.getElementById('dashboard-content').classList.add('hidden');
+            document.getElementById('admin-filter-container').classList.add('hidden');
         }
     </script>
 </body>
