@@ -15,6 +15,7 @@
       background-color: #111827;
       color: #f3f4f6;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      transition: background-color 0.3s, color 0.3s;
     }
     /* Mengunci text keterangan agar tidak merusak nominal rupiah */
     .text-truncate-custom {
@@ -25,9 +26,59 @@
       text-overflow: ellipsis;
       max-width: 140px;
     }
+
+    /* ================= SYSTEM LIGHT MODE OVERRIDES ================= */
+    body.light-mode {
+      background-color: #f3f4f6;
+      color: #1f2937;
+    }
+    body.light-mode .bg-gray-800 {
+      background-color: #ffffff !important;
+      border-color: #d1d5db !important;
+      color: #1f2937 !important;
+    }
+    body.light-mode .bg-gray-800\/60 {
+      background-color: rgba(255, 255, 255, 0.8) !important;
+      border-color: #e5e7eb !important;
+    }
+    body.light-mode .bg-gray-900 {
+      background-color: #f9fafb !important;
+      border-color: #d1d5db !important;
+      color: #111827 !important;
+    }
+    body.light-mode .bg-gray-900\/90 {
+      background-color: rgba(255, 255, 255, 0.95) !important;
+      border-color: #e5e7eb !important;
+    }
+    body.light-mode .text-white {
+      color: #111827 !important;
+    }
+    body.light-mode .text-gray-400 {
+      color: #4b5563 !important;
+    }
+    body.light-mode .text-gray-200 {
+      color: #1f2937 !important;
+    }
+    body.light-mode .text-gray-300 {
+      color: #374151 !important;
+    }
+    body.light-mode .bg-gray-700 {
+      background-color: #e5e7eb !important;
+      color: #374151 !important;
+    }
+    body.light-mode #bottomNav button.text-gray-500:hover {
+      color: #1f2937 !important;
+    }
   </style>
 </head>
 <body class="pb-24">
+
+  <!-- Tombol Tema Pojok Kanan Atas (Untuk Halaman Login) -->
+  <div id="themeToggleContainerLogin" class="absolute top-4 right-4 z-50">
+    <button onclick="toggleTheme()" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 border border-gray-700 cursor-pointer hover:text-white transition shadow-md">
+      <i class="fa-solid fa-sun" id="themeIconLogin"></i>
+    </button>
+  </div>
 
   <!-- ================= FORM LOGIN ================= -->
   <div id="loginPage" class="min-h-screen flex flex-col items-center justify-center px-4">
@@ -42,7 +93,13 @@
       </div>
       <div class="mb-6">
         <label class="block text-xs text-gray-400 mb-1">Kata Sandi</label>
-        <input type="password" id="passwordInput" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500" placeholder="••••••••">
+        <div class="relative">
+          <input type="password" id="passwordInput" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 pr-10 text-white focus:outline-none focus:border-emerald-500" placeholder="••••••••">
+          <!-- Tombol Intip Password -->
+          <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none cursor-pointer">
+            <i id="passwordIcon" class="fa-solid fa-eye"></i>
+          </button>
+        </div>
       </div>
       <button onclick="prosesLogin()" id="btnLogin" class="w-full bg-emerald-500 hover:bg-emerald-600 font-semibold py-3 rounded-xl transition duration-200 cursor-pointer">
         Masuk
@@ -62,8 +119,14 @@
           <span id="badgeRole" class="text-[10px] uppercase font-extrabold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">User</span>
         </div>
       </div>
-      <div class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-emerald-400 border border-gray-700">
-        <i class="fa-solid fa-user text-lg"></i>
+      <div class="flex items-center gap-2">
+        <!-- Tombol Tema di Halaman Utama -->
+        <button onclick="toggleTheme()" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 border border-gray-700 cursor-pointer hover:text-white transition">
+          <i class="fa-solid fa-sun" id="themeIconMain"></i>
+        </button>
+        <div class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-emerald-400 border border-gray-700">
+          <i class="fa-solid fa-user text-lg"></i>
+        </div>
       </div>
     </div>
 
@@ -96,7 +159,7 @@
       </div>
     </div>
 
-    <!-- SINKRONISASI LOADING SCREEN (SUDAH DI FIX TENGAH SIMETRIS) -->
+    <!-- SINKRONISASI LOADING SCREEN (FIX TENGAH SIMETRIS) -->
     <div id="loadingState" class="flex flex-col items-center justify-center py-12 space-y-3">
       <div class="animate-spin rounded-full h-8 w-8 border-4 border-emerald-500 border-t-transparent"></div>
       <p class="text-sm text-gray-400 font-medium">Sinkronisasi data...</p>
@@ -173,15 +236,17 @@
 
   <!-- ================= CORE JAVASCRIPT LOGIC ================= -->
   <script>
-    // URL ASLI MILIK MAS FIRMAN SUDAH TERPASANG DI SINI
+    // URL ASLI MILIK MAS FIRMAN SAKTI
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzGOv26svKIlGAJg7pmzVfixFVPYtdAPjX9X8g2qYcGK8cwa0dNJTfjAUc2qNsXtQ/exec";
 
     let sessionUser = localStorage.getItem("app_user") || "";
     let sessionRole = localStorage.getItem("app_role") || "User";
     let chartInstance = null;
 
-    // Otomatis deteksi bulan berjalan sebagai default filter awal (Format: "01" s/d "12")
+    // Otomatis deteksi tema dan bulan berjalan saat pertama kali dimuat
     window.addEventListener("DOMContentLoaded", () => {
+      applyTheme();
+
       const currentMonthIndex = new Date().getMonth() + 1;
       const currentMonthStr = (currentMonthIndex < 10 ? "0" : "") + currentMonthIndex;
       document.getElementById("filterBulan").value = currentMonthStr;
@@ -190,6 +255,52 @@
         renderTampilanAplikasi();
       }
     });
+
+    // --- 1. FITUR SHOW / HIDE PASSWORD ---
+    function togglePasswordVisibility() {
+      const passInput = document.getElementById("passwordInput");
+      const passIcon = document.getElementById("passwordIcon");
+      if (passInput.type === "password") {
+        passInput.type = "text";
+        passIcon.classList.remove("fa-eye");
+        passIcon.classList.add("fa-eye-slash");
+      } else {
+        passInput.type = "password";
+        passIcon.classList.remove("fa-eye-slash");
+        passIcon.classList.add("fa-eye");
+      }
+    }
+
+    // --- 2. FITUR LIGHT MODE / DARK MODE AUTOMATIC ---
+    function applyTheme() {
+      const currentTheme = localStorage.getItem("app_theme") || "dark";
+      const iconLogin = document.getElementById("themeIconLogin");
+      const iconMain = document.getElementById("themeIconMain");
+      
+      if (currentTheme === "light") {
+        document.body.classList.add("light-mode");
+        if(iconLogin) { iconLogin.className = "fa-solid fa-moon"; }
+        if(iconMain) { iconMain.className = "fa-solid fa-moon"; }
+      } else {
+        document.body.classList.remove("light-mode");
+        if(iconLogin) { iconLogin.className = "fa-solid fa-sun"; }
+        if(iconMain) { iconMain.className = "fa-solid fa-sun"; }
+      }
+    }
+
+    function toggleTheme() {
+      const currentTheme = localStorage.getItem("app_theme") || "dark";
+      if (currentTheme === "dark") {
+        localStorage.setItem("app_theme", "light");
+      } else {
+        localStorage.setItem("app_theme", "dark");
+      }
+      applyTheme();
+      // Otomatis gambar ulang grafik agar warna teks dan grid menyesuaikan mode tema baru
+      if (sessionUser && chartInstance) {
+        muatDataKeuangan();
+      }
+    }
 
     function formatRupiah(angka) {
       let isNegatif = angka < 0;
@@ -233,6 +344,7 @@
 
     function renderTampilanAplikasi() {
       document.getElementById("loginPage").classList.add("hidden");
+      document.getElementById("themeToggleContainerLogin").classList.add("hidden");
       document.getElementById("mainPage").classList.remove("hidden");
       document.getElementById("bottomNav").classList.remove("hidden");
 
@@ -264,12 +376,10 @@
         .then(res => res.json())
         .then(res => {
           if (res.status === "success") {
-            // Pasang Total Ringkasan
             document.getElementById("txtSisaSaldo").innerText = "Rp " + res.data.sisa.toLocaleString("id-ID");
             document.getElementById("txtPemasukan").innerText = "Rp " + res.data.pemasukan.toLocaleString("id-ID");
             document.getElementById("txtPengeluaran").innerText = "Rp " + res.data.pengeluaran.toLocaleString("id-ID");
 
-            // Update Opsi Dropdown Admin jika belum ada
             if (sessionRole === "Admin") {
               const dropdown = document.getElementById("filterPencatat");
               const currentVal = dropdown.value;
@@ -283,7 +393,6 @@
               dropdown.value = currentVal;
             }
 
-            // Render Daftar 5 Transaksi Terakhir (Perbaikan bug teks terpotong & format DD/MM/YY)
             const boxTrx = document.getElementById("listTransaksi");
             boxTrx.innerHTML = "";
 
@@ -320,7 +429,6 @@
               });
             }
 
-            // Render Ulang Grafik Batang/Garis Tren Pengeluaran (Format DD/MM)
             buildChart(res.data.grafikLabels, res.data.grafikData);
 
             loadEl.classList.add("hidden");
@@ -338,6 +446,12 @@
       if (chartInstance) {
         chartInstance.destroy();
       }
+
+      // Deteksi tema untuk penyesuaian warna tulisan & garis di grafik
+      const isLightMode = document.body.classList.contains("light-mode");
+      const gridColor = isLightMode ? 'rgba(209, 213, 219, 0.7)' : 'rgba(55, 65, 81, 0.4)';
+      const labelColor = isLightMode ? '#4b5563' : '#9ca3af';
+
       chartInstance = new Chart(ctx, {
         type: 'line',
         data: {
@@ -359,8 +473,8 @@
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
-            x: { grid: { display: false }, ticks: { color: '#9ca3af', font: { size: 10 } } },
-            y: { grid: { color: 'rgba(55, 65, 81, 0.4)' }, ticks: { display: false } }
+            x: { grid: { display: false }, ticks: { color: labelColor, font: { size: 10 } } },
+            y: { grid: { color: gridColor }, ticks: { display: false } }
           }
         }
       });
