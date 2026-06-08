@@ -28,7 +28,7 @@
             <div class="text-left mb-6 relative">
                 <label class="text-[11px] text-slate-400 font-bold uppercase tracking-wider block mb-1.5">Kata Sandi</label>
                 <input type="password" id="password" placeholder="••••••••" class="w-full bg-slate-950/60 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition-all text-sm">
-                <button type="button" onclick="togglePasswordVisibility()" class="absolute right-4 top-10 text-slate-500 hover:text-white transition">
+                <button type="button" onclick="togglePasswordVisibility()" class="absolute right-4 top-10 text-slate-500 hover:text-white transition cursor-pointer">
                     <i id="toggleIcon" class="fa-solid fa-eye-slash text-sm"></i>
                 </button>
             </div>
@@ -53,4 +53,332 @@
                     </div>
                 </div>
             </div>
-            <button onclick="muatDataKeuangan()" class="w-9 h-9 bg-slate-800 hover:
+            <button onclick="muatDataKeuangan()" class="w-9 h-9 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 rounded-xl flex items-center justify-center transition border border-slate-700/50 cursor-pointer" title="Sinkronisasi Data">
+                <i class="fa-solid fa-rotate text-sm"></i>
+            </button>
+        </header>
+
+        <main class="flex-1 p-4 max-w-md mx-auto w-full space-y-4">
+            
+            <div class="grid grid-cols-1 gap-3">
+                <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800/80 p-5 rounded-2xl relative overflow-hidden shadow-xl">
+                    <p class="text-xs text-slate-400 font-medium">Sisa Saldo Dompet</p>
+                    <h2 id="txtSisa" class="text-2xl font-black text-white mt-1 tracking-tight">Rp 0</h2>
+                    <div class="absolute right-4 bottom-4 w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-400">
+                        <i class="fa-solid fa-scale-balanced text-sm"></i>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-2xl flex flex-col">
+                        <span class="text-[11px] text-slate-400 font-medium flex items-center gap-1.5"><i class="fa-solid fa-circle-arrow-down text-emerald-400 text-[9px]"></i>Pemasukan</span>
+                        <span id="txtPemasukan" class="text-sm font-bold text-emerald-400 mt-1">Rp 0</span>
+                    </div>
+                    <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-2xl flex flex-col">
+                        <span class="text-[11px] text-slate-400 font-medium flex items-center gap-1.5"><i class="fa-solid fa-circle-arrow-up text-rose-400 text-[9px]"></i>Pengeluaran</span>
+                        <span id="txtPengeluaran" class="text-sm font-bold text-rose-400 mt-1">Rp 0</span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/40 border border-slate-800/60 px-4 py-3 rounded-xl flex items-center justify-between text-xs">
+                    <span class="text-slate-400"><i class="fa-solid fa-fire text-rose-500 mr-1.5"></i>Titik Boros:</span>
+                    <span id="txtBorosKategori" class="font-semibold text-slate-200">-</span>
+                </div>
+            </div>
+
+            <div id="menu-home" class="tab-content space-y-4">
+                <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-xl">
+                    <div class="flex items-center justify-between mb-3 px-1">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">Resuman Tren Pengeluaran</h3>
+                        <span class="text-[10px] text-slate-500 bg-slate-950 px-2 py-0.5 rounded-full border border-slate-800">Bulan Ini vs Lalu</span>
+                    </div>
+                    <div class="relative h-56 w-full">
+                        <canvas id="chartTren"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div id="menu-riwayat" class="tab-content hidden space-y-3">
+                <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">Daftar Log Transaksi</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <select id="filterBulan" onchange="saringDataLokal()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-emerald-500">
+                            <option value="Semua">Semua Bulan</option>
+                            <option value="01">Januari</option>
+                            <option value="02">Februari</option>
+                            <option value="03">Maret</option>
+                            <option value="04">April</option>
+                            <option value="05">Mei</option>
+                            <option value="06" selected>Juni</option>
+                            <option value="07">Juli</option>
+                            <option value="08">Agustus</option>
+                            <option value="09">September</option>
+                            <option value="10">Oktober</option>
+                            <option value="11">November</option>
+                            <option value="12">Desember</option>
+                        </select>
+                        <select id="filterKategori" onchange="saringDataLokal()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-emerald-500">
+                            <option value="Semua">Semua Kategori</option>
+                        </select>
+                    </div>
+                    <input type="text" id="cariTransaksi" oninput="saringDataLokal()" placeholder="Cari deskripsi transaksi..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 mb-4 focus:outline-none focus:border-emerald-500">
+                    
+                    <div id="listTransaksi" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+                </div>
+            </div>
+
+            <div id="menu-laporan" class="tab-content hidden text-center py-8 text-xs text-slate-500">
+                <i class="fa-solid fa-chart-pie text-2xl mb-2 text-slate-700 block"></i>
+                Fitur visualisasi grafik donut kategori terboros otomatis berjalan aman.
+            </div>
+
+            <div id="menu-setting" class="tab-content hidden text-center py-8 text-xs text-slate-500">
+                <i class="fa-solid fa-sliders text-2xl mb-2 text-slate-700 block"></i>
+                Pengaturan preferensi profile, keamanan database & aplikasi web.
+            </div>
+
+        </main>
+
+        <nav class="fixed bottom-0 inset-x-0 bg-slate-900/90 backdrop-blur-lg border-t border-slate-800/80 flex justify-around py-3 z-40 max-w-md mx-auto rounded-t-2xl shadow-2xl">
+            <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 text-emerald-400 font-bold text-[10px] tracking-wide w-12 transition cursor-pointer">
+                <i class="fa-solid fa-house text-base"></i><span>Home</span>
+            </button>
+            <button onclick="switchTab('riwayat')" id="nav-riwayat" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-300 text-[10px] tracking-wide w-12 transition cursor-pointer">
+                <i class="fa-solid fa-clock-rotate-left text-base"></i><span>Riwayat</span>
+            </button>
+            <button onclick="switchTab('laporan')" id="nav-laporan" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-300 text-[10px] tracking-wide w-12 transition cursor-pointer">
+                <i class="fa-solid fa-chart-simple text-base"></i><span>Laporan</span>
+            </button>
+            <button onclick="switchTab('setting')" id="nav-setting" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-300 text-[10px] tracking-wide w-12 transition cursor-pointer">
+                <i class="fa-solid fa-gears text-base"></i><span>Setting</span>
+            </button>
+            <button onclick="prosesKeluar()" class="flex flex-col items-center gap-1 text-slate-500 hover:text-rose-400 text-[10px] tracking-wide w-12 transition cursor-pointer">
+                <i class="fa-solid fa-power-off text-base"></i><span>Keluar</span>
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        // Tautan URL Deployment Google Apps Script Aktif milik Anda
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzGOv26svKIlGAJg7pmzVfixFVPYtdAPjX9X8g2qYcGK8cwa0dNJTfjAUc2qNsXtQ/exec";
+        
+        let databaseUtama = [];
+        let objekGrafik = null;
+
+        function togglePasswordVisibility() {
+            const sandi = document.getElementById('password');
+            const ikon = document.getElementById('toggleIcon');
+            if (sandi.type === 'password') {
+                sandi.type = 'text';
+                ikon.classList.replace('fa-eye-slash', 'fa-eye');
+            } else {
+                sandi.type = 'password';
+                ikon.classList.replace('fa-eye', 'fa-eye-slash');
+            }
+        }
+
+        async function prosesLogin() {
+            const userIn = document.getElementById('username').value.trim();
+            const passIn = document.getElementById('password').value.trim();
+            const tombol = document.getElementById('btnLogin');
+
+            if(!userIn || !passIn) {
+                alert("Mohon isi username dan password!");
+                return;
+            }
+
+            tombol.disabled = true;
+            tombol.innerText = "Memverifikasi...";
+
+            try {
+                const respon = await fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(userIn)}&password=${encodeURIComponent(passIn)}`);
+                const hasil = await respon.json();
+
+                if (hasil.status === "success") {
+                    sessionStorage.setItem('app_user', hasil.username);
+                    sessionStorage.setItem('app_role', hasil.role);
+
+                    document.getElementById('loginPage').classList.add('hidden');
+                    document.getElementById('dashboardPage').classList.remove('hidden');
+                    document.getElementById('userDisplay').innerText = hasil.username;
+                    document.getElementById('roleBadge').innerText = hasil.role;
+                    
+                    await muatDataKeuangan();
+                } else {
+                    alert(hasil.message || "Username atau password salah.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Gagal terhubung ke server verifikasi Google.");
+            } finally {
+                tombol.disabled = false;
+                tombol.innerText = "Masuk Ke Dashboard";
+            }
+        }
+
+        async function muatDataKeuangan() {
+            const user = sessionStorage.getItem('app_user') || "Admin";
+            const role = sessionStorage.getItem('app_role') || "Admin";
+            
+            try {
+                const respon = await fetch(`${SCRIPT_URL}?action=getData&username=${encodeURIComponent(user)}&role=${encodeURIComponent(role)}`);
+                const hasil = await respon.json();
+                
+                if(hasil.status === "success" && hasil.data) {
+                    const dataKomplit = hasil.data;
+                    databaseUtama = dataKomplit.riwayatFull || [];
+                    
+                    document.getElementById('txtSisa').innerText = "Rp " + Number(dataKomplit.sisa).toLocaleString('id-ID');
+                    document.getElementById('txtPemasukan').innerText = "Rp " + Number(dataKomplit.pemasukan).toLocaleString('id-ID');
+                    document.getElementById('txtPengeluaran').innerText = "Rp " + Number(dataKomplit.pengeluaran).toLocaleString('id-ID');
+                    
+                    if(dataKomplit.borosNominal > 0) {
+                        document.getElementById('txtBorosKategori').innerText = dataKomplit.borosKategori + " (Rp " + Number(dataKomplit.borosNominal).toLocaleString('id-ID') + ")";
+                    } else {
+                        document.getElementById('txtBorosKategori').innerText = "-";
+                    }
+
+                    bangunGrafikMulti(dataKomplit.grafikLabels, dataKomplit.grafikData, dataKomplit.grafikDataBulanLalu);
+                    perbaruiDaftarKategori(dataKomplit.kategoriTersedia);
+                    saringDataLokal();
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Gagal memuat sinkronisasi data dari Google Sheet.");
+            }
+        }
+
+        function switchTab(namaTab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`menu-${namaTab}`).classList.remove('hidden');
+            
+            document.querySelectorAll('nav button').forEach(btn => {
+                if(btn.id === `nav-${namaTab}`) {
+                    btn.classList.add('text-emerald-400', 'font-bold');
+                    btn.classList.remove('text-slate-500');
+                } else if(btn.id) {
+                    btn.classList.remove('text-emerald-400', 'font-bold');
+                    btn.classList.add('text-slate-500');
+                }
+            });
+        }
+
+        function bangunGrafikMulti(labels, dataIni, dataLalu) {
+            const ctx = document.getElementById('chartTren').getContext('2d');
+            if(objekGrafik) objekGrafik.destroy();
+
+            objekGrafik = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels || [],
+                    datasets: [
+                        {
+                            label: 'Bulan Ini',
+                            data: dataIni || [],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                            borderWidth: 2.5,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#10b981'
+                        },
+                        {
+                            label: 'Bulan Lalu',
+                            data: dataLalu || [],
+                            borderColor: '#64748b',
+                            borderDash: [4, 4],
+                            backgroundColor: 'transparent',
+                            borderWidth: 1.5,
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: { color: '#94a3b8', font: { size: 10 } }
+                        }
+                    },
+                    scales: {
+                        y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 9 } } },
+                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 } } }
+                    }
+                }
+            });
+        }
+
+        function saringDataLokal() {
+            const filterBln = document.getElementById('filterBulan').value;
+            const filterKat = document.getElementById('filterKategori').value;
+            const kataKunci = document.getElementById('cariTransaksi').value.toLowerCase();
+            const kontainer = document.getElementById('listTransaksi');
+            
+            kontainer.innerHTML = "";
+
+            const dataTersaring = databaseUtama.filter(t => {
+                const partTgl = t.tanggal.split('/');
+                const bulanTgl = partTgl[1] || ""; 
+                
+                const cocokBulan = (filterBln === "Semua" || bulanTgl === filterBln);
+                const cocokKategori = (filterKat === "Semua" || t.kategori === filterKat);
+                const cocokTeks = t.keterangan.toLowerCase().includes(kataKunci) || t.kategori.toLowerCase().includes(kataKunci);
+                
+                return cocokBulan && cocokKategori && cocokTeks;
+            });
+
+            if(dataTersaring.length === 0) {
+                kontainer.innerHTML = `<p class="text-center text-xs text-slate-600 py-6">Tidak ada log transaksi cocok</p>`;
+                return;
+            }
+
+            dataTersaring.forEach(t => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between p-3.5 bg-slate-950/40 border border-slate-900 rounded-xl hover:border-slate-800 transition";
+                
+                const isPengeluaran = t.jenis === "Pengeluaran";
+                const warnaNominal = isPengeluaran ? "text-rose-400" : "text-emerald-400";
+                const tanda = isPengeluaran ? "-" : "+";
+
+                item.innerHTML = `
+                    <div>
+                        <p class="text-xs font-bold text-slate-200">${t.keterangan}</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5">${t.tanggal} • <span class="text-slate-400 font-medium">${t.kategori}</span> • <span class="text-slate-500">${t.pencatat}</span></p>
+                    </div>
+                    <p class="text-xs font-black ${warnaNominal}">${tanda}Rp ${Number(t.nominal).toLocaleString('id-ID')}</p>
+                `;
+                kontainer.appendChild(item);
+            });
+        }
+
+        function perbaruiDaftarKategori(listKategori) {
+            const select = document.getElementById('filterKategori');
+            select.innerHTML = `<option value="Semua">Semua Kategori</option>`;
+            if(listKategori && listKategori.length > 0) {
+                listKategori.forEach(k => {
+                    if(k) select.innerHTML += `<option value="${k}">${k}</option>`;
+                });
+            }
+        }
+
+        function prosesKeluar() {
+            if(confirm("Apakah Anda ingin menutup sesi dashboard ini?")) {
+                sessionStorage.clear();
+                document.getElementById('username').value = "";
+                document.getElementById('password').value = "";
+                document.getElementById('dashboardPage').classList.add('hidden');
+                document.getElementById('loginPage').classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
