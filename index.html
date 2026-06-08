@@ -351,14 +351,27 @@
               </button>
             </div>
             
-            <p class="text-[10px] text-secondary-custom text-center mt-3 font-medium">💡 Tema akan tersimpan permanen di memori HP Anda.</p>
+            <p class="text-[10px] text-secondary-custom text-center mt-3 font-medium">💡 Tema dasar di atas akan tersimpan di memori HP Anda.</p>
         </div>
 
-        <!-- Tombol Light/Dark Mode Global -->
+        <!-- 🆕 BARU: TOMBOL SLIDEBAR UNTUK PILIHAN AUTO ATAU MANUAL -->
         <div class="bg-card-custom rounded-2xl p-5 border border-card-custom shadow-md flex items-center justify-between gap-3">
           <div>
-            <h4 class="text-sm font-semibold text-primary-custom">Sistem Mode</h4>
-            <p class="text-[10px] text-secondary-custom mt-0.5">Aktifkan Mode Siang (Light) atau Malam (Dark) secara manual.</p>
+            <h4 class="text-sm font-semibold text-primary-custom">Mode Otomatis (Sistem HP)</h4>
+            <p class="text-[10px] text-secondary-custom mt-0.5">Jika aktif, mode siang/malam akan sinkron otomatis mengikuti pengaturan bawaan HP.</p>
+          </div>
+          <!-- Slider Toggle Switch Container -->
+          <label class="relative inline-flex items-center cursor-pointer select-none shrink-0">
+            <input type="checkbox" id="toggleAutoMode" onchange="handleAutoModeChange()" class="sr-only peer">
+            <div class="w-12 h-6 bg-slate-600 rounded-full relative peer peer-checked:bg-emerald-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-6"></div>
+          </label>
+        </div>
+
+        <!-- Tombol Light/Dark Mode Global Manual -->
+        <div id="manualModeContainer" class="bg-card-custom rounded-2xl p-5 border border-card-custom shadow-md flex items-center justify-between gap-3">
+          <div>
+            <h4 class="text-sm font-semibold text-primary-custom">Kunci Mode Manual</h4>
+            <p id="txtStatusManual" class="text-[10px] text-secondary-custom mt-0.5">Ubah mode siang/malam secara mandiri (Otomatis dinonaktifkan).</p>
           </div>
           <button onclick="toggleLightDarkMode()" class="w-12 h-12 bg-main-custom border border-card-custom rounded-full flex items-center justify-center text-secondary-custom cursor-pointer hover:text-white transition shadow-md">
             <i class="fa-solid fa-sun" id="lightModeIconSetting"></i>
@@ -406,6 +419,7 @@
     let chartBarInstance = null;
     
     let rawRiwayatLengkap = [];
+    let systemMediaListener = null;
 
     window.addEventListener("DOMContentLoaded", () => {
       initThemeEngine();
@@ -420,28 +434,112 @@
       }
     });
 
-    // --- 1. ENGINES INTEGRATED THEMING ---
+    // --- 1. ENGINES INTEGRATED THEMING (DENGAN OPERASI AUTO & MANUAL) ---
     function initThemeEngine() {
       const savedTheme = localStorage.getItem("app_main_theme") || "hybrid";
       applyMainTheme(savedTheme, false);
 
-      const lightModeStat = localStorage.getItem("app_light_mode");
-      if (lightModeStat === "on") {
-        document.body.classList.add("light-mode");
-        applyLightModeIcons("on");
-      } else if (lightModeStat === "off") {
-        document.body.classList.remove("light-mode");
-        applyLightModeIcons("off");
+      // default aplikasi pertama kali buka adalah AUTO (mengikuti sistem HP)
+      const themeMode = localStorage.getItem("app_theme_mode") || "auto"; 
+      const toggleAuto = document.getElementById("toggleAutoMode");
+      const txtStatus = document.getElementById("txtStatusManual");
+
+      if (themeMode === "auto") {
+        if (toggleAuto) toggleAuto.checked = true;
+        if (txtStatus) txtStatus.innerText = "Mode otomatis aktif mengikuti HP Anda.";
+        enableAutoThemeDetection();
       } else {
-        const systemPrefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-        if (systemPrefersLight) {
-            document.body.classList.add("light-mode");
-            applyLightModeIcons("on");
+        if (toggleAuto) toggleAuto.checked = false;
+        if (txtStatus) txtStatus.innerText = "Ubah mode siang/malam secara mandiri (Kunci Manual).";
+        disableAutoThemeDetection();
+        
+        // Jalankan preferensi manual yang tersimpan
+        const lightModeStat = localStorage.getItem("app_light_mode") || "off";
+        if (lightModeStat === "on") {
+          document.body.classList.add("light-mode");
+          applyLightModeIcons("on");
         } else {
-            document.body.classList.remove("light-mode");
-            applyLightModeIcons("off");
+          document.body.classList.remove("light-mode");
+          applyLightModeIcons("off");
         }
       }
+    }
+
+    function handleAutoModeChange() {
+      const toggleAuto = document.getElementById("toggleAutoMode");
+      const txtStatus = document.getElementById("txtStatusManual");
+
+      if (toggleAuto.checked) {
+        localStorage.setItem("app_theme_mode", "auto");
+        if (txtStatus) txtStatus.innerText = "Mode otomatis aktif mengikuti HP Anda.";
+        enableAutoThemeDetection();
+      } else {
+        localStorage.setItem("app_theme_mode", "manual");
+        if (txtStatus) txtStatus.innerText = "Ubah mode siang/malam secara mandiri (Kunci Manual).";
+        disableAutoThemeDetection();
+        
+        // Simpan status class saat slider dimatikan sebagai basis manual
+        const isCurrentlyLight = document.body.classList.contains("light-mode");
+        localStorage.setItem("app_light_mode", isCurrentlyLight ? "on" : "off");
+      }
+      if (sessionUser) muatDataKeuangan();
+    }
+
+    function enableAutoThemeDetection() {
+      // Sinkronisasi instan saat fungsi dijalankan
+      const systemPrefersLight = window.matchMedia('(prefers-color-scheme: light)');
+      if (systemPrefersLight.matches) {
+        document.body.classList.add("light-mode");
+        applyLightModeIcons("on");
+      } else {
+        document.body.classList.remove("light-mode");
+        applyLightModeIcons("off");
+      }
+
+      // Pasang Event Listener Real-Time jika belum terdaftar
+      if (!systemMediaListener) {
+        systemMediaListener = (e) => {
+          if (e.matches) {
+            document.body.classList.add("light-mode");
+            applyLightModeIcons("on");
+          } else {
+            document.body.classList.remove("light-mode");
+            applyLightModeIcons("off");
+          }
+          if (sessionUser) muatDataKeuangan();
+        };
+        window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', systemMediaListener);
+      }
+    }
+
+    function disableAutoThemeDetection() {
+      if (systemMediaListener) {
+        window.matchMedia('(prefers-color-scheme: light)').removeEventListener('change', systemMediaListener);
+        systemMediaListener = null;
+      }
+    }
+
+    function toggleLightDarkMode() {
+      // Jika menekan tombol lingkaran siang/malam, otomatis matikan mode Auto
+      localStorage.setItem("app_theme_mode", "manual");
+      const toggleAuto = document.getElementById("toggleAutoMode");
+      const txtStatus = document.getElementById("txtStatusManual");
+      
+      if (toggleAuto) toggleAuto.checked = false;
+      if (txtStatus) txtStatus.innerText = "Ubah mode siang/malam secara mandiri (Kunci Manual).";
+      disableAutoThemeDetection();
+
+      const isCurrentlyLight = document.body.classList.contains("light-mode");
+      if (isCurrentlyLight) {
+        document.body.classList.remove("light-mode");
+        localStorage.setItem("app_light_mode", "off");
+        applyLightModeIcons("off");
+      } else {
+        document.body.classList.add("light-mode");
+        localStorage.setItem("app_light_mode", "on");
+        applyLightModeIcons("on");
+      }
+      if (sessionUser) muatDataKeuangan();
     }
 
     function applyMainTheme(themeName, reloadData = true) {
@@ -460,20 +558,6 @@
       }
 
       if (sessionUser && reloadData) muatDataKeuangan();
-    }
-
-    function toggleLightDarkMode() {
-      const isCurrentlyLight = document.body.classList.contains("light-mode");
-      if (isCurrentlyLight) {
-        document.body.classList.remove("light-mode");
-        localStorage.setItem("app_light_mode", "off");
-        applyLightModeIcons("off");
-      } else {
-        document.body.classList.add("light-mode");
-        localStorage.setItem("app_light_mode", "on");
-        applyLightModeIcons("on");
-      }
-      if (sessionUser) muatDataKeuangan();
     }
 
     function applyLightModeIcons(status) {
@@ -519,7 +603,6 @@
       const activeView = document.getElementById('view' + targetTab.charAt(0).toUpperCase() + targetTab.slice(1));
       if(activeView) activeView.classList.remove('hidden');
 
-      // ✨ PERBAIKAN UTAMA: Render otomatis data riwayat ketika tab Riwayat dibuka!
       if (targetTab === 'riwayat') {
         prosesFilterSaringRiwayat();
       }
@@ -535,7 +618,7 @@
       const p = document.getElementById("passwordInput").value;
       const btn = document.getElementById("btnLogin");
 
-      if (!u || !p) return alert("Harap isi username dan password!");
+      if (!u || !p) return alert("Harap isi username and password!");
       btn.disabled = true;
       btn.innerText = "Membuka Kunci...";
 
@@ -621,7 +704,6 @@
 
             renderKoleksiTransaksi(rawRiwayatLengkap.slice(0, 5), "listTransaksiHome", false);
             
-            // Render otomatis jika user sedang di tab Riwayat sewaktu filter atas berubah
             if (currentViewId === "viewRiwayat") {
               prosesFilterSaringRiwayat();
             }
