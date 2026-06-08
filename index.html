@@ -14,81 +14,120 @@
   <style>
     /* ================= 1. CORE THEME ENGINE (CSS VARIABLES) ================= */
     
-    /* DEFINISI TOKEN SEMANTIK (Hanya Warna Dasar) */
-    :root {
-      --bg-main: #111827;           /* Gray 900 */
-      --bg-card: #1f2937;           /* Gray 800 */
-      --bg-input: #0f172a;          /* Slate 900 */
-      --text-primary: #f3f4f6;       /* Gray 100 */
-      --text-secondary: #9ca3af;     /* Gray 400 */
-      --border-card: #374151;        /* Gray 700 */
-      --border-focus: #10b981;       /* Emerald 500 */
-      --accent-pemasukan: #10b981;   /* Emerald 500 */
-      --accent-pengeluaran: #f43f5e; /* Rose 500 */
-      --nav-bg: rgba(17, 24, 39, 0.95);
-      --nav-active: #10b981;
-      
-      /* EFEK KHUSUS (Default OFF) */
-      --glass-blur: blur(0px);
-      --glass-bg: var(--bg-card);
-      --card-glow-active: none;
-      --card-border-glow: var(--border-card);
-      --text-glow: none;
-    }
-
-    /* 🟢 TEMA 1: HYBRID GLASS-NEON (DEFAUT & PREFERENSI USER) */
+    /* 🟢 TEMA 1: HYBRID GLASS-NEON (DEFAULT DARK) */
     body[data-theme="hybrid"] {
       --bg-main: #0c111c;
-      --glass-bg: rgba(31, 41, 55, 0.08); /* Transparansi Kaca */
+      --glass-bg: rgba(31, 41, 55, 0.08);
       --glass-blur: blur(16px);
       --bg-card: var(--glass-bg);
+      --bg-input: #0f172a;
       --border-card: rgba(255,255,255,0.06);
+      --border-focus: #10b981;
+      --text-primary: #f3f4f6;
+      --text-secondary: #9ca3af;
+      --accent-pemasukan: #10b981;
+      --accent-pengeluaran: #f43f5e;
+      --nav-bg: rgba(12, 17, 28, 0.95);
+      --nav-active: #10b981;
       --text-glow: 0 0 10px rgba(255,255,255,0.3);
-      
-      /* Glowing Border sesuai Jenis */
       --pemasukan-glow: rgba(52, 211, 153, 0.4);
       --pengeluaran-glow: rgba(244, 63, 94, 0.4);
+      --card-glow-active: none;
     }
 
-    /* 🔵 TEMA 2: CYBER NEON BLUE */
+    /* 🔵 TEMA 2: CYBER NEON BLUE (DARK) */
     body[data-theme="cyber"] {
-      --bg-main: #020617; /* Super Pekat */
-      --bg-card: #0f172a; /* Slate 900 */
+      --bg-main: #020617;
+      --bg-card: #0f172a;
+      --bg-input: #020617;
       --border-card: #334155;
+      --border-focus: #38bdf8;
       --text-primary: #f1f5f9;
       --text-secondary: #64748b;
-      --border-focus: #38bdf8; /* Blue 400 */
       --accent-pemasukan: #38bdf8;
-      --accent-pengeluaran: #ec4899; /* Pink 500 */
+      --accent-pengeluaran: #ec4899;
+      --nav-bg: rgba(2, 6, 23, 0.95);
       --nav-active: #38bdf8;
-      --card-glow-active: 0 0 15px rgba(56, 189, 248, 0.1);
+      --glass-blur: blur(0px);
+      --glass-bg: var(--bg-card);
+      --text-glow: none;
+      --card-glow-active: 0 0 15px rgba(56, 189, 248, 0.15);
     }
 
-    /* 🟡 TEMA 3: EMERALD LUXURY */
+    /* 🟡 TEMA 3: EMERALD LUXURY (DARK) */
     body[data-theme="emerald"] {
-      --bg-main: #022c22; /* Hijau Botol Sangat Tua */
-      --bg-card: #052e16; 
+      --bg-main: #022c22;
+      --bg-card: #052e16;
+      --bg-input: #022c22;
       --border-card: #14532d;
-      --text-primary: #f0fdf4; /* Teks Putih Gading */
+      --border-focus: #fbbf24;
+      --text-primary: #f0fdf4;
       --text-secondary: #a7f3d0;
-      --border-focus: #fbbf24; /* Amber/Emas 400 */
-      --nav-active: #fbbf24;
-      --accent-pemasukan: #22c55e; /* Green 500 */
+      --accent-pemasukan: #22c55e;
       --accent-pengeluaran: #f43f5e;
+      --nav-bg: rgba(2, 44, 34, 0.95);
+      --nav-active: #fbbf24;
+      --glass-blur: blur(0px);
+      --glass-bg: var(--bg-card);
+      --text-glow: none;
+      --card-glow-active: none;
     }
 
-    /* ☀️ OVERRIDE LIGHT MODE GLOBAL */
-    body.light-mode {
+    /* ================= LIGHT MODE VARIATIONS PER THEME ================= */
+    
+    /* ☀️ Hybrid Light: Bersih, Minimalis, Soft Gray */
+    body[data-theme="hybrid"].light-mode {
       --bg-main: #f3f4f6;
       --bg-card: #ffffff;
-      --glass-bg: rgba(255, 255, 255, 0.95);
-      --glass-blur: blur(0px);
       --bg-input: #f9fafb;
-      --text-primary: #111827;
-      --text-secondary: #4b5563;
       --border-card: #e5e7eb;
       --border-focus: #10b981;
+      --text-primary: #111827;
+      --text-secondary: #4b5563;
+      --accent-pemasukan: #10b981;
+      --accent-pengeluaran: #e11d48;
       --nav-bg: rgba(255, 255, 255, 0.95);
+      --nav-active: #10b981;
+      --glass-blur: blur(0px);
+      --glass-bg: var(--bg-card);
+      --text-glow: none;
+      --card-glow-active: none;
+    }
+
+    /* ☀️ Cyber Light: Nuansa Ice Blue & Energetic Pink */
+    body[data-theme="cyber"].light-mode {
+      --bg-main: #f0f4f8;
+      --bg-card: #ffffff;
+      --bg-input: #f8fafc;
+      --border-card: #cbd5e1;
+      --border-focus: #0284c7;
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --accent-pemasukan: #0284c7;
+      --accent-pengeluaran: #db2777;
+      --nav-bg: rgba(240, 244, 248, 0.95);
+      --nav-active: #0284c7;
+      --glass-blur: blur(0px);
+      --glass-bg: var(--bg-card);
+      --text-glow: none;
+      --card-glow-active: 0 4px 12px rgba(2, 132, 199, 0.05);
+    }
+
+    /* ☀️ Emerald Light: Nuansa Mint Segar & Gold Royal */
+    body[data-theme="emerald"].light-mode {
+      --bg-main: #f0fdf4;
+      --bg-card: #ffffff;
+      --bg-input: #f0fdf4;
+      --border-card: #bbf7d0;
+      --border-focus: #d97706;
+      --text-primary: #14532d;
+      --text-secondary: #166534;
+      --accent-pemasukan: #16a34a;
+      --accent-pengeluaran: #dc2626;
+      --nav-bg: rgba(240, 253, 244, 0.95);
+      --nav-active: #d97706;
+      --glass-blur: blur(0px);
+      --glass-bg: var(--bg-card);
       --text-glow: none;
       --card-glow-active: none;
     }
@@ -98,10 +137,9 @@
       background-color: var(--bg-main);
       color: var(--text-primary);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      transition: background-color 0.3s, color 0.3s;
+      transition: background-color 0.3s, color 0.3s, border-color 0.3s;
     }
     
-    /* Utility kelas untuk Tailwind V4 */
     .bg-main-custom { background-color: var(--bg-main) !important; }
     .bg-card-custom { background-color: var(--bg-card) !important; border-color: var(--border-card) !important; box-shadow: var(--card-glow-active); }
     .glass-effect { background-color: var(--glass-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
@@ -115,11 +153,10 @@
     .icon-pemasukan { background-color: color-mix(in srgb, var(--accent-pemasukan) 10%, transparent); color: var(--accent-pemasukan); }
     .icon-pengeluaran { background-color: color-mix(in srgb, var(--accent-pengeluaran) 10%, transparent); color: var(--accent-pengeluaran); }
     
-    /* Glowing Border khusus Hybrid Theme */
-    body[data-theme="hybrid"] .pemasukan-card { border-color: var(--pemasukan-glow) !important; box-shadow: 0 0 15px var(--pemasukan-glow); }
-    body[data-theme="hybrid"] .pengeluaran-card { border-color: var(--pengeluaran-glow) !important; box-shadow: 0 0 15px var(--pengeluaran-glow); }
+    /* Mode Gelap Glow Efek khusus Hybrid */
+    body[data-theme="hybrid"]:not(.light-mode) .pemasukan-card { border-color: var(--pemasukan-glow) !important; box-shadow: 0 0 15px var(--pemasukan-glow); }
+    body[data-theme="hybrid"]:not(.light-mode) .pengeluaran-card { border-color: var(--pengeluaran-glow) !important; box-shadow: 0 0 15px var(--pengeluaran-glow); }
     
-    /* Truncate text */
     .text-truncate-custom { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
   </style>
 </head>
@@ -161,7 +198,7 @@
   <!-- ================= PANEL HALAMAN APLIKASI (SPA) ================= -->
   <div id="mainPage" class="hidden max-w-md mx-auto px-4 pt-6 bg-main-custom">
     
-    <!-- Header Global Pengguna (Global context) -->
+    <!-- Header Global Pengguna -->
     <div class="flex justify-between items-center mb-6 global-header">
       <div>
         <p class="text-xs text-secondary-custom">Selamat datang,</p>
@@ -253,76 +290,75 @@
       <div id="boxRiwayatLengkap" class="space-y-4"></div>
     </div>
 
-    <!-- %%%%%%%%%%%%%%%%% TAB 3: LAPORAN DIAGRAM (Disederhanakan) %%%%%%%%%%%%%%%%% -->
+    <!-- %%%%%%%%%%%%%%%%% TAB 3: LAPORAN DIAGRAM %%%%%%%%%%%%%%%%% -->
     <div id="viewLaporan" class="tab-content hidden space-y-5">
       <h3 class="text-lg font-bold text-primary-custom mb-3">Analisis Laporan</h3>
 
-      <!-- Card Kategori Terboros (Hibrid Glass Neon) -->
+      <!-- Card Kategori Terboros -->
       <div class="bg-card-custom border border-rose-500/30 rounded-2xl p-4 flex items-center gap-4 shadow-md pengeluaran-card">
         <div class="w-12 h-12 rounded-full bg-rose-500/25 flex items-center justify-center text-pengeluaran text-lg"><i class="fa-solid fa-triangle-exclamation"></i></div>
         <div>
           <p class="text-[11px] text-secondary-custom uppercase tracking-wider font-semibold text-truncate-custom">Kategori Terboros Periode</p>
-          <h4 id="txtKategoriTerboros" class="text-base font-bold text-primary-custom mt-0.5 text-truncate-custom text-shadow-glow">-</h4>
+          <h4 id="txtKategoriTerboros" class="text-base font-bold text-primary-custom mt-0.5 text-truncate-custom">-</h4>
           <p id="txtNominalTerboros" class="text-xs text-pengeluaran font-semibold mt-0.5">Rp 0</p>
         </div>
       </div>
 
       <!-- Diagram Lingkaran Kategori -->
       <div class="bg-card-custom rounded-2xl p-4 border border-card-custom shadow-md">
-        <h4 class="text-sm font-semibold text-primary-custom mb-4 text-center text-shadow-glow">Proporsi Kategori Pengeluaran</h4>
+        <h4 class="text-sm font-semibold text-primary-custom mb-4 text-center">Proporsi Kategori Pengeluaran</h4>
         <div class="relative w-full h-56 mx-auto"><canvas id="canvasDonut"></canvas></div>
       </div>
 
       <!-- Diagram Batang Komparatif Bulanan -->
       <div class="bg-card-custom rounded-2xl p-4 border border-card-custom shadow-md">
-        <h4 class="text-sm font-semibold text-primary-custom mb-4 text-center text-shadow-glow">Komparasi Pemasukan vs Pengeluaran (Jan - Des)</h4>
+        <h4 class="text-sm font-semibold text-primary-custom mb-4 text-center">Komparasi Pemasukan vs Pengeluaran (Jan - Des)</h4>
         <div class="relative w-full h-56"><canvas id="canvasBar"></canvas></div>
       </div>
     </div>
 
-    <!-- %%%%%%%%%%%%%%%%% PEMBARUAN VISUAL: TAB 4: SETTING (Menu Tema Pindah Sini) %%%%%%%%%%%%%%%%% -->
+    <!-- %%%%%%%%%%%%%%%%% TAB 4: SETTING %%%%%%%%%%%%%%%%% -->
     <div id="viewSetting" class="tab-content hidden space-y-5">
         <h3 class="text-lg font-bold text-primary-custom">Pengaturan Aplikasi</h3>
 
-        <!-- ***************** AREA BARU KUSTOMISASI TEMA ***************** -->
+        <!-- AREA KUSTOMISASI TEMA -->
         <div class="bg-card-custom rounded-2xl p-5 border border-card-custom shadow-md glass-effect">
             <h3 class="text-sm font-semibold text-primary-custom mb-4 flex items-center gap-2"><i class="fa-solid fa-palette text-pemasukan"></i> Kustomisasi Tema & Visual</h3>
             
             <div class="grid grid-cols-3 gap-3">
               <!-- Opsi 1: Hybrid -->
               <button onclick="applyMainTheme('hybrid')" id="btnThemeHybrid" class="relative group cursor-pointer border-2 p-1 rounded-xl transition border-emerald-500 bg-black/10">
-                <div class="flex flex-col items-center gap-2 rounded-lg p-2 bg-[#0c111c] border border-gray-700 glass-effect">
-                  <div class="w-6 h-6 rounded-full border border-emerald-500 pemasukan-card" style="box-shadow: 0 0 10px rgba(52, 211, 153, 0.4);"></div>
-                  <span class="text-[10px] font-medium text-white">Hybrid Glass</span>
+                <div class="flex flex-col items-center gap-2 rounded-lg p-2 bg-[#0c111c] border border-gray-700">
+                  <div class="w-6 h-6 rounded-full border border-emerald-500 bg-emerald-500/20"></div>
+                  <span class="text-[10px] font-medium text-primary-custom">Hybrid Glass</span>
                 </div>
               </button>
               
               <!-- Opsi 2: Cyber -->
               <button onclick="applyMainTheme('cyber')" id="btnThemeCyber" class="relative group cursor-pointer border-2 p-1 rounded-xl transition border-card-custom bg-black/10">
-                <div class="flex flex-col items-center gap-2 rounded-lg p-2 bg-[#020617] border border-[#334155]" style="box-shadow: 0 0 10px rgba(56, 189, 248, 0.1);">
+                <div class="flex flex-col items-center gap-2 rounded-lg p-2 bg-[#020617] border border-[#334155]">
                   <div class="w-6 h-6 rounded-full border border-[#38bdf8] bg-[#0f172a]"></div>
-                  <span class="text-[10px] font-medium text-white">Cyber Neon</span>
+                  <span class="text-[10px] font-medium text-primary-custom">Cyber Neon</span>
                 </div>
               </button>
               
               <!-- Opsi 3: Emerald -->
               <button onclick="applyMainTheme('emerald')" id="btnThemeEmerald" class="relative group cursor-pointer border-2 p-1 rounded-xl transition border-card-custom bg-black/10">
                 <div class="flex flex-col items-center gap-2 rounded-lg p-2 bg-[#022c22] border border-[#14532d]">
-                  <div class="w-6 h-6 rounded-full bg-[#052e16] border border- amber-400"></div>
-                  <span class="text-[10px] font-medium text-[#f0fdf4]">Emerald Lux</span>
+                  <div class="w-6 h-6 rounded-full bg-[#052e16] border border-amber-400"></div>
+                  <span class="text-[10px] font-medium text-primary-custom">Emerald Lux</span>
                 </div>
               </button>
             </div>
             
             <p class="text-[10px] text-secondary-custom text-center mt-3 font-medium">💡 Tema akan tersimpan permanen di memori HP Anda.</p>
         </div>
-        <!-- ***************** SELESAI AREA TEMA ***************** -->
 
-        <!-- Tombol Light/Dark Mode Global (Disetting sekarang) -->
+        <!-- Tombol Light/Dark Mode Global -->
         <div class="bg-card-custom rounded-2xl p-5 border border-card-custom shadow-md flex items-center justify-between gap-3">
           <div>
-            <h4 class="text-sm font-semibold text-primary-custom text-shadow-glow">Sistem Mode</h4>
-            <p class="text-[10px] text-secondary-custom mt-0.5">Aktifkan Mode Siang atau Malam secara manual.</p>
+            <h4 class="text-sm font-semibold text-primary-custom">Sistem Mode</h4>
+            <p class="text-[10px] text-secondary-custom mt-0.5">Aktifkan Mode Siang (Light) atau Malam (Dark) secara manual.</p>
           </div>
           <button onclick="toggleLightDarkMode()" class="w-12 h-12 bg-main-custom border border-card-custom rounded-full flex items-center justify-center text-secondary-custom cursor-pointer hover:text-white transition shadow-md">
             <i class="fa-solid fa-sun" id="lightModeIconSetting"></i>
@@ -332,7 +368,7 @@
 
   </div>
 
-  <!-- ================= DOCK NAVIGATION BOTTOM (Pembaruan 5 Tab) ================= -->
+  <!-- ================= DOCK NAVIGATION BOTTOM ================= -->
   <div id="bottomNav" class="hidden fixed bottom-0 left-0 right-0 bg-nav-custom glass-effect border-t border-card-custom py-2 z-50">
     <div class="max-w-md mx-auto grid grid-cols-5 items-center text-center">
       <button onclick="switchTab('home')" id="btnTabHome" class="flex flex-col items-center gap-0.5 nav-icon-pemasukan cursor-pointer transition">
@@ -354,7 +390,6 @@
   </div>
 
   <style>
-    /* Utility CSS khusus Navigasi Aktif sesuai Token CSS */
     .bg-nav-custom { background-color: var(--nav-bg) !important; }
     .nav-icon-pemasukan { color: var(--nav-active) !important; text-shadow: var(--text-glow); }
   </style>
@@ -366,18 +401,15 @@
     let sessionUser = localStorage.getItem("app_user") || "";
     let sessionRole = localStorage.getItem("app_role") || "User";
     
-    // Penampung instansiasi grafik agar tidak menumpuk
     let chartLineInstance = null;
     let chartDonutInstance = null;
     let chartBarInstance = null;
     
-    // Master data untuk fitur filter frontend riwayat
     let rawRiwayatLengkap = [];
 
     window.addEventListener("DOMContentLoaded", () => {
       initThemeEngine();
       
-      // Otomatis set bulan berjalan
       const currentMonthIndex = new Date().getMonth() + 1;
       const currentMonthStr = (currentMonthIndex < 10 ? "0" : "") + currentMonthIndex;
       const dropBulan = document.getElementById("filterBulan");
@@ -388,13 +420,11 @@
       }
     });
 
-    // --- 1. ENGINES INTEGRATED THEMING (MULTI-THEME & LIGHT MODE) ---
+    // --- 1. ENGINES INTEGRATED THEMING ---
     function initThemeEngine() {
-      // 🟢 A. Load Tema Utama
-      const savedTheme = localStorage.getItem("app_main_theme") || "hybrid"; // Default Hybrid
-      applyMainTheme(savedTheme, false); // false = jangan muat ulang data dulu saat init
+      const savedTheme = localStorage.getItem("app_main_theme") || "hybrid";
+      applyMainTheme(savedTheme, false);
 
-      // ☀️ B. Load Status Light Mode Manual
       const lightModeStat = localStorage.getItem("app_light_mode");
       if (lightModeStat === "on") {
         document.body.classList.add("light-mode");
@@ -403,7 +433,6 @@
         document.body.classList.remove("light-mode");
         applyLightModeIcons("off");
       } else {
-        // Otomatis deteksi mode dari system HP jika user belum pernah set manual
         const systemPrefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
         if (systemPrefersLight) {
             document.body.classList.add("light-mode");
@@ -413,28 +442,12 @@
             applyLightModeIcons("off");
         }
       }
-      
-      // Standby memantau jika tema HP berubah di tengah jalan (hanya jika user belum set manual)
-      window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
-        if (!localStorage.getItem("app_light_mode")) { 
-          if (e.matches) {
-              document.body.classList.add("light-mode");
-              applyLightModeIcons("on");
-          } else {
-              document.body.classList.remove("light-mode");
-              applyLightModeIcons("off");
-          }
-          if (sessionUser) muatDataKeuangan();
-        }
-      });
     }
 
-    // Fungsi Pengubah Tema Utama (Hybrid, Cyber, Emerald)
     function applyMainTheme(themeName, reloadData = true) {
       document.body.setAttribute('data-theme', themeName);
       localStorage.setItem("app_main_theme", themeName);
       
-      // Update visual border tombol pilihan tema (Sekarang di Setting)
       document.querySelectorAll('#viewSetting [id^="btnTheme"]').forEach(btn => {
         btn.classList.remove('border-emerald-500', 'border-focus-custom');
         btn.classList.add('border-card-custom');
@@ -449,7 +462,6 @@
       if (sessionUser && reloadData) muatDataKeuangan();
     }
 
-    // Fungsi Saklar Light Mode Global
     function toggleLightDarkMode() {
       const isCurrentlyLight = document.body.classList.contains("light-mode");
       if (isCurrentlyLight) {
@@ -468,11 +480,11 @@
       const iconLogin = document.getElementById("lightModeIcon");
       const iconSetting = document.getElementById("lightModeIconSetting");
       if (status === "on") {
-        if(iconLogin) iconLogin.className = "fa-solid fa-moon text-primary-custom text-shadow-glow";
-        if(iconSetting) iconSetting.className = "fa-solid fa-moon text-primary-custom text-shadow-glow";
+        if(iconLogin) iconLogin.className = "fa-solid fa-moon text-primary-custom";
+        if(iconSetting) iconSetting.className = "fa-solid fa-moon text-primary-custom";
       } else {
-        if(iconLogin) iconLogin.className = "fa-solid fa-sun text-primary-custom text-shadow-glow";
-        if(iconSetting) iconSetting.className = "fa-solid fa-sun text-primary-custom text-shadow-glow";
+        if(iconLogin) iconLogin.className = "fa-solid fa-sun text-primary-custom";
+        if(iconSetting) iconSetting.className = "fa-solid fa-sun text-primary-custom";
       }
     }
 
@@ -488,18 +500,15 @@
       }
     }
 
-    // --- 2. SINGLE PAGE APPLICATION (SPA) NAVIGATION TAB (Pembaruan 5 Tab) ---
+    // --- 2. SINGLE PAGE APPLICATION (SPA) NAVIGATION TAB ---
     function switchTab(targetTab) {
-      // Sembunyikan semua tab content
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       
-      // Update visual tombol navigasi (kembalikan ke default secondary)
       document.querySelectorAll('#bottomNav button').forEach(btn => {
         btn.classList.remove('nav-icon-pemasukan');
         btn.classList.add('text-secondary-custom');
       });
 
-      // Aktifkan tab dan tombol yang dipilih
       const activeBtnId = "btnTab" + targetTab.charAt(0).toUpperCase() + targetTab.slice(1);
       const activeBtn = document.getElementById(activeBtnId);
       if(activeBtn) {
@@ -509,14 +518,16 @@
 
       const activeView = document.getElementById('view' + targetTab.charAt(0).toUpperCase() + targetTab.slice(1));
       if(activeView) activeView.classList.remove('hidden');
+
+      // ✨ PERBAIKAN UTAMA: Render otomatis data riwayat ketika tab Riwayat dibuka!
+      if (targetTab === 'riwayat') {
+        prosesFilterSaringRiwayat();
+      }
     }
 
     function formatRupiah(angka, denganJenis = true) {
-      let isNegatif = angka < 0;
       let absolut = Math.abs(angka);
-      let formatted = "Rp " + absolut.toLocaleString("id-ID");
-      if (!denganJenis) return formatted;
-      return isNegatif ? formatted : formatted; // Sesuai kesepakatan tidak pakai +/-
+      return "Rp " + absolut.toLocaleString("id-ID");
     }
 
     function prosesLogin() {
@@ -563,7 +574,7 @@
       if (sessionRole === "Admin") {
         document.getElementById("adminFilterContainer").classList.remove("hidden");
       }
-      switchTab('home'); // Beralih ke Home sebagai default
+      switchTab('home');
       muatDataKeuangan();
     }
 
@@ -572,7 +583,6 @@
       const loadEl = document.getElementById("loadingState");
       const currentViewId = document.querySelector('.tab-content:not(.hidden)').id;
       
-      // Matikan view content sementara untuk loading
       document.getElementById(currentViewId).classList.add("hidden");
       loadEl.classList.remove("hidden");
       
@@ -586,13 +596,10 @@
         .then(res => res.json())
         .then(res => {
           if (res.status === "success") {
-            // Pasang Dashboard Atas
             document.getElementById("txtSisaSaldo").innerText = formatRupiah(res.data.sisa, false);
-            // Pemasukan Visual = Pemasukan baru + sisa bulan lalu (pajangan saja)
             document.getElementById("txtPemasukan").innerText = formatRupiah(res.data.pemasukan, false);
             document.getElementById("txtPengeluaran").innerText = formatRupiah(res.data.pengeluaran, false);
 
-            // Pasang Dropdown Admin
             if (sessionRole === "Admin" && document.getElementById("filterPencatat")) {
               const dropdown = document.getElementById("filterPencatat");
               if(dropdown.innerHTML === "") {
@@ -603,31 +610,29 @@
               }
             }
 
-            // Simpan master untuk Tab Riwayat
             rawRiwayatLengkap = res.data.riwayatFull;
             
-            // Pasang Dropdown Kategori di Tab Riwayat
             const dropKat = document.getElementById("dropdownKategoriRiwayat");
-            if(dropKat) {
-                dropKat.innerHTML = '<option value="Semua">Semua Jenis Kategori</option>';
+            if(dropKat && dropKat.innerHTML === '<option value="Semua">Semua Jenis Kategori</option>') {
                 res.data.kategoriTersedia.forEach(k => {
                   dropKat.innerHTML += `<option value="${k}">${k}</option>`;
                 });
             }
 
-            // Render Dashboard Riwayat (5 Teratas)
             renderKoleksiTransaksi(rawRiwayatLengkap.slice(0, 5), "listTransaksiHome", false);
             
-            // Render Laporan Sorotan Terboros (Hibrid Neon Coral)
+            // Render otomatis jika user sedang di tab Riwayat sewaktu filter atas berubah
+            if (currentViewId === "viewRiwayat") {
+              prosesFilterSaringRiwayat();
+            }
+
             document.getElementById("txtKategoriTerboros").innerText = res.data.borosKategori;
             document.getElementById("txtNominalTerboros").innerText = "Total: " + formatRupiah(res.data.borosNominal, false);
 
-            // Render Semua Grafik
             buildLineChart(res.data.grafikLabels, res.data.grafikData);
             buildDonutChart(res.data.donutLabels, res.data.donutData);
             buildBarChart(res.data.barPem, res.data.barPeng);
 
-            // Tampilkan kembali content
             loadEl.classList.add("hidden");
             const activeView = document.getElementById(currentViewId);
             if(activeView) activeView.classList.remove("hidden");
@@ -644,10 +649,6 @@
 
     // --- 4. LOGIKA FILTRASI & GROUPING TANGGAL (TAB RIWAYAT) ---
     function prosesFilterSaringRiwayat() {
-      if (rawRiwayatLengkap.length === 0 && document.getElementById('mainPage').classList.contains('hidden') === false) {
-          // muatDataKeuangan(); // Jangan auto load, biar user klik filter lagi
-      }
-      
       const keyword = document.getElementById("searchRiwayat").value.toLowerCase().trim();
       const dropKatRiwayat = document.getElementById("dropdownKategoriRiwayat");
       const kategoriSelected = dropKatRiwayat ? dropKatRiwayat.value : "Semua";
@@ -675,19 +676,18 @@
       dataArr.forEach(item => {
         let isMin = item.jenis === "Pengeluaran";
         let colorNominal = isMin ? "text-pengeluaran" : "text-pemasukan";
-        let cardJenisClass = isMin ? "pengeluaran-card" : "pemasukan-card"; // Khusus Hybrid glow
+        let cardJenisClass = isMin ? "pengeluaran-card" : "pemasukan-card";
         
         let iconCat = isMin ? "fa-solid fa-utensils text-orange-400" : "fa-solid fa-money-bill-trend-up text-amber-400";
         if(item.kategori.toLowerCase().includes("komisi") || item.kategori.toLowerCase().includes("gaji") || item.kategori.toLowerCase().includes("tambahan")) iconCat = "fa-solid fa-wallet text-amber-400";
         if(item.kategori.toLowerCase().includes("lain")) iconCat = "fa-solid fa-file-lines text-slate-400";
         if(item.kategori.toLowerCase().includes("kendaraan") || item.kategori.toLowerCase().includes("bensin")) iconCat = "fa-solid fa-car text-blue-400";
 
-        // Sisipkan Header Grouping Tanggal jika diaktifkan (Untuk Tab Riwayat Lengkap)
         if (gunakanGroupingTanggal && item.tanggal !== lastDateGroup) {
           lastDateGroup = item.tanggal;
           container.innerHTML += `
             <div class="flex items-center gap-2 pt-2 pb-1 date-group-header">
-              <span class="text-xs font-bold tracking-wide icon-pemasukan border border-card-custom px-2.5 py-0.5 rounded-full text-shadow-glow">${lastDateGroup}</span>
+              <span class="text-xs font-bold tracking-wide icon-pemasukan border border-card-custom px-2.5 py-0.5 rounded-full">${lastDateGroup}</span>
               <div class="h-[1px] border-card-custom border-t flex-1 opacity-60"></div>
             </div>
           `;
@@ -699,22 +699,20 @@
               <div class="w-9 h-9 bg-main-custom rounded-xl flex items-center justify-center text-xs shrink-0 border border-card-custom"><i class="${iconCat}"></i></div>
               <div class="min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <h4 class="text-xs font-semibold text-primary-custom text-truncate-custom text-shadow-glow" title="${item.keterangan}">${item.keterangan || item.kategori}</h4>
+                  <h4 class="text-xs font-semibold text-primary-custom text-truncate-custom" title="${item.keterangan}">${item.keterangan || item.kategori}</h4>
                   <span class="text-[8px] bg-main-custom border border-card-custom px-1 py-0.2 rounded text-secondary-custom font-medium shrink-0">${item.pencatat}</span>
                 </div>
-                <p class="text-[10px] text-secondary-custom mt-0.5 text-shadow-glow text-truncate-custom">${gunakanGroupingTanggal ? '' : item.tanggal + ' • '}${item.kategori}</p>
+                <p class="text-[10px] text-secondary-custom mt-0.5 text-truncate-custom">${gunakanGroupingTanggal ? '' : item.tanggal + ' • '}${item.kategori}</p>
               </div>
             </div>
-            <span class="text-xs font-bold tracking-wide shrink-0 ${colorNominal} text-shadow-glow">${formatRupiah(isMin ? item.nominal : item.nominal)}</span>
+            <span class="text-xs font-bold tracking-wide shrink-0 ${colorNominal}">${formatRupiah(isMin ? item.nominal : item.nominal)}</span>
           </div>
         `;
         container.innerHTML += htmlCard;
       });
     }
 
-    // --- 5. ENGINES GRAFIK COMPONENT (CHART.JS DENGAN TEMA) ---
-    
-    // Fungsi pembantu mengambil warna dari Tema CSS untuk Chart.js
+    // --- 5. ENGINES GRAFIK COMPONENT ---
     function getThemeVar(varName) {
       return getComputedStyle(document.body).getPropertyValue(varName).trim();
     }
@@ -732,7 +730,7 @@
         data: {
           labels: labels,
           datasets: [{
-            data: data, borderColor: colorMin, backgroundColor: colorMin + '1A', // Opacity 10%
+            data: data, borderColor: colorMin, backgroundColor: colorMin + '1A',
             borderWidth: 2, pointBackgroundColor: colorMin, pointRadius: 3, tension: 0.4, fill: true
           }]
         },
@@ -757,7 +755,6 @@
       
       if(labels.length === 0) { labels = ["Belum Ada Data"]; data = [1]; }
 
-      // Palet warna donut neon sesuai tema hibrid/cyber
       const neonPalette = ['#38bdf8', '#34d399', '#fbbf24', '#ec4899', '#8b5cf6', '#f43f5e', '#94a3b8'];
 
       chartDonutInstance = new Chart(donutCanvas.getContext("2d"), {
@@ -812,7 +809,6 @@
     }
 
     function prosesKeluar() {
-      // Hapus data krusial, tapi simpan data TEMA preference user
       localStorage.removeItem("app_user");
       localStorage.removeItem("app_role");
       location.reload();
