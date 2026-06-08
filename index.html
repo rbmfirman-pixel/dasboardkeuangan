@@ -287,4 +287,243 @@
         <i class="fa-solid fa-gear text-lg"></i><span class="text-[10px] font-medium">Setting</span>
       </button>
       <button onclick="prosesKeluar()" class="flex flex-col items-center gap-0.5 text-secondary-custom hover:text-pengeluaran transition">
-        <i class="fa-solid fa-right-from-bracket text-lg"></i><span class="text-[10px] font-medium
+        <i class="fa-solid fa-right-from-bracket text-lg"></i><span class="text-[10px] font-medium">Keluar</span>
+      </button>
+    </div>
+  </div>
+
+  <style>
+    .bg-nav-custom { background-color: var(--nav-bg) !important; }
+    .nav-icon-pemasukan { color: var(--nav-active) !important; text-shadow: var(--text-glow); }
+  </style>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzGOv26svKIlGAJg7pmzVfixFVPYtdAPjX9X8g2qYcGK8cwa0dNJTfjAUc2qNsXtQ/exec";
+
+    let sessionUser = localStorage.getItem("app_user") || "";
+    let sessionRole = localStorage.getItem("app_role") || "User";
+    
+    let chartLineInstance = null;
+    let chartDonutInstance = null;
+    let chartBarInstance = null;
+    let rawRiwayatLengkap = [];
+
+    window.addEventListener("DOMContentLoaded", () => {
+      applyMainTheme(localStorage.getItem("app_main_theme") || "hybrid", false);
+      if (localStorage.getItem("app_light_mode") === "on") document.body.classList.add("light-mode");
+      
+      const currentMonthIndex = new Date().getMonth() + 1;
+      const currentMonthStr = (currentMonthIndex < 10 ? "0" : "") + currentMonthIndex;
+      
+      if(document.getElementById("filterBulanHome")) document.getElementById("filterBulanHome").value = currentMonthStr;
+      if(document.getElementById("filterBulan")) document.getElementById("filterBulan").value = currentMonthStr;
+
+      if (sessionUser) renderTampilanAplikasi();
+    });
+
+    function toggleLightDarkMode() {
+      const isLight = document.body.classList.toggle("light-mode");
+      localStorage.setItem("app_light_mode", isLight ? "on" : "off");
+      if (sessionUser) muatDataKeuangan();
+    }
+
+    function applyMainTheme(theme, reload = true) {
+      document.body.setAttribute('data-theme', theme);
+      localStorage.setItem("app_main_theme", theme);
+      document.querySelectorAll('#viewSetting [id^="btnTheme"]').forEach(b => b.className = "border-2 p-1 rounded-xl bg-black/10 border-card-custom");
+      const activeBtn = document.getElementById("btnTheme" + theme.charAt(0).toUpperCase() + theme.slice(1));
+      if (activeBtn) activeBtn.className = "border-2 p-1 rounded-xl bg-black/10 border-emerald-500";
+      if (sessionUser && reload) muatDataKeuangan();
+    }
+
+    function togglePasswordVisibility() {
+      const p = document.getElementById("passwordInput");
+      const i = document.getElementById("passwordIcon");
+      p.type = p.type === "password" ? "text" : "password";
+      i.className = p.type === "password" ? "fa-solid fa-eye" : "fa-solid fa-eye-slash";
+    }
+
+    function switchTab(target) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('#bottomNav button').forEach(b => { b.classList.remove('nav-icon-pemasukan'); b.classList.add('text-secondary-custom'); });
+      
+      const activeBtn = document.getElementById("btnTab" + target.charAt(0).toUpperCase() + target.slice(1));
+      if(activeBtn) { activeBtn.classList.remove('text-secondary-custom'); activeBtn.classList.add('nav-icon-pemasukan'); }
+      
+      const view = document.getElementById('view' + target.charAt(0).toUpperCase() + target.slice(1));
+      if(view) view.classList.remove('hidden');
+      if (target === 'riwayat') prosesFilterSaringRiwayat();
+    }
+
+    function syncSelectedMonth(source) {
+      const homeVal = document.getElementById("filterBulanHome").value;
+      const riwayatVal = document.getElementById("filterBulan").value;
+      if (source === 'home') document.getElementById("filterBulan").value = homeVal;
+      else document.getElementById("filterBulanHome").value = riwayatVal;
+      muatDataKeuangan();
+    }
+
+    function formatRupiah(num) {
+      return "Rp " + Math.abs(num).toLocaleString("id-ID");
+    }
+
+    function prosesLogin() {
+      const u = document.getElementById("usernameInput").value.trim();
+      const p = document.getElementById("passwordInput").value;
+      if (!u || !p) return alert("Isi lengkap username dan password!");
+
+      document.getElementById("btnLogin").innerText = "Membuka Kunci...";
+      
+      fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}`)
+        .then(res => res.json())
+        .then(res => {
+          if (res.status === "success") {
+            localStorage.setItem("app_user", res.username);
+            localStorage.setItem("app_role", res.role);
+            sessionUser = res.username; sessionRole = res.role;
+            renderTampilanAplikasi();
+          } else {
+            alert("Login Gagal!");
+            document.getElementById("btnLogin").innerText = "Masuk";
+          }
+        }).catch((err) => { 
+          console.error("Login Error:", err);
+          alert("Ralat sambungan."); 
+          document.getElementById("btnLogin").innerText = "Masuk"; 
+        });
+    }
+
+    function renderTampilanAplikasi() {
+      document.getElementById("loginPage").classList.add("hidden");
+      document.getElementById("themeToggleContainer").classList.add("hidden");
+      document.getElementById("mainPage").classList.remove("hidden");
+      document.getElementById("bottomNav").classList.remove("hidden");
+      document.getElementById("userDisplay").innerText = sessionUser;
+      document.getElementById("badgeRole").innerText = sessionRole;
+      if (sessionRole === "Admin") document.getElementById("adminFilterContainer").classList.remove("hidden");
+      switchTab('home');
+      muatDataKeuangan();
+    }
+
+    function muatDataKeuangan() {
+      const currentViewId = document.querySelector('.tab-content:not(.hidden)').id;
+      document.getElementById(currentViewId).classList.add("hidden");
+      document.getElementById("loadingState").classList.remove("hidden");
+
+      const pFilter = document.getElementById("filterPencatat") ? document.getElementById("filterPencatat").value : "Semua";
+      const bFilter = document.getElementById("filterBulanHome").value;
+
+      fetch(`${SCRIPT_URL}?action=getData&username=${encodeURIComponent(sessionUser)}&role=${sessionRole}&filterPencatat=${encodeURIComponent(pFilter)}&filterBulan=${bFilter}`)
+        .then(res => res.json())
+        .then(res => {
+          if (res.status === "success") {
+            document.getElementById("txtSisaSaldo").innerText = formatRupiah(res.data.sisa);
+            document.getElementById("txtPemasukan").innerText = formatRupiah(res.data.pemasukan);
+            document.getElementById("txtPengeluaran").innerText = formatRupiah(res.data.pengeluaran);
+
+            if (sessionRole === "Admin" && document.getElementById("filterPencatat") && document.getElementById("filterPencatat").innerHTML === "") {
+              let d = document.getElementById("filterPencatat");
+              d.innerHTML = '<option value="Semua">Semua Pencatat (Gabungan)</option>';
+              res.data.pencatatTersedia.forEach(p => d.innerHTML += `<option value="${p}">${p}</option>`);
+            }
+
+            rawRiwayatLengkap = res.data.riwayatFull;
+            let dk = document.getElementById("dropdownKategoriRiwayat");
+            if(dk && dk.innerHTML === '<option value="Semua">Semua Jenis Kategori</option>') {
+              res.data.kategoriTersedia.forEach(k => dk.innerHTML += `<option value="${k}">${k}</option>`);
+            }
+
+            renderKoleksiTransaksi(rawRiwayatLengkap.slice(0, 5), "listTransaksiHome", false);
+            if (currentViewId === "viewRiwayat") prosesFilterSaringRiwayat();
+
+            document.getElementById("txtKategoriTerboros").innerText = res.data.borosKategori;
+            document.getElementById("txtNominalTerboros").innerText = "Total: " + formatRupiah(res.data.borosNominal);
+
+            buildLineChart(res.data.grafikLabels, res.data.grafikData, res.data.grafikDataBulanLalu);
+            buildDonutChart(res.data.donutLabels, res.data.donutData);
+            buildBarChart(res.data.barPem, res.data.barPeng);
+
+            document.getElementById("loadingState").classList.add("hidden");
+            document.getElementById(currentViewId).classList.remove("hidden");
+          }
+        }).catch((err) => { 
+          console.error("Fetch Data Error:", err);
+          alert("Gagal memuat sinkronisasi data."); 
+        });
+    }
+
+    function prosesFilterSaringRiwayat() {
+      const kw = document.getElementById("searchRiwayat").value.toLowerCase().trim();
+      const kat = document.getElementById("dropdownKategoriRiwayat").value;
+      const filtered = rawRiwayatLengkap.filter(i => {
+        return (i.keterangan.toLowerCase().includes(kw) || i.kategori.toLowerCase().includes(kw)) && (kat === "Semua" || i.kategori === kat);
+      });
+      renderKoleksiTransaksi(filtered, "boxRiwayatLengkap", true);
+    }
+
+    function renderKoleksiTransaksi(arr, target, groupDate) {
+      const container = document.getElementById(target);
+      container.innerHTML = arr.length === 0 ? '<p class="text-xs text-secondary-custom text-center py-6">Tiada transaksi dijumpai.</p>' : "";
+      let lastDate = "";
+
+      arr.forEach(i => {
+        let isMin = i.jenis === "Pengeluaran";
+        if (groupDate && i.tanggal !== lastDate) {
+          lastDate = i.tanggal;
+          container.innerHTML += `<div class="flex items-center gap-2 pt-2 pb-1"><span class="text-xs font-bold icon-pemasukan px-2.5 py-0.5 rounded-full">${lastDate}</span><div class="h-[1px] border-t border-card-custom flex-1 opacity-50"></div></div>`;
+        }
+        container.innerHTML += `
+          <div class="bg-card-custom border border-card-custom rounded-xl p-3 flex items-center justify-between gap-2 shadow-sm">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-9 h-9 bg-main-custom rounded-xl flex items-center justify-center text-xs border border-card-custom">
+                <i class="${isMin ? 'fa-solid fa-utensils text-orange-400' : 'fa-solid fa-wallet text-amber-400'}"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5"><h4 class="text-xs font-semibold text-primary-custom text-truncate-custom">${i.keterangan}</h4></div>
+                <p class="text-[10px] text-secondary-custom mt-0.5">${groupDate ? '' : i.tanggal + ' • '}${i.kategori} [${i.pencatat}]</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold ${isMin ? 'text-pengeluaran' : 'text-pemasukan'}">${formatRupiah(i.nominal)}</span>
+          </div>`;
+      });
+    }
+
+    function getThemeVar(v) { return getComputedStyle(document.body).getPropertyValue(v).trim(); }
+
+    function buildLineChart(labels, ini, lalu) {
+      if (chartLineInstance) chartLineInstance.destroy();
+      chartLineInstance = new Chart(document.getElementById("canvasTren").getContext("2d"), {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'Bulan Ini', data: ini, borderColor: getThemeVar('--accent-pengeluaran'), backgroundColor: getThemeVar('--accent-pengeluaran') + '1A', borderWidth: 2.5, tension: 0.35, fill: true },
+            { label: 'Bulan Lalu', data: lalu, borderColor: getThemeVar('--text-secondary'), borderDash: [5, 5], tension: 0.35, fill: false }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: getThemeVar('--text-secondary'), font: { size: 10 } } } }, scales: { x: { ticks: { color: getThemeVar('--text-secondary'), font: { size: 9 } } }, y: { ticks: { display: false }, grid: { color: getThemeVar('--border-card') + '4D' } } } }
+      });
+    }
+
+    function buildDonutChart(labels, data) {
+      if (chartDonutInstance) chartDonutInstance.destroy();
+      chartDonutInstance = new Chart(document.getElementById("canvasDonut").getContext("2d"), {
+        type: 'doughnut',
+        data: { labels: labels.length ? labels : ["Tiada Data"], datasets: [{ data: data.length ? data : [1], backgroundColor: ['#38bdf8', '#34d399', '#fbbf24', '#ec4899', '#8b5cf6'] }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: getThemeVar('--text-secondary'), font: { size: 9 } } } }, cutout: '65%' }
+      });
+    }
+
+    function buildBarChart(pem, peng) {
+      if (chartBarInstance) chartBarInstance.destroy();
+      chartBarInstance = new Chart(document.getElementById("canvasBar").getContext("2d"), {
+        type: 'bar',
+        data: { labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"], datasets: [{ data: pem, backgroundColor: getThemeVar('--accent-pemasukan') }, { data: peng, backgroundColor: getThemeVar('--accent-pengeluaran') }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: getThemeVar('--text-secondary'), font: { size: 9 } } }, y: { ticks: { display: false }, grid: { color: getThemeVar('--border-card') + '4D' } } } }
+      });
+    }
+
+    function prosesKeluar() { localStorage.removeItem("app_user"); localStorage.removeItem("app_role"); location.reload(); }
+  </script>
+</body>
+</html>
