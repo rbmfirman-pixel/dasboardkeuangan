@@ -3,136 +3,193 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dompet Keluarga</title>
-  <!-- Tailwind CSS -->
+  <title>Dompet Keluarga Pro</title>
+  <!-- Tailwind CSS V4 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <!-- FontAwesome Icon -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
   <style>
+    /* ================= 1. CORE THEME ENGINE (CSS VARIABLES) ================= */
+    
+    /* DEFINISI TOKEN SEMANTIK (Hanya Warna Dasar) */
+    :root {
+      --bg-main: #111827;           /* Gray 900 */
+      --bg-card: #1f2937;           /* Gray 800 */
+      --bg-input: #0f172a;          /* Slate 900 */
+      --text-primary: #f3f4f6;       /* Gray 100 */
+      --text-secondary: #9ca3af;     /* Gray 400 */
+      --border-card: #374151;        /* Gray 700 */
+      --border-focus: #10b981;       /* Emerald 500 */
+      --accent-pemasukan: #10b981;   /* Emerald 500 */
+      --accent-pengeluaran: #f43f5e; /* Rose 500 */
+      --nav-bg: rgba(17, 24, 39, 0.9);
+      --nav-active: #10b981;
+      
+      /* EFEK KHUSUS (Default OFF) */
+      --glass-blur: blur(0px);
+      --glass-bg: var(--bg-card);
+      --card-glow-active: none;
+      --card-border-glow: var(--border-card);
+      --text-glow: none;
+    }
+
+    /* 🟢 TEMA 1: HYBRID GLASS-NEON (DEFAUT & PREFERENSI USER) */
+    body[data-theme="hybrid"] {
+      --bg-main: #0c111c;
+      --glass-bg: rgba(31, 41, 55, 0.08); /* Transparansi Kaca */
+      --glass-blur: blur(16px);
+      --bg-card: var(--glass-bg);
+      --border-card: rgba(255,255,255,0.06);
+      --text-glow: 0 0 10px rgba(255,255,255,0.3);
+      
+      /* Glowing Border sesuai Jenis */
+      --pemasukan-glow: rgba(52, 211, 153, 0.4);
+      --pengeluaran-glow: rgba(244, 63, 94, 0.4);
+    }
+
+    /* 🔵 TEMA 2: CYBER NEON BLUE */
+    body[data-theme="cyber"] {
+      --bg-main: #020617; /* Super Pekat */
+      --bg-card: #0f172a; /* Slate 900 */
+      --border-card: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #64748b;
+      --border-focus: #38bdf8; /* Blue 400 */
+      --accent-pemasukan: #38bdf8;
+      --accent-pengeluaran: #ec4899; /* Pink 500 */
+      --nav-active: #38bdf8;
+      --card-glow-active: 0 0 15px rgba(56, 189, 248, 0.1);
+    }
+
+    /* 🟡 TEMA 3: EMERALD LUXURY */
+    body[data-theme="emerald"] {
+      --bg-main: #022c22; /* Hijau Botol Sangat Tua */
+      --bg-card: #052e16; 
+      --border-card: #14532d;
+      --text-primary: #f0fdf4; /* Teks Putih Gading */
+      --text-secondary: #a7f3d0;
+      --border-focus: #fbbf24; /* Amber/Emas 400 */
+      --nav-active: #fbbf24;
+      --accent-pemasukan: #22c55e; /* Green 500 */
+      --accent-pengeluaran: #f43f5e;
+    }
+
+    /* ☀️ OVERRIDE LIGHT MODE GLOBAL */
+    body.light-mode {
+      --bg-main: #f3f4f6;
+      --bg-card: #ffffff;
+      --glass-bg: rgba(255, 255, 255, 0.95);
+      --glass-blur: blur(0px);
+      --bg-input: #f9fafb;
+      --text-primary: #111827;
+      --text-secondary: #4b5563;
+      --border-card: #e5e7eb;
+      --border-focus: #10b981;
+      --nav-bg: rgba(255, 255, 255, 0.95);
+      --text-glow: none;
+      --card-glow-active: none;
+    }
+
+    /* ================= 2. PENERAPAN GLOBAL TEMA ================= */
     body {
-      background-color: #111827;
-      color: #f3f4f6;
+      background-color: var(--bg-main);
+      color: var(--text-primary);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       transition: background-color 0.3s, color 0.3s;
     }
-    .text-truncate-custom {
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 160px;
-    }
-
-    /* ================= SYSTEM LIGHT MODE OVERRIDES ================= */
-    body.light-mode {
-      background-color: #f3f4f6;
-      color: #1f2937;
-    }
-    body.light-mode .bg-gray-800 {
-      background-color: #ffffff !important;
-      border-color: #d1d5db !important;
-      color: #1f2937 !important;
-    }
-    body.light-mode .bg-gray-800\/60 {
-      background-color: rgba(255, 255, 255, 0.8) !important;
-      border-color: #e5e7eb !important;
-    }
-    body.light-mode .bg-gray-900 {
-      background-color: #f9fafb !important;
-      border-color: #d1d5db !important;
-      color: #111827 !important;
-    }
-    body.light-mode .bg-gray-900\/90 {
-      background-color: rgba(255, 255, 255, 0.95) !important;
-      border-color: #e5e7eb !important;
-    }
-    body.light-mode .text-white {
-      color: #111827 !important;
-    }
-    body.light-mode .text-gray-400 {
-      color: #4b5563 !important;
-    }
-    body.light-mode .text-gray-200 {
-      color: #1f2937 !important;
-    }
-    body.light-mode .text-gray-300 {
-      color: #374151 !important;
-    }
-    body.light-mode .bg-gray-700 {
-      background-color: #e5e7eb !important;
-      color: #374151 !important;
-    }
+    
+    /* Utility kelas untuk Tailwind V4 */
+    .bg-main-custom { background-color: var(--bg-main) !important; }
+    .bg-card-custom { background-color: var(--bg-card) !important; border-color: var(--border-card) !important; box-shadow: var(--card-glow-active); }
+    .glass-effect { background-color: var(--glass-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
+    .text-primary-custom { color: var(--text-primary); text-shadow: var(--text-glow); }
+    .text-secondary-custom { color: var(--text-secondary); }
+    .border-card-custom { border-color: var(--border-card) !important; }
+    .border-focus-custom:focus { border-color: var(--border-focus) !important; outline: none; }
+    .input-custom { background-color: var(--bg-input) !important; border-color: var(--border-card) !important; color: var(--text-primary) !important; }
+    .text-pemasukan { color: var(--accent-pemasukan) !important; }
+    .text-pengeluaran { color: var(--accent-pengeluaran) !important; }
+    .icon-pemasukan { background-color: color-mix(in srgb, var(--accent-pemasukan) 10%, transparent); color: var(--accent-pemasukan); }
+    .icon-pengeluaran { background-color: color-mix(in srgb, var(--accent-pengeluaran) 10%, transparent); color: var(--accent-pengeluaran); }
+    
+    /* Glowing Border khusus Hybrid Theme */
+    body[data-theme="hybrid"] .pemasukan-card { border-color: var(--pemasukan-glow) !important; box-shadow: 0 0 15px var(--pemasukan-glow); }
+    body[data-theme="hybrid"] .pengeluaran-card { border-color: var(--pengeluaran-glow) !important; box-shadow: 0 0 15px var(--pengeluaran-glow); }
+    
+    /* Truncate text */
+    .text-truncate-custom { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
   </style>
 </head>
-<body class="pb-24">
+<body class="pb-24" data-theme="hybrid">
 
-  <!-- Tombol Tema Halaman Login -->
-  <div id="themeToggleContainerLogin" class="absolute top-4 right-4 z-50">
-    <button onclick="toggleThemeManual()" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 border border-gray-700 cursor-pointer hover:text-white transition shadow-md">
-      <i class="fa-solid fa-sun" id="themeIconLogin"></i>
+  <!-- Tombol Light/Dark Mode Manual -->
+  <div id="themeToggleContainer" class="absolute top-4 right-4 z-50">
+    <button onclick="toggleLightDarkMode()" class="w-10 h-10 bg-card-custom rounded-full flex items-center justify-center text-secondary-custom border border-card-custom cursor-pointer hover:text-white transition shadow-md">
+      <i class="fa-solid fa-sun" id="lightModeIcon"></i>
     </button>
   </div>
 
   <!-- ================= FORM LOGIN ================= -->
-  <div id="loginPage" class="min-h-screen flex flex-col items-center justify-center px-4">
-    <div class="w-full max-w-sm bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-700">
-      <div class="flex justify-center mb-4 text-emerald-400 text-4xl">
+  <div id="loginPage" class="min-h-screen flex flex-col items-center justify-center px-4 bg-main-custom">
+    <div class="w-full max-w-sm bg-card-custom rounded-2xl p-6 shadow-xl border border-card-custom">
+      <div class="flex justify-center mb-4 text-pemasukan text-4xl">
         <i class="fa-solid fa-wallet"></i>
       </div>
-      <h2 class="text-2xl font-bold text-center mb-6">Masuk Ke Aplikasi</h2>
+      <h2 class="text-2xl font-bold text-center mb-6 text-primary-custom">Masuk Ke Aplikasi</h2>
       <div class="mb-4">
-        <label class="block text-xs text-gray-400 mb-1">Nama Pengguna</label>
-        <input type="text" id="usernameInput" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500" placeholder="Masukkan username">
+        <label class="block text-xs text-secondary-custom mb-1">Nama Pengguna</label>
+        <input type="text" id="usernameInput" class="w-full input-custom rounded-xl px-4 py-3 border focus:border-emerald-500 border-focus-custom" placeholder="Masukkan username">
       </div>
       <div class="mb-6">
-        <label class="block text-xs text-gray-400 mb-1">Kata Sandi</label>
+        <label class="block text-xs text-secondary-custom mb-1">Kata Sandi</label>
         <div class="relative">
-          <input type="password" id="passwordInput" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 pr-10 text-white focus:outline-none focus:border-emerald-500" placeholder="••••••••">
-          <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none cursor-pointer">
+          <input type="password" id="passwordInput" class="w-full input-custom rounded-xl px-4 py-3 pr-10 border focus:border-emerald-500 border-focus-custom" placeholder="••••••••">
+          <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-custom hover:text-gray-200 cursor-pointer">
             <i id="passwordIcon" class="fa-solid fa-eye"></i>
           </button>
         </div>
       </div>
-      <button onclick="prosesLogin()" id="btnLogin" class="w-full bg-emerald-500 hover:bg-emerald-600 font-semibold py-3 rounded-xl transition duration-200 cursor-pointer">
+      <button onclick="prosesLogin()" id="btnLogin" class="w-full bg-emerald-500 hover:bg-emerald-600 font-semibold py-3 rounded-xl transition duration-200 cursor-pointer text-white">
         Masuk
       </button>
     </div>
   </div>
 
   <!-- ================= PANEL HALAMAN APLIKASI (SPA) ================= -->
-  <div id="mainPage" class="hidden max-w-md mx-auto px-4 pt-6">
+  <div id="mainPage" class="hidden max-w-md mx-auto px-4 pt-6 bg-main-custom">
     
     <!-- Header Global Pengguna -->
     <div class="flex justify-between items-center mb-6">
       <div>
-        <p class="text-xs text-gray-400">Selamat datang,</p>
+        <p class="text-xs text-secondary-custom">Selamat datang,</p>
         <div class="flex items-center gap-2 mt-0.5">
-          <h1 id="userDisplay" class="text-2xl font-bold text-white">-</h1>
-          <span id="badgeRole" class="text-[10px] uppercase font-extrabold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">User</span>
+          <h1 id="userDisplay" class="text-2xl font-bold text-primary-custom">-</h1>
+          <span id="badgeRole" class="text-[10px] uppercase font-extrabold px-2 py-0.5 rounded bg-emerald-500/20 text-pemasukan">User</span>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="toggleThemeManual()" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 border border-gray-700 cursor-pointer hover:text-white transition">
-          <i class="fa-solid fa-sun" id="themeIconMain"></i>
+        <!-- Tombol Light Mode di Main App -->
+        <button onclick="toggleLightDarkMode()" class="w-10 h-10 bg-card-custom rounded-full flex items-center justify-center text-secondary-custom border border-card-custom cursor-pointer hover:text-white transition shadow-md">
+          <i class="fa-solid fa-sun" id="lightModeIconMain"></i>
         </button>
-        <div class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-emerald-400 border border-gray-700">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center icon-pemasukan border border-card-custom">
           <i class="fa-solid fa-user text-lg"></i>
         </div>
       </div>
     </div>
 
     <!-- Filter Global Dashboard -->
-    <div class="bg-gray-800 rounded-2xl p-4 border border-gray-700 mb-5 space-y-3">
+    <div class="bg-card-custom rounded-2xl p-4 border border-card-custom mb-5 space-y-3 shadow-md">
       <div id="adminFilterContainer" class="hidden">
-        <label class="block text-[11px] uppercase tracking-wider text-gray-400 font-semibold mb-1">Tampilan Data</label>
-        <select id="filterPencatat" onchange="muatDataKeuangan()" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500"></select>
+        <label class="block text-[11px] uppercase tracking-wider text-secondary-custom font-semibold mb-1">Tampilan Data</label>
+        <select id="filterPencatat" onchange="muatDataKeuangan()" class="w-full input-custom border border-card-custom rounded-xl px-3 py-2.5 text-sm border-focus-custom"></select>
       </div>
       <div>
-        <label class="block text-[11px] uppercase tracking-wider text-gray-400 font-semibold mb-1">Periode Bulan</label>
-        <select id="filterBulan" onchange="muatDataKeuangan()" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+        <label class="block text-[11px] uppercase tracking-wider text-secondary-custom font-semibold mb-1">Periode Bulan</label>
+        <select id="filterBulan" onchange="muatDataKeuangan()" class="w-full input-custom border border-card-custom rounded-xl px-3 py-2.5 text-sm border-focus-custom">
           <option value="Semua">Sepanjang Tahun (Total)</option>
           <option value="01">Januari</option>
           <option value="02">Februari</option>
@@ -152,58 +209,93 @@
 
     <!-- LOADING SCREEN CENTERED -->
     <div id="loadingState" class="flex flex-col items-center justify-center py-12 space-y-3">
-      <div class="animate-spin rounded-full h-8 w-8 border-4 border-emerald-500 border-t-transparent"></div>
-      <p class="text-sm text-gray-400 font-medium">Sinkronisasi data...</p>
+      <div class="animate-spin rounded-full h-8 w-8 border-4 border-pemasukan border-t-transparent"></div>
+      <p class="text-sm text-secondary-custom font-medium">Sinkronisasi data...</p>
     </div>
 
     <!-- %%%%%%%%%%%%%%%%% TAB 1: HOME %%%%%%%%%%%%%%%%% -->
     <div id="viewHome" class="tab-content hidden space-y-5">
+      
       <!-- Card Ringkasan Saldo -->
-      <div class="bg-gray-800 rounded-2xl p-5 border border-gray-700 shadow-lg">
-        <p class="text-xs text-gray-400 font-medium">Total Saldo Anda</p>
-        <h2 id="txtSisaSaldo" class="text-3xl font-bold text-white mt-1 mb-5">Rp 0</h2>
-        <div class="grid grid-cols-2 gap-4 border-t border-gray-700/60 pt-4">
+      <div class="bg-card-custom rounded-2xl p-5 border border-card-custom shadow-lg">
+        <p class="text-xs text-secondary-custom font-medium">Total Saldo Anda</p>
+        <h2 id="txtSisaSaldo" class="text-3xl font-bold text-primary-custom mt-1 mb-5">Rp 0</h2>
+        <div class="grid grid-cols-2 gap-4 border-t border-card-custom pt-4">
           <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 text-xs"><i class="fa-solid fa-arrow-down"></i></div>
+            <div class="w-8 h-8 rounded-full icon-pemasukan flex items-center justify-center text-xs"><i class="fa-solid fa-arrow-down"></i></div>
             <div>
-              <p class="text-[10px] text-gray-400 uppercase tracking-wide">Pemasukan</p>
-              <p id="txtPemasukan" class="text-sm font-semibold text-white">Rp 0</p>
+              <p class="text-[10px] text-secondary-custom uppercase tracking-wide">Pemasukan + Sisa</p>
+              <p id="txtPemasukan" class="text-sm font-semibold text-primary-custom text-pemasukan">Rp 0</p>
             </div>
           </div>
           <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-400 text-xs"><i class="fa-solid fa-arrow-up"></i></div>
+            <div class="w-8 h-8 rounded-full icon-pengeluaran flex items-center justify-center text-xs"><i class="fa-solid fa-arrow-up"></i></div>
             <div>
-              <p class="text-[10px] text-gray-400 uppercase tracking-wide">Pengeluaran</p>
-              <p id="txtPengeluaran" class="text-sm font-semibold text-white">Rp 0</p>
+              <p class="text-[10px] text-secondary-custom uppercase tracking-wide">Pengeluaran</p>
+              <p id="txtPengeluaran" class="text-sm font-semibold text-primary-custom text-pengeluaran">Rp 0</p>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- ***************** PEMBARUAN VISUAL: FITUR GANTI TEMA ***************** -->
+      <div class="bg-card-custom rounded-2xl p-4 border border-card-custom shadow-md">
+        <h3 class="text-sm font-semibold text-primary-custom mb-3 flex items-center gap-2"><i class="fa-solid fa-palette text-pemasukan"></i> Kustomisasi Tema Aplikasi</h3>
+        
+        <div class="grid grid-cols-3 gap-3">
+          <!-- Opsi 1: Hybrid -->
+          <button onclick="applyMainTheme('hybrid')" id="btnThemeHybrid" class="relative group cursor-pointer border-2 p-1 rounded-xl transition border-emerald-500">
+            <div class="flex flex-col items-center gap-2 rounded-lg p-2 bg-[#0c111c] border border-gray-700 glass-effect">
+              <div class="w-6 h-6 rounded-full border border-emerald-500 pemasukan-card" style="box-shadow: 0 0 10px var(--pemasukan-glow);"></div>
+              <span class="text-[10px] font-medium text-white">Hybrid Glass</span>
+            </div>
+          </button>
+          
+          <!-- Opsi 2: Cyber -->
+          <button onclick="applyMainTheme('cyber')" id="btnThemeCyber" class="relative group cursor-pointer border-2 p-1 rounded-xl transition border-card-custom">
+            <div class="flex flex-col items-center gap-2 rounded-lg p-2 bg-[#020617] border border-[#334155]" style="box-shadow: 0 0 10px rgba(56, 189, 248, 0.1);">
+              <div class="w-6 h-6 rounded-full border border-[#38bdf8] bg-[#0f172a]"></div>
+              <span class="text-[10px] font-medium text-white">Cyber Neon</span>
+            </div>
+          </button>
+          
+          <!-- Opsi 3: Emerald -->
+          <button onclick="applyMainTheme('emerald')" id="btnThemeEmerald" class="relative group cursor-pointer border-2 p-1 rounded-xl transition border-card-custom">
+            <div class="flex flex-col items-center gap-2 rounded-lg p-2 bg-[#022c22] border border-[#14532d]">
+              <div class="w-6 h-6 rounded-full bg-[#052e16] border border- amber-400"></div>
+              <span class="text-[10px] font-medium text-[#f0fdf4]">Emerald Lux</span>
+            </div>
+          </button>
+        </div>
+        
+        <p class="text-[10px] text-secondary-custom text-center mt-3 font-medium">💡 Tema akan tersimpan permanen di memori HP Anda.</p>
+      </div>
+      <!-- ***************** SELESAI PEMBARUAN VISUAL ***************** -->
+
       <!-- Grafik Tren Pengeluaran Harian -->
-      <div class="bg-gray-800 rounded-2xl p-4 border border-gray-700 shadow-md">
-        <h3 class="text-sm font-semibold text-white mb-3">Tren Pengeluaran Terakhir</h3>
+      <div class="bg-card-custom rounded-2xl p-4 border border-card-custom shadow-md">
+        <h3 class="text-sm font-semibold text-primary-custom mb-3">Tren Pengeluaran Terakhir</h3>
         <div class="relative w-full h-56"><canvas id="canvasTren"></canvas></div>
       </div>
 
       <!-- 5 Transaksi Terakhir -->
       <div>
-        <h3 class="text-sm font-semibold text-white mb-3">5 Transaksi Terakhir</h3>
+        <h3 class="text-sm font-semibold text-primary-custom mb-3">5 Transaksi Terakhir</h3>
         <div id="listTransaksiHome" class="space-y-3"></div>
       </div>
     </div>
 
     <!-- %%%%%%%%%%%%%%%%% TAB 2: RIWAYAT LENGKAP %%%%%%%%%%%%%%%%% -->
     <div id="viewRiwayat" class="tab-content hidden space-y-4">
-      <h3 class="text-lg font-bold text-white">Daftar Transaksi Lengkap</h3>
+      <h3 class="text-lg font-bold text-primary-custom">Daftar Transaksi Lengkap</h3>
       
       <!-- Kontrol Pencarian & Filter Kategori Dropdown -->
-      <div class="grid grid-cols-1 gap-2 bg-gray-800 p-3 rounded-xl border border-gray-700">
+      <div class="grid grid-cols-1 gap-2 bg-card-custom p-3 rounded-xl border border-card-custom">
         <div class="relative">
-          <input type="text" id="searchRiwayat" oninput="prosesFilterSaringRiwayat()" class="w-full bg-gray-900 border border-gray-700 rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500" placeholder="Cari keterangan transaksi...">
-          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+          <input type="text" id="searchRiwayat" oninput="prosesFilterSaringRiwayat()" class="w-full input-custom border border-card-custom rounded-lg pl-9 pr-3 py-2 text-xs text-primary-custom border-focus-custom" placeholder="Cari keterangan transaksi...">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-secondary-custom text-xs"></i>
         </div>
-        <select id="dropdownKategoriRiwayat" onchange="prosesFilterSaringRiwayat()" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-2 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+        <select id="dropdownKategoriRiwayat" onchange="prosesFilterSaringRiwayat()" class="w-full input-custom border border-card-custom rounded-lg px-2 py-2 text-xs text-primary-custom border-focus-custom">
           <option value="Semua">Semua Jenis Kategori</option>
         </select>
       </div>
@@ -214,27 +306,27 @@
 
     <!-- %%%%%%%%%%%%%%%%% TAB 3: LAPORAN DIAGRAM %%%%%%%%%%%%%%%%% -->
     <div id="viewLaporan" class="tab-content hidden space-y-5">
-      <h3 class="text-lg font-bold text-white">Analisis & Laporan</h3>
+      <h3 class="text-lg font-bold text-primary-custom">Analisis & Laporan</h3>
 
       <!-- Card Sorotan Kategori Terboros -->
       <div class="bg-gradient-to-r from-rose-500/10 to-orange-500/5 border border-rose-500/20 rounded-xl p-4 flex items-center gap-4">
-        <div class="w-12 h-12 rounded-full bg-rose-500/25 flex items-center justify-center text-rose-400 text-lg"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="w-12 h-12 rounded-full bg-rose-500/25 flex items-center justify-center text-pengeluaran text-lg"><i class="fa-solid fa-triangle-exclamation"></i></div>
         <div>
-          <p class="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Kategori Terboros Bulan Ini</p>
-          <h4 id="txtKategoriTerboros" class="text-base font-bold text-white mt-0.5">-</h4>
-          <p id="txtNominalTerboros" class="text-xs text-rose-400 font-semibold mt-0.5">Rp 0</p>
+          <p class="text-[11px] text-secondary-custom uppercase tracking-wider font-semibold">Kategori Terboros Bulan Ini</p>
+          <h4 id="txtKategoriTerboros" class="text-base font-bold text-primary-custom mt-0.5">-</h4>
+          <p id="txtNominalTerboros" class="text-xs text-pengeluaran font-semibold mt-0.5">Rp 0</p>
         </div>
       </div>
 
       <!-- Diagram Lingkaran Kategori -->
-      <div class="bg-gray-800 rounded-2xl p-4 border border-gray-700 shadow-md">
-        <h4 class="text-sm font-semibold text-white mb-4 text-center">Proporsi Pengeluaran Kategori</h4>
+      <div class="bg-card-custom rounded-2xl p-4 border border-card-custom shadow-md">
+        <h4 class="text-sm font-semibold text-primary-custom mb-4 text-center">Proporsi Pengeluaran Kategori</h4>
         <div class="relative w-full h-56 mx-auto"><canvas id="canvasDonut"></canvas></div>
       </div>
 
       <!-- Diagram Batang Komparatif Bulanan -->
-      <div class="bg-gray-800 rounded-2xl p-4 border border-gray-700 shadow-md">
-        <h4 class="text-sm font-semibold text-white mb-4 text-center">Komparasi Bulanan (Jan - Des)</h4>
+      <div class="bg-card-custom rounded-2xl p-4 border border-card-custom shadow-md">
+        <h4 class="text-sm font-semibold text-primary-custom mb-4 text-center">Komparasi Bulanan (Jan - Des)</h4>
         <div class="relative w-full h-56"><canvas id="canvasBar"></canvas></div>
       </div>
     </div>
@@ -242,31 +334,37 @@
   </div>
 
   <!-- ================= DOCK NAVIGATION BOTTOM ================= -->
-  <div id="bottomNav" class="hidden fixed bottom-0 left-0 right-0 bg-gray-900/90 backdrop-blur-md border-t border-gray-800 py-2 z-50">
+  <div id="bottomNav" class="hidden fixed bottom-0 left-0 right-0 bg-nav-custom glass-effect border-t border-card-custom py-2 z-50">
     <div class="max-w-md mx-auto grid grid-cols-4 items-center text-center">
-      <button onclick="switchTab('home')" id="btnTabHome" class="flex flex-col items-center gap-0.5 text-emerald-400 cursor-pointer transition">
+      <button onclick="switchTab('home')" id="btnTabHome" class="flex flex-col items-center gap-0.5 nav-icon-pemasukan cursor-pointer transition">
         <i class="fa-solid fa-house text-lg"></i><span class="text-[10px] font-medium">Home</span>
       </button>
-      <button onclick="switchTab('riwayat')" id="btnTabRiwayat" class="flex flex-col items-center gap-0.5 text-gray-500 cursor-pointer transition">
+      <button onclick="switchTab('riwayat')" id="btnTabRiwayat" class="flex flex-col items-center gap-0.5 text-secondary-custom cursor-pointer transition">
         <i class="fa-solid fa-clock-rotate-left text-lg"></i><span class="text-[10px] font-medium">Riwayat</span>
       </button>
-      <button onclick="switchTab('laporan')" id="btnTabLaporan" class="flex flex-col items-center gap-0.5 text-gray-500 cursor-pointer transition">
+      <button onclick="switchTab('laporan')" id="btnTabLaporan" class="flex flex-col items-center gap-0.5 text-secondary-custom cursor-pointer transition">
         <i class="fa-solid fa-chart-pie text-lg"></i><span class="text-[10px] font-medium">Laporan</span>
       </button>
-      <button onclick="prosesKeluar()" class="flex flex-col items-center gap-0.5 text-gray-500 hover:text-rose-400 cursor-pointer transition">
+      <button onclick="prosesKeluar()" class="flex flex-col items-center gap-0.5 text-secondary-custom hover:text-pengeluaran cursor-pointer transition">
         <i class="fa-solid fa-right-from-bracket text-lg"></i><span class="text-[10px] font-medium">Keluar</span>
       </button>
     </div>
   </div>
 
+  <style>
+    /* Utility CSS khusus Navigasi Aktif sesuai Token CSS */
+    .bg-nav-custom { background-color: var(--nav-bg) !important; }
+    .nav-icon-pemasukan { color: var(--nav-active) !important; }
+  </style>
+
   <!-- ================= CORE JAVASCRIPT SYSTEM ================= -->
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzGOv26svKIlGAJg7pmzVfixFVPYtdAPjX9X8g2qYcGK8cwa0dNJTfjAUc2qNsXtQ/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw9F06A3V3Z0E5g5H-D_92lK4Z8L-E6D7W7-R-5H9M8X-I-4I-O_W-D-O/exec"; // Ganti dengan URL deployment Mas Firman!
 
     let sessionUser = localStorage.getItem("app_user") || "";
     let sessionRole = localStorage.getItem("app_role") || "User";
     
-    // Penampung instansiasi grafik agar tidak menumpuk (ghost overlay)
+    // Penampung instansiasi grafik agar tidak menumpuk
     let chartLineInstance = null;
     let chartDonutInstance = null;
     let chartBarInstance = null;
@@ -277,6 +375,7 @@
     window.addEventListener("DOMContentLoaded", () => {
       initThemeEngine();
       
+      // Otomatis set bulan berjalan
       const currentMonthIndex = new Date().getMonth() + 1;
       const currentMonthStr = (currentMonthIndex < 10 ? "0" : "") + currentMonthIndex;
       document.getElementById("filterBulan").value = currentMonthStr;
@@ -286,46 +385,92 @@
       }
     });
 
-    // --- 1. ENGINES INTEGRATED THEMING (MANUAL & SENSOR SYSTEM HP) ---
+    // --- 1. ENGINES INTEGRATED THEMING (MULTI-THEME & LIGHT MODE) ---
     function initThemeEngine() {
-      const savedTheme = localStorage.getItem("app_theme");
-      if (savedTheme) {
-        applyThemeClasses(savedTheme);
+      // 🟢 A. Load Tema Utama
+      const savedTheme = localStorage.getItem("app_main_theme") || "hybrid"; // Default Hybrid
+      applyMainTheme(savedTheme, false); // false = jangan muat ulang data dulu saat init
+
+      // ☀️ B. Load Status Light Mode Manual
+      const lightModeStat = localStorage.getItem("app_light_mode");
+      if (lightModeStat === "on") {
+        document.body.classList.add("light-mode");
+        applyLightModeIcons("on");
+      } else if (lightModeStat === "off") {
+        document.body.classList.remove("light-mode");
+        applyLightModeIcons("off");
       } else {
-        // Otomatis deteksi mode dari system HP
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        applyThemeClasses(systemPrefersDark ? "dark" : "light");
+        // Otomatis deteksi mode dari system HP jika user belum pernah set manual
+        const systemPrefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        if (systemPrefersLight) {
+            document.body.classList.add("light-mode");
+            applyLightModeIcons("on");
+        } else {
+            document.body.classList.remove("light-mode");
+            applyLightModeIcons("off");
+        }
       }
       
-      // Standby memantau jika tema HP berubah di tengah jalan secara dinamis
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-        if (!localStorage.getItem("app_theme")) { 
-          applyThemeClasses(e.matches ? "dark" : "light");
+      // Standby memantau jika tema HP berubah di tengah jalan (hanya jika user belum set manual)
+      window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
+        if (!localStorage.getItem("app_light_mode")) { 
+          if (e.matches) {
+              document.body.classList.add("light-mode");
+              applyLightModeIcons("on");
+          } else {
+              document.body.classList.remove("light-mode");
+              applyLightModeIcons("off");
+          }
           if (sessionUser) muatDataKeuangan();
         }
       });
     }
 
-    function applyThemeClasses(theme) {
-      const iconLogin = document.getElementById("themeIconLogin");
-      const iconMain = document.getElementById("themeIconMain");
-      if (theme === "light") {
-        document.body.classList.add("light-mode");
-        if(iconLogin) iconLogin.className = "fa-solid fa-moon";
-        if(iconMain) iconMain.className = "fa-solid fa-moon";
-      } else {
-        document.body.classList.remove("light-mode");
-        if(iconLogin) iconLogin.className = "fa-solid fa-sun";
-        if(iconMain) iconMain.className = "fa-solid fa-sun";
+    // Fungsi Pengubah Tema Utama (Hybrid, Cyber, Emerald)
+    function applyMainTheme(themeName, reloadData = true) {
+      document.body.setAttribute('data-theme', themeName);
+      localStorage.setItem("app_main_theme", themeName);
+      
+      // Update visual border tombol pilihan tema
+      document.querySelectorAll('#viewHome [id^="btnTheme"]').forEach(btn => {
+        btn.classList.remove('border-emerald-500', 'border-focus-custom');
+        btn.classList.add('border-card-custom');
+      });
+      const activeBtnId = "btnTheme" + themeName.charAt(0).toUpperCase() + themeName.slice(1);
+      const activeBtn = document.getElementById(activeBtnId);
+      if (activeBtn) {
+        activeBtn.classList.remove('border-card-custom');
+        activeBtn.classList.add('border-emerald-500', 'border-focus-custom');
       }
+
+      if (sessionUser && reloadData) muatDataKeuangan();
     }
 
-    function toggleThemeManual() {
+    // Fungsi Saklar Light Mode Global
+    function toggleLightDarkMode() {
       const isCurrentlyLight = document.body.classList.contains("light-mode");
-      const nextTheme = isCurrentlyLight ? "dark" : "light";
-      localStorage.setItem("app_theme", nextTheme);
-      applyThemeClasses(nextTheme);
+      if (isCurrentlyLight) {
+        document.body.classList.remove("light-mode");
+        localStorage.setItem("app_light_mode", "off");
+        applyLightModeIcons("off");
+      } else {
+        document.body.classList.add("light-mode");
+        localStorage.setItem("app_light_mode", "on");
+        applyLightModeIcons("on");
+      }
       if (sessionUser) muatDataKeuangan();
+    }
+
+    function applyLightModeIcons(status) {
+      const iconLogin = document.getElementById("lightModeIcon");
+      const iconMain = document.getElementById("lightModeIconMain");
+      if (status === "on") {
+        if(iconLogin) iconLogin.className = "fa-solid fa-moon text-primary-custom";
+        if(iconMain) iconMain.className = "fa-solid fa-moon text-primary-custom";
+      } else {
+        if(iconLogin) iconLogin.className = "fa-solid fa-sun text-primary-custom";
+        if(iconMain) iconMain.className = "fa-solid fa-sun text-primary-custom";
+      }
     }
 
     function togglePasswordVisibility() {
@@ -342,29 +487,31 @@
 
     // --- 2. SINGLE PAGE APPLICATION (SPA) NAVIGATION TAB ---
     function switchTab(targetTab) {
+      // Sembunyikan semua tab content
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       
-      const tabs = ['home', 'riwayat', 'laporan'];
-      tabs.forEach(t => {
-        const btn = document.getElementById(`btnTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
-        if(t === targetTab) {
-          btn.classList.remove('text-gray-500');
-          btn.classList.add('text-emerald-400');
-        } else {
-          btn.classList.remove('text-emerald-400');
-          btn.classList.add('text-gray-500');
-        }
+      // Update visual tombol navigasi (kembalikan ke default secondary)
+      document.querySelectorAll('#bottomNav button').forEach(btn => {
+        btn.classList.remove('nav-icon-pemasukan');
+        btn.classList.add('text-secondary-custom');
       });
 
-      if (targetTab === 'home') document.getElementById('viewHome').classList.remove('hidden');
-      if (targetTab === 'riwayat') document.getElementById('viewRiwayat').classList.remove('hidden');
-      if (targetTab === 'laporan') document.getElementById('viewLaporan').classList.remove('hidden');
+      // Aktifkan tab dan tombol yang dipilih
+      const activeBtnId = "btnTab" + targetTab.charAt(0).toUpperCase() + targetTab.slice(1);
+      const activeBtn = document.getElementById(activeBtnId);
+      if(activeBtn) {
+        activeBtn.classList.remove('text-secondary-custom');
+        activeBtn.classList.add('nav-icon-pemasukan');
+      }
+
+      document.getElementById('view' + targetTab.charAt(0).toUpperCase() + targetTab.slice(1)).classList.remove('hidden');
     }
 
-    function formatRupiah(angka) {
+    function formatRupiah(angka, denganJenis = true) {
       let isNegatif = angka < 0;
       let absolut = Math.abs(angka);
       let formatted = "Rp " + absolut.toLocaleString("id-ID");
+      if (!denganJenis) return formatted;
       return isNegatif ? "- " + formatted : "+ " + formatted;
     }
 
@@ -402,7 +549,7 @@
 
     function renderTampilanAplikasi() {
       document.getElementById("loginPage").classList.add("hidden");
-      document.getElementById("themeToggleContainerLogin").classList.add("hidden");
+      document.getElementById("themeToggleContainer").classList.add("hidden");
       document.getElementById("mainPage").classList.remove("hidden");
       document.getElementById("bottomNav").classList.remove("hidden");
 
@@ -419,8 +566,10 @@
     // --- 3. PROSES DATA MINING & VISUAL RENDERING ---
     function muatDataKeuangan() {
       const loadEl = document.getElementById("loadingState");
-      const viewHome = document.getElementById("viewHome");
+      const currentViewId = document.querySelector('.tab-content:not(.hidden)').id;
       
+      // Matikan view content sementara untuk loading
+      document.getElementById(currentViewId).classList.add("hidden");
       loadEl.classList.remove("hidden");
       
       const pFilter = document.getElementById("filterPencatat") ? document.getElementById("filterPencatat").value : "Semua";
@@ -433,9 +582,10 @@
         .then(res => {
           if (res.status === "success") {
             // Pasang Dashboard Atas
-            document.getElementById("txtSisaSaldo").innerText = "Rp " + res.data.sisa.toLocaleString("id-ID");
-            document.getElementById("txtPemasukan").innerText = "Rp " + res.data.pemasukan.toLocaleString("id-ID");
-            document.getElementById("txtPengeluaran").innerText = "Rp " + res.data.pengeluaran.toLocaleString("id-ID");
+            document.getElementById("txtSisaSaldo").innerText = formatRupiah(res.data.sisa, false);
+            // Pemasukan Visual = Pemasukan baru + sisa bulan lalu (pajangan saja)
+            document.getElementById("txtPemasukan").innerText = formatRupiah(res.data.pemasukan, false);
+            document.getElementById("txtPengeluaran").innerText = formatRupiah(res.data.pengeluaran, false);
 
             // Pasang Dropdown Admin
             if (sessionRole === "Admin" && document.getElementById("filterPencatat")) {
@@ -461,39 +611,35 @@
             // Render Dashboard Riwayat (5 Teratas)
             renderKoleksiTransaksi(rawRiwayatLengkap.slice(0, 5), "listTransaksiHome", false);
             
-            // Render Tab Riwayat Lengkap (Semua + Grouping)
-            prosesFilterSaringRiwayat();
-
             // Render Laporan Sorotan Terboros
             document.getElementById("txtKategoriTerboros").innerText = res.data.borosKategori;
-            document.getElementById("txtNominalTerboros").innerText = "Total: Rp " + res.data.borosNominal.toLocaleString("id-ID");
+            document.getElementById("txtNominalTerboros").innerText = "Total: " + formatRupiah(res.data.borosNominal, false);
 
             // Render Semua Grafik
             buildLineChart(res.data.grafikLabels, res.data.grafikData);
             buildDonutChart(res.data.donutLabels, res.data.donutData);
             buildBarChart(res.data.barPem, res.data.barPeng);
 
+            // Tampilkan kembali content
             loadEl.classList.add("hidden");
-            // Kembalikan view content tab aktif
-            document.querySelectorAll('.tab-content').forEach(el => {
-              if(!el.id.includes('view' + document.querySelector('#bottomNav .text-emerald-400 span').innerText)) {
-                 // Tetap sembunyikan yang tidak aktif
-              }
-            });
-            // Tampilkan kembali halaman utama
-            const activeTabText = document.querySelector('#bottomNav .text-emerald-400 span').innerText.toLowerCase();
-            switchTab(activeTabText);
+            document.getElementById(currentViewId).classList.remove("hidden");
           }
         })
         .catch(err => {
           console.error(err);
           alert("Gagal memuat sinkronisasi data.");
           loadEl.classList.add("hidden");
+          document.getElementById(currentViewId).classList.remove("hidden");
         });
     }
 
     // --- 4. LOGIKA FILTRASI & GROUPING TANGGAL (TAB RIWAYAT) ---
     function prosesFilterSaringRiwayat() {
+      // Muat data penuh jika box riwayat kosong (SPA loading protection)
+      if (rawRiwayatLengkap.length === 0 && document.getElementById('mainPage').classList.contains('hidden') === false) {
+          // muatDataKeuangan(); // Jangan auto load, biar user klik filter lagi
+      }
+      
       const keyword = document.getElementById("searchRiwayat").value.toLowerCase().trim();
       const kategoriSelected = document.getElementById("dropdownKategoriRiwayat").value;
 
@@ -511,7 +657,7 @@
       container.innerHTML = "";
 
       if (dataArr.length === 0) {
-        container.innerHTML = '<p class="text-xs text-gray-500 text-center py-6">Tidak ada catatan transaksi ditemukan.</p>';
+        container.innerHTML = '<p class="text-xs text-secondary-custom text-center py-6">Tidak ada catatan transaksi ditemukan.</p>';
         return;
       }
 
@@ -519,33 +665,35 @@
 
       dataArr.forEach(item => {
         let isMin = item.jenis === "Pengeluaran";
-        let colorNominal = isMin ? "text-rose-400" : "text-emerald-400";
-        let iconCat = isMin ? "fa-solid fa-utensils text-orange-400" : "fa-solid fa-wallet text-indigo-400";
+        let colorNominal = isMin ? "text-pengeluaran" : "text-pemasukan";
+        let cardJenisClass = isMin ? "pengeluaran-card" : "pemasukan-card"; // Khusus Hybrid glow
         
-        if(item.kategori.toLowerCase().includes("komisi") || item.kategori.toLowerCase().includes("gaji")) iconCat = "fa-solid fa-wallet text-indigo-400";
+        let iconCat = isMin ? "fa-solid fa-utensils text-orange-400" : "fa-solid fa-money-bill-trend-up text-amber-400";
+        if(item.kategori.toLowerCase().includes("komisi") || item.kategori.toLowerCase().includes("gaji") || item.kategori.toLowerCase().includes("tambahan")) iconCat = "fa-solid fa-wallet text-amber-400";
         if(item.kategori.toLowerCase().includes("lain")) iconCat = "fa-solid fa-file-lines text-slate-400";
+        if(item.kategori.toLowerCase().includes("kendaraan") || item.kategori.toLowerCase().includes("bensin")) iconCat = "fa-solid fa-car text-blue-400";
 
         // Sisipkan Header Grouping Tanggal jika diaktifkan (Untuk Tab Riwayat Lengkap)
         if (gunakanGroupingTanggal && item.tanggal !== lastDateGroup) {
           lastDateGroup = item.tanggal;
           container.innerHTML += `
-            <div class="flex items-center gap-2 pt-2 pb-1">
-              <span class="text-xs font-bold tracking-wide text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full">${lastDateGroup}</span>
-              <div class="h-[1px] bg-gray-700/60 flex-1"></div>
+            <div class="flex items-center gap-2 pt-2 pb-1 date-group-header">
+              <span class="text-xs font-bold tracking-wide icon-pemasukan border border-card-custom px-2.5 py-0.5 rounded-full text-shadow-glow">${lastDateGroup}</span>
+              <div class="h-[1px] border-card-custom border-t flex-1 opacity-60"></div>
             </div>
           `;
         }
 
         let htmlCard = `
-          <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-3 flex items-center justify-between gap-2 shadow-sm">
+          <div class="bg-card-custom border border-card-custom rounded-xl p-3 flex items-center justify-between gap-2 shadow-sm ${cardJenisClass}">
             <div class="flex items-center gap-3 min-w-0">
-              <div class="w-9 h-9 bg-gray-900 rounded-xl flex items-center justify-center text-xs shrink-0"><i class="${iconCat}"></i></div>
+              <div class="w-9 h-9 bg-main-custom rounded-xl flex items-center justify-center text-xs shrink-0"><i class="${iconCat}"></i></div>
               <div class="min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <h4 class="text-xs font-semibold text-gray-200 text-truncate-custom" title="${item.keterangan}">${item.keterangan || item.kategori}</h4>
-                  <span class="text-[8px] bg-gray-700 px-1 py-0.2 rounded text-gray-300 font-medium shrink-0">${item.pencatat}</span>
+                  <h4 class="text-xs font-semibold text-primary-custom text-truncate-custom text-shadow-glow" title="${item.keterangan}">${item.keterangan || item.kategori}</h4>
+                  <span class="text-[8px] bg-card-custom border border-card-custom px-1 py-0.2 rounded text-secondary-custom font-medium shrink-0">${item.pencatat}</span>
                 </div>
-                <p class="text-[10px] text-gray-400 mt-0.5">${gunakanGroupingTanggal ? '' : item.tanggal + ' • '}${item.kategori}</p>
+                <p class="text-[10px] text-secondary-custom mt-0.5">${gunakanGroupingTanggal ? '' : item.tanggal + ' • '}${item.kategori}</p>
               </div>
             </div>
             <span class="text-xs font-bold tracking-wide shrink-0 ${colorNominal}">${formatRupiah(isMin ? -item.nominal : item.nominal)}</span>
@@ -555,33 +703,34 @@
       });
     }
 
-    // --- 5. ENGINES GRAFIK COMPONENT (CHART.JS) ---
-    function getThemeColors() {
-      const isLight = document.body.classList.contains("light-mode");
-      return {
-        grid: isLight ? 'rgba(209, 213, 219, 0.6)' : 'rgba(55, 65, 81, 0.4)',
-        label: isLight ? '#4b5563' : '#9ca3af'
-      };
+    // --- 5. ENGINES GRAFIK COMPONENT (CHART.JS DENGAN TEMA) ---
+    
+    // Fungsi pembantu mengambil warna dari Tema CSS untuk Chart.js
+    function getThemeVar(varName) {
+      return getComputedStyle(document.body).getPropertyValue(varName).trim();
     }
 
     function buildLineChart(labels, data) {
       if (chartLineInstance) chartLineInstance.destroy();
-      const colors = getThemeColors();
+      const colorMin = getThemeVar('--accent-pengeluaran');
+      const colorTxt = getThemeVar('--text-secondary');
+      const colorGrid = getThemeVar('--border-card');
+
       chartLineInstance = new Chart(document.getElementById("canvasTren").getContext("2d"), {
         type: 'line',
         data: {
           labels: labels,
           datasets: [{
-            data: data, borderColor: '#f43f5e', backgroundColor: 'rgba(244, 63, 94, 0.1)',
-            borderWidth: 2, pointBackgroundColor: '#f43f5e', pointRadius: 3, tension: 0.4, fill: true
+            data: data, borderColor: colorMin, backgroundColor: colorMin + '1A', // Opacity 10%
+            borderWidth: 2, pointBackgroundColor: colorMin, pointRadius: 3, tension: 0.4, fill: true
           }]
         },
         options: {
           responsive: true, maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
-            x: { grid: { display: false }, ticks: { color: colors.label, font: { size: 9 }, maxRotation: 0 } },
-            y: { grid: { color: colors.grid }, ticks: { display: false } }
+            x: { grid: { display: false }, ticks: { color: colorTxt, font: { size: 9 }, maxRotation: 0 } },
+            y: { grid: { color: colorGrid + '66' }, ticks: { display: false } }
           }
         }
       });
@@ -589,12 +738,14 @@
 
     function buildDonutChart(labels, data) {
       if (chartDonutInstance) chartDonutInstance.destroy();
-      const colors = getThemeColors();
+      const colorTxt = getThemeVar('--text-secondary');
+      const borderSize = document.body.classList.contains("light-mode") ? 2 : 0;
+      const borderColor = getThemeVar('--border-card');
       
-      if(labels.length === 0) {
-        labels = ["Belum Ada Data"];
-        data = [1];
-      }
+      if(labels.length === 0) { labels = ["Belum Ada Data"]; data = [1]; }
+
+      // Palet warna donut neon
+      const neonPalette = ['#38bdf8', '#34d399', '#fbbf24', '#ec4899', '#8b5cf6', '#f43f5e', '#94a3b8'];
 
       chartDonutInstance = new Chart(document.getElementById("canvasDonut").getContext("2d"), {
         type: 'doughnut',
@@ -602,14 +753,14 @@
           labels: labels,
           datasets: [{
             data: data,
-            backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#ef4444', '#6b7280'],
-            borderWidth: document.body.classList.contains("light-mode") ? 2 : 0
+            backgroundColor: neonPalette,
+            borderWidth: borderSize, borderColor: borderColor
           }]
         },
         options: {
           responsive: true, maintainAspectRatio: false,
           plugins: {
-            legend: { position: 'right', labels: { color: colors.label, font: { size: 9 } } }
+            legend: { position: 'right', labels: { color: colorTxt, font: { size: 9 } } }
           },
           cutout: '65%'
         }
@@ -618,7 +769,11 @@
 
     function buildBarChart(pemData, pengData) {
       if (chartBarInstance) chartBarInstance.destroy();
-      const colors = getThemeColors();
+      const colorTxt = getThemeVar('--text-secondary');
+      const colorGrid = getThemeVar('--border-card');
+      const colorPlus = getThemeVar('--accent-pemasukan');
+      const colorMin = getThemeVar('--accent-pengeluaran');
+      
       const labelBulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
 
       chartBarInstance = new Chart(document.getElementById("canvasBar").getContext("2d"), {
@@ -626,23 +781,25 @@
         data: {
           labels: labelBulan,
           datasets: [
-            { label: 'Masuk', data: pemData, backgroundColor: '#10b981', borderRadius: 4 },
-            { label: 'Keluar', data: pengData, backgroundColor: '#ef4444', borderRadius: 4 }
+            { label: 'Masuk', data: pemData, backgroundColor: colorPlus, borderRadius: 4 },
+            { label: 'Keluar', data: pengData, backgroundColor: colorMin, borderRadius: 4 }
           ]
         },
         options: {
           responsive: true, maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
-            x: { grid: { display: false }, ticks: { color: colors.label, font: { size: 9 } } },
-            y: { grid: { color: colors.grid }, ticks: { display: false } }
+            x: { grid: { display: false }, ticks: { color: colorTxt, font: { size: 9 } } },
+            y: { grid: { color: colorGrid + '66' }, ticks: { display: false } }
           }
         }
       });
     }
 
     function prosesKeluar() {
-      localStorage.clear();
+      // Hapus data krusial, tapi simpan data TEMA preference user
+      localStorage.removeItem("app_user");
+      localStorage.removeItem("app_role");
       location.reload();
     }
   </script>
