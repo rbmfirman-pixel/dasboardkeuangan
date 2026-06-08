@@ -162,7 +162,7 @@
 </head>
 <body class="pb-24" data-theme="hybrid">
 
-  <!-- Tombol Light/Dark Mode Manual (Hanya di Halaman Login) -->
+  <!-- Tombol Light/Dark Mode Manual -->
   <div id="themeToggleContainer" class="absolute top-4 right-4 z-50">
     <button onclick="toggleLightDarkMode()" class="w-10 h-10 bg-card-custom rounded-full flex items-center justify-center text-secondary-custom border border-card-custom cursor-pointer hover:text-white transition shadow-md">
       <i class="fa-solid fa-sun" id="lightModeIcon"></i>
@@ -251,9 +251,11 @@
         </div>
       </div>
 
-      <!-- Grafik Tren Pengeluaran Harian -->
+      <!-- Grafik Tren Pengeluaran Harian (Diperbarui) -->
       <div class="bg-card-custom rounded-2xl p-4 border border-card-custom shadow-md">
-        <h3 class="text-sm font-semibold text-primary-custom mb-3">Tren Pengeluaran Terakhir</h3>
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="text-sm font-semibold text-primary-custom">Tren Pengeluaran (10 Hari Terakhir)</h3>
+        </div>
         <div class="relative w-full h-56"><canvas id="canvasTren"></canvas></div>
       </div>
 
@@ -268,7 +270,6 @@
     <div id="viewRiwayat" class="tab-content hidden space-y-4">
       <h3 class="text-lg font-bold text-primary-custom">Daftar Transaksi Lengkap</h3>
       
-      <!-- Periode Bulan & Kontrol Pencarian Dropdown Kategori -->
       <div class="grid grid-cols-1 gap-2 bg-card-custom p-3 rounded-xl border border-card-custom">
         <select id="filterBulan" onchange="muatDataKeuangan()" class="w-full input-custom border border-card-custom rounded-lg px-2 py-2 text-xs text-primary-custom border-focus-custom mb-2">
             <option value="Semua">Sepanjang Tahun (Total)</option>
@@ -286,7 +287,6 @@
         </select>
       </div>
 
-      <!-- List Box Riwayat Dengan Date Grouping -->
       <div id="boxRiwayatLengkap" class="space-y-4"></div>
     </div>
 
@@ -294,7 +294,6 @@
     <div id="viewLaporan" class="tab-content hidden space-y-5">
       <h3 class="text-lg font-bold text-primary-custom mb-3">Analisis Laporan</h3>
 
-      <!-- Card Kategori Terboros -->
       <div class="bg-card-custom border border-rose-500/30 rounded-2xl p-4 flex items-center gap-4 shadow-md pengeluaran-card">
         <div class="w-12 h-12 rounded-full bg-rose-500/25 flex items-center justify-center text-pengeluaran text-lg"><i class="fa-solid fa-triangle-exclamation"></i></div>
         <div>
@@ -304,13 +303,11 @@
         </div>
       </div>
 
-      <!-- Diagram Lingkaran Kategori -->
       <div class="bg-card-custom rounded-2xl p-4 border border-card-custom shadow-md">
         <h4 class="text-sm font-semibold text-primary-custom mb-4 text-center">Proporsi Kategori Pengeluaran</h4>
         <div class="relative w-full h-56 mx-auto"><canvas id="canvasDonut"></canvas></div>
       </div>
 
-      <!-- Diagram Batang Komparatif Bulanan -->
       <div class="bg-card-custom rounded-2xl p-4 border border-card-custom shadow-md">
         <h4 class="text-sm font-semibold text-primary-custom mb-4 text-center">Komparasi Pemasukan vs Pengeluaran (Jan - Des)</h4>
         <div class="relative w-full h-56"><canvas id="canvasBar"></canvas></div>
@@ -321,12 +318,10 @@
     <div id="viewSetting" class="tab-content hidden space-y-5">
         <h3 class="text-lg font-bold text-primary-custom">Pengaturan Aplikasi</h3>
 
-        <!-- AREA KUSTOMISASI TEMA -->
         <div class="bg-card-custom rounded-2xl p-5 border border-card-custom shadow-md glass-effect">
             <h3 class="text-sm font-semibold text-primary-custom mb-4 flex items-center gap-2"><i class="fa-solid fa-palette text-pemasukan"></i> Kustomisasi Tema & Visual</h3>
             
             <div class="grid grid-cols-3 gap-3">
-              <!-- Opsi 1: Hybrid -->
               <button onclick="applyMainTheme('hybrid')" id="btnThemeHybrid" class="relative group cursor-pointer border-2 p-1 rounded-xl transition border-emerald-500 bg-black/10">
                 <div class="flex flex-col items-center gap-2 rounded-lg p-2 bg-[#0c111c] border border-gray-700">
                   <div class="w-6 h-6 rounded-full border border-emerald-500 bg-emerald-500/20"></div>
@@ -334,7 +329,6 @@
                 </div>
               </button>
               
-              <!-- Opsi 2: Cyber -->
               <button onclick="applyMainTheme('cyber')" id="btnThemeCyber" class="relative group cursor-pointer border-2 p-1 rounded-xl transition border-card-custom bg-black/10">
                 <div class="flex flex-col items-center gap-2 rounded-lg p-2 bg-[#020617] border border-[#334155]">
                   <div class="w-6 h-6 rounded-full border border-[#38bdf8] bg-[#0f172a]"></div>
@@ -342,7 +336,6 @@
                 </div>
               </button>
               
-              <!-- Opsi 3: Emerald -->
               <button onclick="applyMainTheme('emerald')" id="btnThemeEmerald" class="relative group cursor-pointer border-2 p-1 rounded-xl transition border-card-custom bg-black/10">
                 <div class="flex flex-col items-center gap-2 rounded-lg p-2 bg-[#022c22] border border-[#14532d]">
                   <div class="w-6 h-6 rounded-full bg-[#052e16] border border-amber-400"></div>
@@ -350,24 +343,20 @@
                 </div>
               </button>
             </div>
-            
             <p class="text-[10px] text-secondary-custom text-center mt-3 font-medium">💡 Tema dasar di atas akan tersimpan di memori HP Anda.</p>
         </div>
 
-        <!-- 🆕 BARU: TOMBOL SLIDEBAR UNTUK PILIHAN AUTO ATAU MANUAL -->
         <div class="bg-card-custom rounded-2xl p-5 border border-card-custom shadow-md flex items-center justify-between gap-3">
           <div>
             <h4 class="text-sm font-semibold text-primary-custom">Mode Otomatis (Sistem HP)</h4>
             <p class="text-[10px] text-secondary-custom mt-0.5">Jika aktif, mode siang/malam akan sinkron otomatis mengikuti pengaturan bawaan HP.</p>
           </div>
-          <!-- Slider Toggle Switch Container -->
           <label class="relative inline-flex items-center cursor-pointer select-none shrink-0">
             <input type="checkbox" id="toggleAutoMode" onchange="handleAutoModeChange()" class="sr-only peer">
             <div class="w-12 h-6 bg-slate-600 rounded-full relative peer peer-checked:bg-emerald-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-6"></div>
           </label>
         </div>
 
-        <!-- Tombol Light/Dark Mode Global Manual -->
         <div id="manualModeContainer" class="bg-card-custom rounded-2xl p-5 border border-card-custom shadow-md flex items-center justify-between gap-3">
           <div>
             <h4 class="text-sm font-semibold text-primary-custom">Kunci Mode Manual</h4>
@@ -378,7 +367,6 @@
           </button>
         </div>
     </div>
-
   </div>
 
   <!-- ================= DOCK NAVIGATION BOTTOM ================= -->
@@ -434,12 +422,11 @@
       }
     });
 
-    // --- 1. ENGINES INTEGRATED THEMING (DENGAN OPERASI AUTO & MANUAL) ---
+    // --- 1. ENGINES INTEGRATED THEMING ---
     function initThemeEngine() {
       const savedTheme = localStorage.getItem("app_main_theme") || "hybrid";
       applyMainTheme(savedTheme, false);
 
-      // default aplikasi pertama kali buka adalah AUTO (mengikuti sistem HP)
       const themeMode = localStorage.getItem("app_theme_mode") || "auto"; 
       const toggleAuto = document.getElementById("toggleAutoMode");
       const txtStatus = document.getElementById("txtStatusManual");
@@ -453,7 +440,6 @@
         if (txtStatus) txtStatus.innerText = "Ubah mode siang/malam secara mandiri (Kunci Manual).";
         disableAutoThemeDetection();
         
-        // Jalankan preferensi manual yang tersimpan
         const lightModeStat = localStorage.getItem("app_light_mode") || "off";
         if (lightModeStat === "on") {
           document.body.classList.add("light-mode");
@@ -478,7 +464,6 @@
         if (txtStatus) txtStatus.innerText = "Ubah mode siang/malam secara mandiri (Kunci Manual).";
         disableAutoThemeDetection();
         
-        // Simpan status class saat slider dimatikan sebagai basis manual
         const isCurrentlyLight = document.body.classList.contains("light-mode");
         localStorage.setItem("app_light_mode", isCurrentlyLight ? "on" : "off");
       }
@@ -486,7 +471,6 @@
     }
 
     function enableAutoThemeDetection() {
-      // Sinkronisasi instan saat fungsi dijalankan
       const systemPrefersLight = window.matchMedia('(prefers-color-scheme: light)');
       if (systemPrefersLight.matches) {
         document.body.classList.add("light-mode");
@@ -496,7 +480,6 @@
         applyLightModeIcons("off");
       }
 
-      // Pasang Event Listener Real-Time jika belum terdaftar
       if (!systemMediaListener) {
         systemMediaListener = (e) => {
           if (e.matches) {
@@ -520,7 +503,6 @@
     }
 
     function toggleLightDarkMode() {
-      // Jika menekan tombol lingkaran siang/malam, otomatis matikan mode Auto
       localStorage.setItem("app_theme_mode", "manual");
       const toggleAuto = document.getElementById("toggleAutoMode");
       const txtStatus = document.getElementById("txtStatusManual");
@@ -584,10 +566,9 @@
       }
     }
 
-    // --- 2. SINGLE PAGE APPLICATION (SPA) NAVIGATION TAB ---
+    // --- 2. SINGLE PAGE APPLICATION NAVIGATION ---
     function switchTab(targetTab) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-      
       document.querySelectorAll('#bottomNav button').forEach(btn => {
         btn.classList.remove('nav-icon-pemasukan');
         btn.classList.add('text-secondary-custom');
@@ -711,7 +692,8 @@
             document.getElementById("txtKategoriTerboros").innerText = res.data.borosKategori;
             document.getElementById("txtNominalTerboros").innerText = "Total: " + formatRupiah(res.data.borosNominal, false);
 
-            buildLineChart(res.data.grafikLabels, res.data.grafikData);
+            // Mengirim 3 argumen: Label tanggal, data bulan ini (10 hari), dan data bulan lalu sebagai pembanding
+            buildLineChart(res.data.grafikLabels, res.data.grafikData, res.data.grafikDataBulanLalu);
             buildDonutChart(res.data.donutLabels, res.data.donutData);
             buildBarChart(res.data.barPem, res.data.barPeng);
 
@@ -729,7 +711,6 @@
         });
     }
 
-    // --- 4. LOGIKA FILTRASI & GROUPING TANGGAL (TAB RIWAYAT) ---
     function prosesFilterSaringRiwayat() {
       const keyword = document.getElementById("searchRiwayat").value.toLowerCase().trim();
       const dropKatRiwayat = document.getElementById("dropdownKategoriRiwayat");
@@ -794,34 +775,86 @@
       });
     }
 
-    // --- 5. ENGINES GRAFIK COMPONENT ---
     function getThemeVar(varName) {
       return getComputedStyle(document.body).getPropertyValue(varName).trim();
     }
 
-    function buildLineChart(labels, data) {
+    // --- 4. ENGINES GRAFIK COMPONENT (OPTIMIZED FOR MOBILE & DUAL LINE) ---
+    function buildLineChart(labels, dataBulanIni, dataBulanLalu) {
       const trenCanvas = document.getElementById("canvasTren");
       if(!trenCanvas) return;
       if (chartLineInstance) chartLineInstance.destroy();
+      
       const colorMin = getThemeVar('--accent-pengeluaran');
       const colorTxt = getThemeVar('--text-secondary');
       const colorGrid = getThemeVar('--border-card');
 
+      // Amankan data jika backend belum mengirimkan array pembanding
+      const safeDataBulanIni = dataBulanIni || [];
+      const safeDataBulanLalu = dataBulanLalu || [];
+
       chartLineInstance = new Chart(trenCanvas.getContext("2d"), {
         type: 'line',
         data: {
-          labels: labels,
-          datasets: [{
-            data: data, borderColor: colorMin, backgroundColor: colorMin + '1A',
-            borderWidth: 2, pointBackgroundColor: colorMin, pointRadius: 3, tension: 0.4, fill: true
-          }]
+          labels: labels, // Pastikan GAS API mengirimkan rentang array 10 hari terakhir
+          datasets: [
+            {
+              label: 'Bulan Ini',
+              data: safeDataBulanIni,
+              borderColor: colorMin,
+              backgroundColor: colorMin + '1A', // Transparansi area isi bawah garis
+              borderWidth: 2.5,
+              pointBackgroundColor: colorMin,
+              pointRadius: 5,        // Ukuran titik visual diperbesar agar mudah dipantau
+              pointHoverRadius: 7,
+              hitRadius: 25,         // Area deteksi sentuhan diperlebar 25px agar jempol tidak meleset!
+              tension: 0.35,
+              fill: true
+            },
+            {
+              label: 'Bulan Lalu',
+              data: safeDataBulanLalu,
+              borderColor: colorTxt,
+              backgroundColor: 'transparent',
+              borderWidth: 1.5,
+              borderDash: [5, 5],     // Dibuat putus-putus sebagai garis panduan pembanding
+              pointBackgroundColor: colorTxt,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              hitRadius: 25,         // Deteksi sentuhan jempol sama responsifnya
+              tension: 0.35,
+              fill: false
+            }
+          ]
         },
         options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',        // Mengetuk kolom langsung otomatis membuka 2 tooltip data sekaligus
+            intersect: false     // Jari tidak perlu tepat menyentuh titik bulat untuk memicu tooltip
+          },
+          plugins: {
+            legend: {
+              display: true,      // Menampilkan keterangan warna "Bulan Ini vs Bulan Lalu" di atas grafik
+              position: 'top',
+              labels: {
+                color: colorTxt,
+                font: { size: 10, weight: '500' },
+                boxWidth: 20,
+                padding: 10
+              }
+            }
+          },
           scales: {
-            x: { grid: { display: false }, ticks: { color: colorTxt, font: { size: 9 }, maxRotation: 0 } },
-            y: { grid: { color: colorGrid + '66' }, ticks: { display: false } }
+            x: {
+              grid: { display: false },
+              ticks: { color: colorTxt, font: { size: 9 }, maxRotation: 0 }
+            },
+            y: {
+              grid: { color: colorGrid + '4D' }, // Ketebalan garis bantu horizontal dihaluskan
+              ticks: { display: false }
+            }
           }
         }
       });
@@ -836,7 +869,6 @@
       const borderColor = getThemeVar('--border-card');
       
       if(labels.length === 0) { labels = ["Belum Ada Data"]; data = [1]; }
-
       const neonPalette = ['#38bdf8', '#34d399', '#fbbf24', '#ec4899', '#8b5cf6', '#f43f5e', '#94a3b8'];
 
       chartDonutInstance = new Chart(donutCanvas.getContext("2d"), {
