@@ -8,286 +8,49 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-gray-100 font-sans text-gray-800 min-h-screen flex flex-col">
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-emerald-500/30">
 
-    <div id="loginPage" class="fixed inset-0 bg-slate-950/90 flex items-center justify-center p-4 z-50">
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-sm shadow-2xl text-center">
-            <h2 class="text-2xl font-bold text-white mb-6">Masuk Ke Aplikasi</h2>
+    <div id="loginPage" class="fixed inset-0 bg-slate-950/95 flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-3xl w-full max-w-sm shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-24 -left-24 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl"></div>
+            
+            <div class="w-16 h-16 bg-gradient-to-tr from-emerald-600 to-teal-400 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-emerald-900/40 mb-4">
+                <i class="fa-solid fa-wallet text-2xl text-white"></i>
+            </div>
+            <h2 class="text-2xl font-black text-white tracking-tight text-center mb-1">DompetKeluarga</h2>
+            <p class="text-xs text-slate-400 text-center mb-6">Masuk menggunakan akun Google Sheet Anda</p>
             
             <div class="text-left mb-4">
-                <label class="text-xs text-gray-400 font-semibold block mb-1">Nama Pengguna</label>
-                <input type="text" id="username" placeholder="Admin / Suami / Istri" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition">
+                <label class="text-[11px] text-slate-400 font-bold uppercase tracking-wider block mb-1.5">Nama Pengguna</label>
+                <input type="text" id="username" placeholder="Admin / Suami / Istri" class="w-full bg-slate-950/60 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition-all text-sm">
             </div>
             
             <div class="text-left mb-6 relative">
-                <label class="text-xs text-gray-400 font-semibold block mb-1">Kata Sandi</label>
-                <input type="password" id="password" placeholder="••••••••" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition">
-                <button type="button" onclick="togglePasswordVisibility()" class="absolute right-4 top-9 text-gray-400 hover:text-white">
-                    <i id="toggleIcon" class="fa-solid fa-eye-slash"></i>
+                <label class="text-[11px] text-slate-400 font-bold uppercase tracking-wider block mb-1.5">Kata Sandi</label>
+                <input type="password" id="password" placeholder="••••••••" class="w-full bg-slate-950/60 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition-all text-sm">
+                <button type="button" onclick="togglePasswordVisibility()" class="absolute right-4 top-10 text-slate-500 hover:text-white transition">
+                    <i id="toggleIcon" class="fa-solid fa-eye-slash text-sm"></i>
                 </button>
             </div>
             
-            <button id="btnLogin" onclick="prosesLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-emerald-900/30 transition duration-200">
-                Membuka Kunci...
+            <button id="btnLogin" onclick="prosesLogin()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-xl shadow-emerald-950/50 transition-all transform active:scale-98 text-sm cursor-pointer">
+                Masuk Ke Dashboard
             </button>
         </div>
     </div>
 
-    <div id="dashboardPage" class="hidden flex-1 flex flex-col pb-20">
-        <div class="bg-white px-6 py-4 shadow-sm flex items-center justify-between border-b border-gray-100">
-            <div>
-                <p class="text-xs text-gray-400">Selamat datang,</p>
-                <div class="flex items-center gap-2">
-                    <h1 id="userDisplay" class="text-xl font-bold text-gray-900">User</h1>
-                    <span id="roleBadge" class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase">ROLE</span>
+    <div id="dashboardPage" class="hidden flex-1 flex flex-col pb-24">
+        <header class="sticky top-0 bg-slate-900/80 backdrop-blur-md px-5 py-4 border-b border-slate-800/60 flex items-center justify-between z-40">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center text-white font-bold shadow-md shadow-emerald-950">
+                    <i class="fa-solid fa-user-shield text-sm"></i>
                 </div>
-            </div>
-            <div class="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600">
-                <i class="fa-solid fa-user text-lg"></i>
-            </div>
-        </div>
-
-        <main class="flex-1 p-4 max-w-md mx-auto w-full space-y-4">
-            
-            <div id="menu-home" class="tab-content space-y-4">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-gray-900 mb-4">Tren Pengeluaran (10 Hari Terakhir)</h3>
-                    <div class="relative h-56 w-full">
-                        <canvas id="chartTren"></canvas>
+                <div>
+                    <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wide">Pengelola Sistem</p>
+                    <div class="flex items-center gap-2">
+                        <h1 id="userDisplay" class="text-sm font-bold text-white">User</h1>
+                        <span id="roleBadge" class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">PRO</span>
                     </div>
                 </div>
             </div>
-
-            <div id="menu-riwayat" class="tab-content hidden space-y-4">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-gray-900 mb-3">Daftar Transaksi Lengkap</h3>
-                    <div class="grid grid-cols-2 gap-2 mb-3">
-                        <select id="filterBulan" onchange="filterData()" class="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none">
-                            <option value="Semua">Semua Bulan</option>
-                            <option value="Januari">Januari</option>
-                            <option value="Juni" selected>Juni</option>
-                            <option value="Desember">Desember</option>
-                        </select>
-                        <select id="filterKategori" onchange="filterData()" class="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none">
-                            <option value="Semua">Semua Jenis Kategori</option>
-                        </select>
-                    </div>
-                    <input type="text" id="cariTransaksi" oninput="filterData()" placeholder="Cari keterangan transaksi..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm mb-4 focus:outline-none focus:border-emerald-500">
-                    
-                    <div id="listTransaksi" class="space-y-2 max-h-80 overflow-y-auto">
-                        </div>
-                </div>
-            </div>
-
-            <div id="menu-laporan" class="tab-content hidden p-4 text-center text-gray-400">Fitur Laporan Analisis Ringkas</div>
-            <div id="menu-setting" class="tab-content hidden p-4 text-center text-gray-400">Pengaturan Profil & Aplikasi</div>
-
-        </main>
-
-        <nav class="fixed bottom-0 inset-x-0 bg-white border-t border-gray-100 shadow-lg flex justify-around py-2 z-40">
-            <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-0.5 text-emerald-600 font-medium text-xs">
-                <i class="fa-solid fa-house text-lg"></i><span>Home</span>
-            </button>
-            <button onclick="switchTab('riwayat')" id="nav-riwayat" class="flex flex-col items-center gap-0.5 text-gray-400 hover:text-emerald-500 text-xs">
-                <i class="fa-solid fa-history text-lg"></i><span>Riwayat</span>
-            </button>
-            <button onclick="switchTab('laporan')" id="nav-laporan" class="flex flex-col items-center gap-0.5 text-gray-400 hover:text-emerald-500 text-xs">
-                <i class="fa-solid fa-pie-chart text-lg"></i><span>Laporan</span>
-            </button>
-            <button onclick="switchTab('setting')" id="nav-setting" class="flex flex-col items-center gap-0.5 text-gray-400 hover:text-emerald-500 text-xs">
-                <i class="fa-solid fa-gear text-lg"></i><span>Setting</span>
-            </button>
-            <button onclick="prosesKeluar()" class="flex flex-col items-center gap-0.5 text-gray-400 hover:text-red-500 text-xs">
-                <i class="fa-solid fa-right-from-bracket text-lg"></i><span>Keluar</span>
-            </button>
-        </nav>
-    </div>
-
-    <script>
-        // GANTI URL INI DENGAN URL DEPLOY GOOGLE APPS SCRIPT ANDA
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzGOv26svKIlGAJg7pmzVfixFVPYtdAPjX9X8g2qYcGK8cwa0dNJTfjAUc2qNsXtQ/exec";
-        
-        let databaseUtama = [];
-        let objekGrafik = null;
-
-        // 1. Fungsi Toggle Intip Password (DIAMANKAN DI GLOBAL SCOPE)
-        window.togglePasswordVisibility = function() {
-            const inputSandi = document.getElementById('password');
-            const ikonMata = document.getElementById('toggleIcon');
-            if (inputSandi.type === 'password') {
-                inputSandi.type = 'text';
-                ikonMata.classList.replace('fa-eye-slash', 'fa-eye');
-            } else {
-                inputSandi.type = 'password';
-                ikonMata.classList.replace('fa-eye', 'fa-eye-slash');
-            }
-        };
-
-        // 2. Fungsi Verifikasi Login Langsung ke Apps Script
-        window.prosesLogin = async function() {
-            const userIn = document.getElementById('username').value.trim();
-            const passIn = document.getElementById('password').value.trim();
-            const tombol = document.getElementById('btnLogin');
-
-            if(!userIn || !passIn) {
-                alert("Mohon isi username dan password!");
-                return;
-            }
-
-            tombol.disabled = true;
-            tombol.innerText = "Memproses...";
-
-            try {
-                // Memanggil parameter login ke Web App Apps Script
-                const respon = await fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(userIn)}&password=${encodeURIComponent(passIn)}`);
-                const hasil = await respon.json();
-
-                if (hasil.status === "success") {
-                    document.getElementById('loginPage').classList.add('hidden');
-                    document.getElementById('dashboardPage').classList.remove('hidden');
-                    document.getElementById('userDisplay').innerText = hasil.username;
-                    document.getElementById('roleBadge').innerText = hasil.role;
-                    
-                    // Sukses masuk, langsung sinkronisasi data tabel & grafik
-                    await muatDataKeuangan();
-                } else {
-                    alert("Login Gagal! Username atau password salah.");
-                }
-            } catch (err) {
-                console.error("Fetch Data Error:", err);
-                alert("Gagal terhubung ke sistem server verifikasi.");
-            } finally {
-                tombol.disabled = false;
-                tombol.innerText = "Membuka Kunci...";
-            }
-        };
-
-        // 3. Ambil Data Transaksi Dari Google Sheets
-        async function muatDataKeuangan() {
-            try {
-                const respon = await fetch(`${SCRIPT_URL}?action=getData`);
-                if(!respon.ok) throw new Error("Respon server bermasalah.");
-                
-                const hasil = await respon.json();
-                databaseUtama = hasil.transaksi || [];
-                
-                // Render komponen dashboard
-                bangunGrafikTren(hasil.trenGrafik || {});
-                isiPilihanKategori();
-                filterData();
-            } catch (err) {
-                console.error("Gagal sinkronisasi data penuh:", err);
-                alert("Gagal memuat sinkronisasi data.");
-            }
-        }
-
-        // 4. Pengatur Navigasi Tab Menu Bawah
-        window.switchTab = function(namaTab) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`menu-${namaTab}`).classList.remove('hidden');
-            
-            document.querySelectorAll('nav button').forEach(btn => {
-                if(btn.id === `nav-${namaTab}`) {
-                    btn.classList.add('text-emerald-600', 'font-medium');
-                    btn.classList.remove('text-gray-400');
-                } else if(btn.id) {
-                    btn.classList.remove('text-emerald-600', 'font-medium');
-                    btn.classList.add('text-gray-400');
-                }
-            });
-        };
-
-        // 5. Membuat Grafik Halus Sesuai Gambar Contoh
-        function bangunGrafikTren(dataTren) {
-            const ctx = document.getElementById('chartTren').getContext('2d');
-            
-            // Konfigurasi default data grafik dummy/statis jika data sheet kosong
-            const labelTanggal = dataTren.labels || ['02/06', '03/06', '04/06', '05/06', '06/06', '07/06', '08/06'];
-            const nominalSkg = dataTren.datasets || [110000, 55000, 187000, 150000, 55000, 77000, 12000];
-
-            if(objekGrafik) objekGrafik.destroy();
-
-            objekGrafik = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labelTanggal,
-                    datasets: [{
-                        label: 'Bulan Ini',
-                        data: nominalSkg,
-                        borderColor: '#e11d48',
-                        backgroundColor: 'rgba(225, 29, 72, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4, // Membuat garis melengkung smooth
-                        pointBackgroundColor: '#e11d48',
-                        pointRadius: 5
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { ticks: { display: false }, grid: { display: true, color: '#f3f4f6' } },
-                        x: { grid: { display: false } }
-                    }
-                }
-            });
-        }
-
-        // 6. Filter & Tampilkan Pencarian Riwayat
-        window.filterData = function() {
-            const bln = document.getElementById('filterBulan').value;
-            const kat = document.getElementById('filterKategori').value;
-            const cari = document.getElementById('cariTransaksi').value.toLowerCase();
-            const kontainer = document.getElementById('listTransaksi');
-            
-            kontainer.innerHTML = "";
-            
-            // Menyaring data berdasar input filter
-            const hasilSaring = databaseUtama.filter(t => {
-                const cocokBulan = (bln === "Semua" || t.bulan === bln);
-                const cocokKategori = (kat === "Semua" || t.kategori === kat);
-                const cocokTeks = (t.keterangan.toLowerCase().includes(cari) || t.kategori.toLowerCase().includes(cari));
-                return cocokBulan && cocokKategori && cocokTeks;
-            });
-
-            if(hasilSaring.length === 0) {
-                kontainer.innerHTML = `<p class="text-center text-xs text-gray-400 py-4">Tidak ada transaksi ditemukan</p>`;
-                return;
-            }
-
-            hasilSaring.forEach(t => {
-                const item = document.createElement('div');
-                item.className = "flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100";
-                item.innerHTML = `
-                    <div>
-                        <p class="text-sm font-semibold text-gray-900">${t.keterangan}</p>
-                        <p class="text-[11px] text-gray-400">${t.tanggal} • <span class="text-emerald-600 font-medium">${t.kategori}</span></p>
-                    </div>
-                    <p class="text-sm font-bold text-red-600">-Rp ${Number(t.jumlah).toLocaleString('id-ID')}</p>
-                `;
-                kontainer.appendChild(item);
-            });
-        };
-
-        function isiPilihanKategori() {
-            const select = document.getElementById('filterKategori');
-            const daftarKat = [...new Set(databaseUtama.map(t => t.kategori))];
-            select.innerHTML = `<option value="Semua">Semua Jenis Kategori</option>`;
-            daftarKat.forEach(k => {
-                if(k) select.innerHTML += `<option value="${k}">${k}</option>`;
-            });
-        }
-
-        window.prosesKeluar = function() {
-            if(confirm("Apakah Anda ingin keluar dari aplikasi?")) {
-                document.getElementById('username').value = "";
-                document.getElementById('password').value = "";
-                document.getElementById('dashboardPage').classList.add('hidden');
-                document.getElementById('loginPage').classList.remove('hidden');
-            }
-        };
-    </script>
-</body>
-</html>
+            <button onclick="muatDataKeuangan()" class="w-9 h-9 bg-slate-800 hover:
