@@ -23,10 +23,10 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 140px;
+      max-width: 160px;
     }
 
-    /* ================= LIGHT MODE OVERRIDES ================= */
+    /* ================= SYSTEM LIGHT MODE OVERRIDES ================= */
     body.light-mode {
       background-color: #f3f4f6;
       color: #1f2937;
@@ -71,7 +71,7 @@
 
   <!-- Tombol Tema Halaman Login -->
   <div id="themeToggleContainerLogin" class="absolute top-4 right-4 z-50">
-    <button onclick="toggleTheme()" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 border border-gray-700 cursor-pointer hover:text-white transition shadow-md">
+    <button onclick="toggleThemeManual()" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 border border-gray-700 cursor-pointer hover:text-white transition shadow-md">
       <i class="fa-solid fa-sun" id="themeIconLogin"></i>
     </button>
   </div>
@@ -102,10 +102,10 @@
     </div>
   </div>
 
-  <!-- ================= HALAMAN UTAMA / DASBOR ================= -->
+  <!-- ================= PANEL HALAMAN APLIKASI (SPA) ================= -->
   <div id="mainPage" class="hidden max-w-md mx-auto px-4 pt-6">
     
-    <!-- Header Pengguna -->
+    <!-- Header Global Pengguna -->
     <div class="flex justify-between items-center mb-6">
       <div>
         <p class="text-xs text-gray-400">Selamat datang,</p>
@@ -115,7 +115,7 @@
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="toggleTheme()" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 border border-gray-700 cursor-pointer hover:text-white transition">
+        <button onclick="toggleThemeManual()" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 border border-gray-700 cursor-pointer hover:text-white transition">
           <i class="fa-solid fa-sun" id="themeIconMain"></i>
         </button>
         <div class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-emerald-400 border border-gray-700">
@@ -124,15 +124,12 @@
       </div>
     </div>
 
-    <!-- Filter -->
+    <!-- Filter Global Dashboard -->
     <div class="bg-gray-800 rounded-2xl p-4 border border-gray-700 mb-5 space-y-3">
       <div id="adminFilterContainer" class="hidden">
         <label class="block text-[11px] uppercase tracking-wider text-gray-400 font-semibold mb-1">Tampilan Data</label>
-        <select id="filterPencatat" onchange="muatDataKeuangan()" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
-          <option value="Semua">Semua Pencatat (Gabungan)</option>
-        </select>
+        <select id="filterPencatat" onchange="muatDataKeuangan()" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500"></select>
       </div>
-      
       <div>
         <label class="block text-[11px] uppercase tracking-wider text-gray-400 font-semibold mb-1">Periode Bulan</label>
         <select id="filterBulan" onchange="muatDataKeuangan()" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
@@ -159,26 +156,22 @@
       <p class="text-sm text-gray-400 font-medium">Sinkronisasi data...</p>
     </div>
 
-    <!-- KONTEN UTAMA DASBOR -->
-    <div id="dashboardContent" class="hidden space-y-5">
-      <!-- Card Saldo -->
+    <!-- %%%%%%%%%%%%%%%%% TAB 1: HOME %%%%%%%%%%%%%%%%% -->
+    <div id="viewHome" class="tab-content hidden space-y-5">
+      <!-- Card Ringkasan Saldo -->
       <div class="bg-gray-800 rounded-2xl p-5 border border-gray-700 shadow-lg">
         <p class="text-xs text-gray-400 font-medium">Total Saldo Anda</p>
         <h2 id="txtSisaSaldo" class="text-3xl font-bold text-white mt-1 mb-5">Rp 0</h2>
         <div class="grid grid-cols-2 gap-4 border-t border-gray-700/60 pt-4">
           <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 text-xs">
-              <i class="fa-solid fa-arrow-down"></i>
-            </div>
+            <div class="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 text-xs"><i class="fa-solid fa-arrow-down"></i></div>
             <div>
               <p class="text-[10px] text-gray-400 uppercase tracking-wide">Pemasukan</p>
               <p id="txtPemasukan" class="text-sm font-semibold text-white">Rp 0</p>
             </div>
           </div>
           <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-400 text-xs">
-              <i class="fa-solid fa-arrow-up"></i>
-            </div>
+            <div class="w-8 h-8 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-400 text-xs"><i class="fa-solid fa-arrow-up"></i></div>
             <div>
               <p class="text-[10px] text-gray-400 uppercase tracking-wide">Pengeluaran</p>
               <p id="txtPengeluaran" class="text-sm font-semibold text-white">Rp 0</p>
@@ -187,55 +180,103 @@
         </div>
       </div>
 
-      <!-- Area Grafik Tren Pengeluaran -->
+      <!-- Grafik Tren Pengeluaran Harian -->
       <div class="bg-gray-800 rounded-2xl p-4 border border-gray-700 shadow-md">
         <h3 class="text-sm font-semibold text-white mb-3">Tren Pengeluaran Terakhir</h3>
-        <div class="relative w-full h-56">
-          <canvas id="canvasTren"></canvas>
+        <div class="relative w-full h-56"><canvas id="canvasTren"></canvas></div>
+      </div>
+
+      <!-- 5 Transaksi Terakhir -->
+      <div>
+        <h3 class="text-sm font-semibold text-white mb-3">5 Transaksi Terakhir</h3>
+        <div id="listTransaksiHome" class="space-y-3"></div>
+      </div>
+    </div>
+
+    <!-- %%%%%%%%%%%%%%%%% TAB 2: RIWAYAT LENGKAP %%%%%%%%%%%%%%%%% -->
+    <div id="viewRiwayat" class="tab-content hidden space-y-4">
+      <h3 class="text-lg font-bold text-white">Daftar Transaksi Lengkap</h3>
+      
+      <!-- Kontrol Pencarian & Filter Kategori Dropdown -->
+      <div class="grid grid-cols-1 gap-2 bg-gray-800 p-3 rounded-xl border border-gray-700">
+        <div class="relative">
+          <input type="text" id="searchRiwayat" oninput="prosesFilterSaringRiwayat()" class="w-full bg-gray-900 border border-gray-700 rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500" placeholder="Cari keterangan transaksi...">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+        </div>
+        <select id="dropdownKategoriRiwayat" onchange="prosesFilterSaringRiwayat()" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-2 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+          <option value="Semua">Semua Jenis Kategori</option>
+        </select>
+      </div>
+
+      <!-- List Box Riwayat Dengan Date Grouping -->
+      <div id="boxRiwayatLengkap" class="space-y-4"></div>
+    </div>
+
+    <!-- %%%%%%%%%%%%%%%%% TAB 3: LAPORAN DIAGRAM %%%%%%%%%%%%%%%%% -->
+    <div id="viewLaporan" class="tab-content hidden space-y-5">
+      <h3 class="text-lg font-bold text-white">Analisis & Laporan</h3>
+
+      <!-- Card Sorotan Kategori Terboros -->
+      <div class="bg-gradient-to-r from-rose-500/10 to-orange-500/5 border border-rose-500/20 rounded-xl p-4 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-full bg-rose-500/25 flex items-center justify-center text-rose-400 text-lg"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div>
+          <p class="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Kategori Terboros Bulan Ini</p>
+          <h4 id="txtKategoriTerboros" class="text-base font-bold text-white mt-0.5">-</h4>
+          <p id="txtNominalTerboros" class="text-xs text-rose-400 font-semibold mt-0.5">Rp 0</p>
         </div>
       </div>
 
-      <!-- Daftar 5 Transaksi Terakhir -->
-      <div>
-        <h3 class="text-sm font-semibold text-white mb-3">5 Transaksi Terakhir</h3>
-        <div id="listTransaksi" class="space-y-3"></div>
+      <!-- Diagram Lingkaran Kategori -->
+      <div class="bg-gray-800 rounded-2xl p-4 border border-gray-700 shadow-md">
+        <h4 class="text-sm font-semibold text-white mb-4 text-center">Proporsi Pengeluaran Kategori</h4>
+        <div class="relative w-full h-56 mx-auto"><canvas id="canvasDonut"></canvas></div>
+      </div>
+
+      <!-- Diagram Batang Komparatif Bulanan -->
+      <div class="bg-gray-800 rounded-2xl p-4 border border-gray-700 shadow-md">
+        <h4 class="text-sm font-semibold text-white mb-4 text-center">Komparasi Bulanan (Jan - Des)</h4>
+        <div class="relative w-full h-56"><canvas id="canvasBar"></canvas></div>
       </div>
     </div>
 
   </div>
 
-  <!-- NAVIGATION BOTTOM -->
+  <!-- ================= DOCK NAVIGATION BOTTOM ================= -->
   <div id="bottomNav" class="hidden fixed bottom-0 left-0 right-0 bg-gray-900/90 backdrop-blur-md border-t border-gray-800 py-2 z-50">
     <div class="max-w-md mx-auto grid grid-cols-4 items-center text-center">
-      <button class="flex flex-col items-center gap-0.5 text-emerald-400 cursor-pointer">
-        <i class="fa-solid fa-house text-lg"></i>
-        <span class="text-[10px] font-medium">Home</span>
+      <button onclick="switchTab('home')" id="btnTabHome" class="flex flex-col items-center gap-0.5 text-emerald-400 cursor-pointer transition">
+        <i class="fa-solid fa-house text-lg"></i><span class="text-[10px] font-medium">Home</span>
       </button>
-      <button onclick="alert('Menu Riwayat Lengkap Segera Hadir')" class="flex flex-col items-center gap-0.5 text-gray-500 hover:text-gray-300 cursor-pointer">
-        <i class="fa-solid fa-clock-rotate-left text-lg"></i>
-        <span class="text-[10px] font-medium">Riwayat</span>
+      <button onclick="switchTab('riwayat')" id="btnTabRiwayat" class="flex flex-col items-center gap-0.5 text-gray-500 cursor-pointer transition">
+        <i class="fa-solid fa-clock-rotate-left text-lg"></i><span class="text-[10px] font-medium">Riwayat</span>
       </button>
-      <button onclick="alert('Menu Laporan Grafik Segera Hadir')" class="flex flex-col items-center gap-0.5 text-gray-500 hover:text-gray-300 cursor-pointer">
-        <i class="fa-solid fa-chart-pie text-lg"></i>
-        <span class="text-[10px] font-medium">Laporan</span>
+      <button onclick="switchTab('laporan')" id="btnTabLaporan" class="flex flex-col items-center gap-0.5 text-gray-500 cursor-pointer transition">
+        <i class="fa-solid fa-chart-pie text-lg"></i><span class="text-[10px] font-medium">Laporan</span>
       </button>
-      <button onclick="prosesKeluar()" class="flex flex-col items-center gap-0.5 text-gray-500 hover:text-rose-400 cursor-pointer">
-        <i class="fa-solid fa-right-from-bracket text-lg"></i>
-        <span class="text-[10px] font-medium">Keluar</span>
+      <button onclick="prosesKeluar()" class="flex flex-col items-center gap-0.5 text-gray-500 hover:text-rose-400 cursor-pointer transition">
+        <i class="fa-solid fa-right-from-bracket text-lg"></i><span class="text-[10px] font-medium">Keluar</span>
       </button>
     </div>
   </div>
 
-  <!-- JAVASCRIPT LOGIC -->
+  <!-- ================= CORE JAVASCRIPT SYSTEM ================= -->
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzGOv26svKIlGAJg7pmzVfixFVPYtdAPjX9X8g2qYcGK8cwa0dNJTfjAUc2qNsXtQ/exec";
 
     let sessionUser = localStorage.getItem("app_user") || "";
     let sessionRole = localStorage.getItem("app_role") || "User";
-    let chartInstance = null;
+    
+    // Penampung instansiasi grafik agar tidak menumpuk (ghost overlay)
+    let chartLineInstance = null;
+    let chartDonutInstance = null;
+    let chartBarInstance = null;
+    
+    // Master data untuk fitur filter frontend riwayat
+    let rawRiwayatLengkap = [];
 
     window.addEventListener("DOMContentLoaded", () => {
-      applyTheme();
+      initThemeEngine();
+      
       const currentMonthIndex = new Date().getMonth() + 1;
       const currentMonthStr = (currentMonthIndex < 10 ? "0" : "") + currentMonthIndex;
       document.getElementById("filterBulan").value = currentMonthStr;
@@ -245,26 +286,30 @@
       }
     });
 
-    function togglePasswordVisibility() {
-      const passInput = document.getElementById("passwordInput");
-      const passIcon = document.getElementById("passwordIcon");
-      if (passInput.type === "password") {
-        passInput.type = "text";
-        passIcon.classList.remove("fa-eye");
-        passIcon.classList.add("fa-eye-slash");
+    // --- 1. ENGINES INTEGRATED THEMING (MANUAL & SENSOR SYSTEM HP) ---
+    function initThemeEngine() {
+      const savedTheme = localStorage.getItem("app_theme");
+      if (savedTheme) {
+        applyThemeClasses(savedTheme);
       } else {
-        passInput.type = "password";
-        passIcon.classList.remove("fa-eye-slash");
-        passIcon.classList.add("fa-eye");
+        // Otomatis deteksi mode dari system HP
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyThemeClasses(systemPrefersDark ? "dark" : "light");
       }
+      
+      // Standby memantau jika tema HP berubah di tengah jalan secara dinamis
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        if (!localStorage.getItem("app_theme")) { 
+          applyThemeClasses(e.matches ? "dark" : "light");
+          if (sessionUser) muatDataKeuangan();
+        }
+      });
     }
 
-    function applyTheme() {
-      const currentTheme = localStorage.getItem("app_theme") || "dark";
+    function applyThemeClasses(theme) {
       const iconLogin = document.getElementById("themeIconLogin");
       const iconMain = document.getElementById("themeIconMain");
-      
-      if (currentTheme === "light") {
+      if (theme === "light") {
         document.body.classList.add("light-mode");
         if(iconLogin) iconLogin.className = "fa-solid fa-moon";
         if(iconMain) iconMain.className = "fa-solid fa-moon";
@@ -275,11 +320,45 @@
       }
     }
 
-    function toggleTheme() {
-      const currentTheme = localStorage.getItem("app_theme") || "dark";
-      localStorage.setItem("app_theme", currentTheme === "dark" ? "light" : "dark");
-      applyTheme();
+    function toggleThemeManual() {
+      const isCurrentlyLight = document.body.classList.contains("light-mode");
+      const nextTheme = isCurrentlyLight ? "dark" : "light";
+      localStorage.setItem("app_theme", nextTheme);
+      applyThemeClasses(nextTheme);
       if (sessionUser) muatDataKeuangan();
+    }
+
+    function togglePasswordVisibility() {
+      const passInput = document.getElementById("passwordInput");
+      const passIcon = document.getElementById("passwordIcon");
+      if (passInput.type === "password") {
+        passInput.type = "text";
+        passIcon.className = "fa-solid fa-eye-slash";
+      } else {
+        passInput.type = "password";
+        passIcon.className = "fa-solid fa-eye";
+      }
+    }
+
+    // --- 2. SINGLE PAGE APPLICATION (SPA) NAVIGATION TAB ---
+    function switchTab(targetTab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      
+      const tabs = ['home', 'riwayat', 'laporan'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`btnTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        if(t === targetTab) {
+          btn.classList.remove('text-gray-500');
+          btn.classList.add('text-emerald-400');
+        } else {
+          btn.classList.remove('text-emerald-400');
+          btn.classList.add('text-gray-500');
+        }
+      });
+
+      if (targetTab === 'home') document.getElementById('viewHome').classList.remove('hidden');
+      if (targetTab === 'riwayat') document.getElementById('viewRiwayat').classList.remove('hidden');
+      if (targetTab === 'laporan') document.getElementById('viewLaporan').classList.remove('hidden');
     }
 
     function formatRupiah(angka) {
@@ -295,7 +374,6 @@
       const btn = document.getElementById("btnLogin");
 
       if (!u || !p) return alert("Harap isi username dan password!");
-
       btn.disabled = true;
       btn.innerText = "Membuka Kunci...";
 
@@ -334,17 +412,18 @@
       if (sessionRole === "Admin") {
         document.getElementById("adminFilterContainer").classList.remove("hidden");
       }
+      switchTab('home');
       muatDataKeuangan();
     }
 
+    // --- 3. PROSES DATA MINING & VISUAL RENDERING ---
     function muatDataKeuangan() {
       const loadEl = document.getElementById("loadingState");
-      const contentEl = document.getElementById("dashboardContent");
+      const viewHome = document.getElementById("viewHome");
       
       loadEl.classList.remove("hidden");
-      contentEl.classList.add("hidden");
-
-      const pFilter = document.getElementById("filterPencatat").value;
+      
+      const pFilter = document.getElementById("filterPencatat") ? document.getElementById("filterPencatat").value : "Semua";
       const bFilter = document.getElementById("filterBulan").value;
 
       let apiTarget = `${SCRIPT_URL}?action=getData&username=${encodeURIComponent(sessionUser)}&role=${sessionRole}&filterPencatat=${encodeURIComponent(pFilter)}&filterBulan=${bFilter}`;
@@ -353,112 +432,210 @@
         .then(res => res.json())
         .then(res => {
           if (res.status === "success") {
+            // Pasang Dashboard Atas
             document.getElementById("txtSisaSaldo").innerText = "Rp " + res.data.sisa.toLocaleString("id-ID");
             document.getElementById("txtPemasukan").innerText = "Rp " + res.data.pemasukan.toLocaleString("id-ID");
             document.getElementById("txtPengeluaran").innerText = "Rp " + res.data.pengeluaran.toLocaleString("id-ID");
 
-            if (sessionRole === "Admin") {
+            // Pasang Dropdown Admin
+            if (sessionRole === "Admin" && document.getElementById("filterPencatat")) {
               const dropdown = document.getElementById("filterPencatat");
-              const currentVal = dropdown.value;
-              dropdown.innerHTML = '<option value="Semua">Semua Pencatat (Gabungan)</option>';
-              res.data.pencatatTersedia.forEach(p => {
-                let opt = document.createElement("option");
-                opt.value = p;
-                opt.innerText = p;
-                dropdown.appendChild(opt);
-              });
-              dropdown.value = currentVal;
+              if(dropdown.innerHTML === "") {
+                dropdown.innerHTML = '<option value="Semua">Semua Pencatat (Gabungan)</option>';
+                res.data.pencatatTersedia.forEach(p => {
+                  dropdown.innerHTML += `<option value="${p}">${p}</option>`;
+                });
+              }
             }
 
-            const boxTrx = document.getElementById("listTransaksi");
-            boxTrx.innerHTML = "";
+            // Simpan master untuk Tab Riwayat
+            rawRiwayatLengkap = res.data.riwayatFull;
+            
+            // Pasang Dropdown Kategori di Tab Riwayat
+            const dropKat = document.getElementById("dropdownKategoriRiwayat");
+            dropKat.innerHTML = '<option value="Semua">Semua Jenis Kategori</option>';
+            res.data.kategoriTersedia.forEach(k => {
+              dropKat.innerHTML += `<option value="${k}">${k}</option>`;
+            });
 
-            if (res.data.riwayat.length === 0) {
-              boxTrx.innerHTML = '<p class="text-xs text-gray-500 text-center py-4">Tidak ada riwayat transaksi pada periode ini.</p>';
-            } else {
-              res.data.riwayat.forEach(item => {
-                let isMin = item.jenis === "Pengeluaran";
-                let colorNominal = isMin ? "text-rose-400" : "text-emerald-400";
-                let iconCat = isMin ? "fa-solid fa-utensils text-orange-400" : "fa-solid fa-wallet text-indigo-400";
-                if(item.kategori.toLowerCase().includes("komisi") || item.kategori.toLowerCase().includes("gaji")) iconCat = "fa-solid fa-wallet text-indigo-400";
-                if(item.kategori.toLowerCase().includes("lain")) iconCat = "fa-solid fa-file-lines text-slate-400";
+            // Render Dashboard Riwayat (5 Teratas)
+            renderKoleksiTransaksi(rawRiwayatLengkap.slice(0, 5), "listTransaksiHome", false);
+            
+            // Render Tab Riwayat Lengkap (Semua + Grouping)
+            prosesFilterSaringRiwayat();
 
-                let htmlCard = `
-                  <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-3.5 flex items-center justify-between gap-2 shadow-sm">
-                    <div class="flex items-center gap-3 min-w-0">
-                      <div class="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center text-sm shrink-0">
-                        <i class="${iconCat}"></i>
-                      </div>
-                      <div class="min-w-0">
-                        <div class="flex items-center gap-1.5 flex-wrap">
-                          <h4 class="text-sm font-semibold text-gray-200 text-truncate-custom" title="${item.keterangan}">${item.keterangan || item.kategori}</h4>
-                          <span class="text-[9px] bg-gray-700 px-1.5 py-0.5 rounded text-gray-300 font-medium shrink-0">${item.pencatat}</span>
-                        </div>
-                        <p class="text-[11px] text-gray-400 mt-0.5">${item.tanggal} • ${item.kategori}</p>
-                      </div>
-                    </div>
-                    <span class="text-sm font-bold tracking-wide shrink-0 ${colorNominal}">
-                      ${formatRupiah(isMin ? -item.nominal : item.nominal)}
-                    </span>
-                  </div>
-                `;
-                boxTrx.innerHTML += htmlCard;
-              });
-            }
+            // Render Laporan Sorotan Terboros
+            document.getElementById("txtKategoriTerboros").innerText = res.data.borosKategori;
+            document.getElementById("txtNominalTerboros").innerText = "Total: Rp " + res.data.borosNominal.toLocaleString("id-ID");
 
-            buildChart(res.data.grafikLabels, res.data.grafikData);
+            // Render Semua Grafik
+            buildLineChart(res.data.grafikLabels, res.data.grafikData);
+            buildDonutChart(res.data.donutLabels, res.data.donutData);
+            buildBarChart(res.data.barPem, res.data.barPeng);
 
             loadEl.classList.add("hidden");
-            contentEl.classList.remove("hidden");
+            // Kembalikan view content tab aktif
+            document.querySelectorAll('.tab-content').forEach(el => {
+              if(!el.id.includes('view' + document.querySelector('#bottomNav .text-emerald-400 span').innerText)) {
+                 // Tetap sembunyikan yang tidak aktif
+              }
+            });
+            // Tampilkan kembali halaman utama
+            const activeTabText = document.querySelector('#bottomNav .text-emerald-400 span').innerText.toLowerCase();
+            switchTab(activeTabText);
           }
         })
         .catch(err => {
           console.error(err);
-          alert("Gagal memuat data dari spreadsheet.");
+          alert("Gagal memuat sinkronisasi data.");
+          loadEl.classList.add("hidden");
         });
     }
 
-    function buildChart(labels, data) {
-      const ctx = document.getElementById("canvasTren").getContext("2d");
-      if (chartInstance) {
-        chartInstance.destroy();
+    // --- 4. LOGIKA FILTRASI & GROUPING TANGGAL (TAB RIWAYAT) ---
+    function prosesFilterSaringRiwayat() {
+      const keyword = document.getElementById("searchRiwayat").value.toLowerCase().trim();
+      const kategoriSelected = document.getElementById("dropdownKategoriRiwayat").value;
+
+      const hasilSaring = rawRiwayatLengkap.filter(item => {
+        const matchKeyword = item.keterangan.toLowerCase().includes(keyword) || item.kategori.toLowerCase().includes(keyword);
+        const matchKategori = (kategoriSelected === "Semua") || (item.kategori === kategoriSelected);
+        return matchKeyword && matchKategori;
+      });
+
+      renderKoleksiTransaksi(hasilSaring, "boxRiwayatLengkap", true);
+    }
+
+    function renderKoleksiTransaksi(dataArr, targetElementId, gunakanGroupingTanggal) {
+      const container = document.getElementById(targetElementId);
+      container.innerHTML = "";
+
+      if (dataArr.length === 0) {
+        container.innerHTML = '<p class="text-xs text-gray-500 text-center py-6">Tidak ada catatan transaksi ditemukan.</p>';
+        return;
       }
 
-      const isLightMode = document.body.classList.contains("light-mode");
-      const gridColor = isLightMode ? 'rgba(209, 213, 219, 0.7)' : 'rgba(55, 65, 81, 0.4)';
-      const labelColor = isLightMode ? '#4b5563' : '#9ca3af';
+      let lastDateGroup = "";
 
-      chartInstance = new Chart(ctx, {
+      dataArr.forEach(item => {
+        let isMin = item.jenis === "Pengeluaran";
+        let colorNominal = isMin ? "text-rose-400" : "text-emerald-400";
+        let iconCat = isMin ? "fa-solid fa-utensils text-orange-400" : "fa-solid fa-wallet text-indigo-400";
+        
+        if(item.kategori.toLowerCase().includes("komisi") || item.kategori.toLowerCase().includes("gaji")) iconCat = "fa-solid fa-wallet text-indigo-400";
+        if(item.kategori.toLowerCase().includes("lain")) iconCat = "fa-solid fa-file-lines text-slate-400";
+
+        // Sisipkan Header Grouping Tanggal jika diaktifkan (Untuk Tab Riwayat Lengkap)
+        if (gunakanGroupingTanggal && item.tanggal !== lastDateGroup) {
+          lastDateGroup = item.tanggal;
+          container.innerHTML += `
+            <div class="flex items-center gap-2 pt-2 pb-1">
+              <span class="text-xs font-bold tracking-wide text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full">${lastDateGroup}</span>
+              <div class="h-[1px] bg-gray-700/60 flex-1"></div>
+            </div>
+          `;
+        }
+
+        let htmlCard = `
+          <div class="bg-gray-800/60 border border-gray-700/50 rounded-xl p-3 flex items-center justify-between gap-2 shadow-sm">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-9 h-9 bg-gray-900 rounded-xl flex items-center justify-center text-xs shrink-0"><i class="${iconCat}"></i></div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <h4 class="text-xs font-semibold text-gray-200 text-truncate-custom" title="${item.keterangan}">${item.keterangan || item.kategori}</h4>
+                  <span class="text-[8px] bg-gray-700 px-1 py-0.2 rounded text-gray-300 font-medium shrink-0">${item.pencatat}</span>
+                </div>
+                <p class="text-[10px] text-gray-400 mt-0.5">${gunakanGroupingTanggal ? '' : item.tanggal + ' • '}${item.kategori}</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold tracking-wide shrink-0 ${colorNominal}">${formatRupiah(isMin ? -item.nominal : item.nominal)}</span>
+          </div>
+        `;
+        container.innerHTML += htmlCard;
+      });
+    }
+
+    // --- 5. ENGINES GRAFIK COMPONENT (CHART.JS) ---
+    function getThemeColors() {
+      const isLight = document.body.classList.contains("light-mode");
+      return {
+        grid: isLight ? 'rgba(209, 213, 219, 0.6)' : 'rgba(55, 65, 81, 0.4)',
+        label: isLight ? '#4b5563' : '#9ca3af'
+      };
+    }
+
+    function buildLineChart(labels, data) {
+      if (chartLineInstance) chartLineInstance.destroy();
+      const colors = getThemeColors();
+      chartLineInstance = new Chart(document.getElementById("canvasTren").getContext("2d"), {
         type: 'line',
         data: {
           labels: labels,
           datasets: [{
-            label: 'Pengeluaran',
-            data: data,
-            borderColor: '#f43f5e',
-            backgroundColor: 'rgba(244, 63, 94, 0.15)',
-            borderWidth: 2,
-            pointBackgroundColor: '#f43f5e',
-            pointRadius: 4,
-            tension: 0.4,
-            fill: true
+            data: data, borderColor: '#f43f5e', backgroundColor: 'rgba(244, 63, 94, 0.1)',
+            borderWidth: 2, pointBackgroundColor: '#f43f5e', pointRadius: 3, tension: 0.4, fill: true
           }]
         },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
+          responsive: true, maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
-            x: { 
-              grid: { display: false }, 
-              ticks: { 
-                color: labelColor, 
-                font: { size: 10 },
-                maxRotation: 0, // Mencegah teks tanggal berputar miring
-                minRotation: 0
-              } 
-            },
-            y: { grid: { color: gridColor }, ticks: { display: false } }
+            x: { grid: { display: false }, ticks: { color: colors.label, font: { size: 9 }, maxRotation: 0 } },
+            y: { grid: { color: colors.grid }, ticks: { display: false } }
+          }
+        }
+      });
+    }
+
+    function buildDonutChart(labels, data) {
+      if (chartDonutInstance) chartDonutInstance.destroy();
+      const colors = getThemeColors();
+      
+      if(labels.length === 0) {
+        labels = ["Belum Ada Data"];
+        data = [1];
+      }
+
+      chartDonutInstance = new Chart(document.getElementById("canvasDonut").getContext("2d"), {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#ef4444', '#6b7280'],
+            borderWidth: document.body.classList.contains("light-mode") ? 2 : 0
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'right', labels: { color: colors.label, font: { size: 9 } } }
+          },
+          cutout: '65%'
+        }
+      });
+    }
+
+    function buildBarChart(pemData, pengData) {
+      if (chartBarInstance) chartBarInstance.destroy();
+      const colors = getThemeColors();
+      const labelBulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+
+      chartBarInstance = new Chart(document.getElementById("canvasBar").getContext("2d"), {
+        type: 'bar',
+        data: {
+          labels: labelBulan,
+          datasets: [
+            { label: 'Masuk', data: pemData, backgroundColor: '#10b981', borderRadius: 4 },
+            { label: 'Keluar', data: pengData, backgroundColor: '#ef4444', borderRadius: 4 }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: colors.label, font: { size: 9 } } },
+            y: { grid: { color: colors.grid }, ticks: { display: false } }
           }
         }
       });
