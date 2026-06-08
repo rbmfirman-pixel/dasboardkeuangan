@@ -1,119 +1,82 @@
 <!DOCTYPE html>
-<html lang="id" class="dark">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FamilyWealth Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FamilyWealth Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
-        tailwind.config = { darkMode: 'class', theme: { extend: { colors: { neon: '#2dd4bf', danger: '#f43f5e' } } } }
+        tailwind.config = { theme: { extend: { colors: { neon: '#2dd4bf', danger: '#f43f5e', income: '#6366f1', darkbg: '#0f172a', cardbg: '#1e293b' } } } }
     </script>
+    <style> body { background-color: #000; font-family: sans-serif; } ::-webkit-scrollbar { width: 0px; } </style>
 </head>
-<body class="bg-gray-50 dark:bg-black text-gray-900 dark:text-gray-100 min-h-screen">
-
-    <!-- Halaman Login -->
-    <div id="login-page" class="flex flex-col justify-center h-screen px-8">
-        <h1 class="text-3xl font-bold text-center mb-8">Family<span class="text-neon">Wealth</span></h1>
-        <input type="text" id="username" placeholder="Username" class="w-full p-4 mb-4 bg-gray-100 dark:bg-gray-900 rounded-xl">
-        <div class="relative mb-4">
-            <input type="password" id="password" placeholder="Password" class="w-full p-4 bg-gray-100 dark:bg-gray-900 rounded-xl">
-            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-4 top-4"><i class="fa-solid fa-eye text-gray-500"></i></button>
-        </div>
-        <button onclick="prosesLogin()" id="btn-login" class="w-full bg-neon text-black font-bold py-4 rounded-xl">Masuk</button>
-    </div>
-
-    <!-- Halaman Dashboard (Main) -->
-    <div id="dashboard-page" class="hidden pb-24">
-        <div class="p-6 bg-white dark:bg-gray-900 border-b dark:border-gray-800 flex justify-between items-center">
-            <h2 class="font-bold" id="user-display">Dashboard</h2>
-            <select id="filter-user" onchange="loadData()" class="text-xs bg-gray-100 dark:bg-black p-2 rounded-lg">
-                <option value="Semua">Semua Pencatat</option>
-                <option value="Suami">Suami</option>
-                <option value="Istri">Istri</option>
-            </select>
+<body class="flex justify-center min-h-screen text-gray-200">
+    <div class="w-full max-w-md bg-darkbg min-h-screen flex flex-col">
+        
+        <div id="login-page" class="flex flex-col justify-center h-screen px-8">
+            <h1 class="text-3xl font-bold text-white text-center mb-8">Family<span class="text-neon">Wealth</span></h1>
+            <input type="text" id="username" placeholder="Username" class="w-full bg-cardbg p-4 rounded-xl mb-4 border border-gray-700">
+            <input type="password" id="password" placeholder="Password" class="w-full bg-cardbg p-4 rounded-xl mb-4 border border-gray-700">
+            <button onclick="login()" id="login-btn" class="w-full bg-neon text-darkbg font-bold py-4 rounded-xl">Masuk</button>
         </div>
 
-        <div id="content-area" class="p-4">
-            <!-- Statistik -->
-            <div class="bg-gradient-to-r from-teal-500 to-emerald-600 p-6 rounded-2xl text-white mb-6">
-                <p class="opacity-80">Sisa Saldo</p>
-                <h1 class="text-2xl font-bold" id="txt-sisa">Rp 0</h1>
+        <div id="dashboard-page" class="hidden flex-col h-full pb-20">
+            <div class="p-6 bg-cardbg/50 border-b border-gray-800">
+                <p class="text-xs text-gray-400">Selamat datang,</p>
+                <h2 class="text-xl font-bold text-white" id="user-display"></h2>
             </div>
-
-            <!-- Home Content -->
-            <div id="tab-home">
-                <div class="bg-white dark:bg-gray-900 p-4 rounded-2xl mb-6">
-                    <h3 class="font-bold mb-4">Tren Pengeluaran</h3>
-                    <canvas id="expenseChart" class="h-40"></canvas>
+            <div class="p-5 flex-grow overflow-y-auto">
+                <div class="bg-cardbg rounded-2xl p-6 mb-6">
+                    <p class="text-gray-400 text-sm">Sisa Saldo</p>
+                    <h1 class="text-3xl font-bold text-white" id="sisa-saldo">Rp 0</h1>
                 </div>
-                <h3 class="font-bold mb-3">Transaksi Hari Ini</h3>
-                <div id="list-transaksi" class="space-y-3"></div>
-            </div>
-
-            <!-- Laporan Content -->
-            <div id="tab-laporan" class="hidden">
-                <h3 class="font-bold mb-4">Analisis Pengeluaran</h3>
-                <canvas id="donutChart"></canvas>
-            </div>
-
-            <!-- Setting Content -->
-            <div id="tab-setting" class="hidden">
-                <button onclick="toggleDarkMode()" class="w-full p-4 bg-gray-100 dark:bg-gray-900 rounded-xl flex justify-between">
-                    Mode Gelap <span><i class="fa-solid fa-moon"></i></span>
-                </button>
+                <div class="bg-cardbg rounded-2xl p-5 mb-6">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+                <div id="transaction-list" class="space-y-3"></div>
             </div>
         </div>
     </div>
-
-    <!-- Navigasi -->
-    <nav id="nav-bottom" class="hidden fixed bottom-0 w-full bg-white dark:bg-gray-900 border-t dark:border-gray-800 flex justify-around p-4">
-        <button onclick="showTab('home')"><i class="fa-solid fa-house"></i></button>
-        <button onclick="showTab('laporan')"><i class="fa-solid fa-chart-pie"></i></button>
-        <button onclick="showTab('setting')"><i class="fa-solid fa-gear"></i></button>
-        <button onclick="logout()"><i class="fa-solid fa-right-from-bracket text-danger"></i></button>
-    </nav>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzGOv26svKIlGAJg7pmzVfixFVPYtdAPjX9X8g2qYcGK8cwa0dNJTfjAUc2qNsXtQ/exec";
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzGOv26svKIlGAJg7pmzVfixFVPYtdAPjX9X8g2qYcGK8cwa0dNJTfjAUc2qNsXtQ/exec';
 
-        function togglePasswordVisibility() {
-            const p = document.getElementById('password');
-            p.type = p.type === 'password' ? 'text' : 'password';
-        }
-
-        function toggleDarkMode() {
-            document.documentElement.classList.toggle('dark');
-        }
-
-        function showTab(tab) {
-            document.getElementById('tab-home').classList.toggle('hidden', tab !== 'home');
-            document.getElementById('tab-laporan').classList.toggle('hidden', tab !== 'laporan');
-            document.getElementById('tab-setting').classList.toggle('hidden', tab !== 'setting');
-        }
-
-        async function prosesLogin() {
+        async function login() {
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
-            // Di sini Anda bisa menambahkan fetch ke SCRIPT_URL untuk validasi database
+            const res = await fetch(`${SCRIPT_URL}?action=login&username=${user}&password=${pass}`);
+            const data = await res.json();
+            if(data.status === 'success') {
+                localStorage.setItem('user', JSON.stringify(data));
+                location.reload();
+            } else { alert('Login Gagal'); }
+        }
+
+        async function loadDashboard() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if(!user) return;
             document.getElementById('login-page').classList.add('hidden');
             document.getElementById('dashboard-page').classList.remove('hidden');
-            document.getElementById('nav-bottom').classList.remove('hidden');
+            document.getElementById('dashboard-page').classList.add('flex');
+            document.getElementById('user-display').innerText = user.username;
+
+            const res = await fetch(`${SCRIPT_URL}?action=getData&username=${user.username}&role=${user.role}&filterPencatat=Semua`);
+            const resData = await res.json();
+            const d = resData.data;
+            document.getElementById('sisa-saldo').innerText = 'Rp ' + d.sisa.toLocaleString('id-ID');
+            
+            const list = document.getElementById('transaction-list');
+            d.riwayat.forEach(t => {
+                list.innerHTML += `<div class="bg-cardbg p-4 rounded-xl flex justify-between border border-gray-800">
+                    <div><p class="text-sm font-bold text-white">${t.keterangan}</p><p class="text-xs text-gray-400">${t.kategori}</p></div>
+                    <p class="text-sm font-bold ${t.jenis == 'Pemasukan' ? 'text-neon' : 'text-danger'}">Rp ${t.nominal.toLocaleString('id-ID')}</p>
+                </div>`;
+            });
         }
-
-        function logout() { location.reload(); }
-
-        function loadData() {
-            // Fungsi untuk memanggil SCRIPT_URL dengan parameter filter-user
-            console.log("Memuat data dari:", SCRIPT_URL);
-        }
-
-        // Init Chart
-        new Chart(document.getElementById('expenseChart'), {
-            type: 'line',
-            data: { labels: ['Tgl 1', 'Tgl 5', 'Tgl 10'], datasets: [{ data: [100, 200, 150], borderColor: '#2dd4bf' }] }
-        });
+        
+        window.onload = loadDashboard;
     </script>
 </body>
 </html>
