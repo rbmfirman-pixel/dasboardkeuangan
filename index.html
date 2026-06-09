@@ -169,7 +169,14 @@
       let html = "";
       globalTransactions.filter(t => (filterPencatat === "all" || t.pencatat.toLowerCase() === filterPencatat) && (filterBulan === "all" || new Date(t.timestamp).getMonth().toString() === filterBulan))
       .slice(-5).reverse().forEach(trx => {
-        html += `<div class="flex justify-between items-center py-1"><p class="text-sm font-semibold">${trx.kategori}</p><span class="${trx.jenis.toLowerCase() == 'pengeluaran' ? 'text-rose-500' : 'text-emerald-500'} font-bold text-sm">${trx.jenis.toLowerCase() == 'pengeluaran' ? '-' : '+'}${formatter.format(trx.nominal)}</span></div>`;
+        // Menambahkan Keterangan dengan format truncate agar tidak merusak layout
+        html += `<div class="flex justify-between items-start py-1">
+                   <div class="overflow-hidden min-w-0 pr-2">
+                     <p class="text-sm font-semibold text-slate-800 truncate">${trx.kategori}</p>
+                     <p class="text-[11px] text-slate-400 truncate">${trx.keterangan || '-'}</p>
+                   </div>
+                   <span class="${trx.jenis.toLowerCase() == 'pengeluaran' ? 'text-rose-500' : 'text-emerald-500'} font-bold text-sm whitespace-nowrap">${trx.jenis.toLowerCase() == 'pengeluaran' ? '-' : '+'}${formatter.format(trx.nominal)}</span>
+                 </div>`;
       });
       document.getElementById("list-riwayat-singkat").innerHTML = html;
 
@@ -227,7 +234,7 @@
                 tooltip: { callbacks: { label: function(context) { return ' Rp ' + context.parsed.y.toLocaleString('id-ID'); } } }
             },
             scales: { 
-                y: { display: false, beginAtZero: true }, // Menghilangkan label Y-axis
+                y: { display: false, beginAtZero: true },
                 x: { grid: { display: false } } 
             }
         }
