@@ -13,10 +13,7 @@
     .card { background: white; border-radius: 20px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); border: 1px solid #f1f5f9; }
     .fade-in { animation: fadeIn 0.5s ease-in; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    
-    /* Touch-Friendly UI */
     input, select, button { min-height: 52px; padding-left: 1rem; padding-right: 1rem; }
-    
     .loader-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -116,7 +113,7 @@
     function handleLogout() { localStorage.clear(); location.reload(); }
 
     function renderFilteredData() {
-      const filterPencatat = document.getElementById("filter-pencatat").value;
+      const filterPencatat = document.getElementById("filter-pencatat").value.toLowerCase();
       const filterBulan = document.getElementById("filter-bulan").value;
       
       let saldoAwal = 0;
@@ -128,8 +125,10 @@
         const m = d.getMonth().toString();
         const nominal = parseFloat(trx.nominal) || 0;
         const isPemasukan = trx.jenis.toLowerCase() === "pemasukan";
+        const trxPencatat = trx.pencatat.toLowerCase();
         
-        if (filterPencatat !== "all" && trx.pencatat !== filterPencatat) return;
+        // Filter Pencatat (Case Insensitive)
+        if (filterPencatat !== "all" && trxPencatat !== filterPencatat) return;
 
         if (filterBulan === "all") {
            if (isPemasukan) saldoAwal += nominal;
@@ -154,7 +153,7 @@
 
       // Render Riwayat
       let html = "";
-      globalTransactions.filter(t => (filterPencatat === "all" || t.pencatat === filterPencatat) && (filterBulan === "all" || new Date(t.timestamp).getMonth().toString() === filterBulan))
+      globalTransactions.filter(t => (filterPencatat === "all" || t.pencatat.toLowerCase() === filterPencatat) && (filterBulan === "all" || new Date(t.timestamp).getMonth().toString() === filterBulan))
       .slice(-5).reverse().forEach(trx => {
         html += `<div class="flex justify-between items-center py-2"><p class="text-sm font-semibold">${trx.kategori}</p><span class="${trx.jenis.toLowerCase() == 'pengeluaran' ? 'text-rose-500' : 'text-emerald-500'} font-bold text-sm">${trx.jenis.toLowerCase() == 'pengeluaran' ? '-' : '+'}${formatter.format(trx.nominal)}</span></div>`;
       });
@@ -164,6 +163,7 @@
     }
 
     function renderDailyChart() {
+      const filterPencatat = document.getElementById("filter-pencatat").value.toLowerCase();
       const labels = [];
       const data = [];
       const today = new Date();
@@ -176,7 +176,11 @@
         let dailySpend = 0;
         globalTransactions.forEach(trx => {
           const tDate = new Date(trx.timestamp);
-          if (tDate.getDate() === d.getDate() && tDate.getMonth() === d.getMonth() && tDate.getFullYear() === d.getFullYear()) {
+          // Filter tanggal dan pencatat
+          const matchesDate = tDate.getDate() === d.getDate() && tDate.getMonth() === d.getMonth() && tDate.getFullYear() === d.getFullYear();
+          const matchesPencatat = filterPencatat === "all" || trx.pencatat.toLowerCase() === filterPencatat;
+          
+          if (matchesDate && matchesPencatat) {
              if (trx.jenis.toLowerCase() === 'pengeluaran') dailySpend += parseFloat(trx.nominal);
           }
         });
@@ -195,7 +199,7 @@
                 backgroundColor: 'rgba(79, 70, 229, 0.1)', 
                 fill: true,
                 tension: 0.4,
-                pointRadius: 6, // Memperbesar titik terlihat
+                pointRadius: 6,
                 pointHoverRadius: 8,
                 pointBackgroundColor: '#4f46e5'
             }] 
@@ -203,24 +207,11 @@
         options: { 
             responsive: true, 
             maintainAspectRatio: false, 
-            interaction: {
-                intersect: false, // Memudahkan memunculkan label/tooltip
-                mode: 'index'
-            },
-            elements: {
-                point: {
-                    hitRadius: 25, // Area sentuh jari diperbesar
-                }
-            },
+            interaction: { intersect: false, mode: 'index' },
+            elements: { point: { hitRadius: 25 } },
             plugins: { 
                 legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return ' Rp ' + context.parsed.y.toLocaleString('id-ID');
-                        }
-                    }
-                }
+                tooltip: { callbacks: { label: function(context) { return ' Rp ' + context.parsed.y.toLocaleString('id-ID'); } } }
             },
             scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
         }
@@ -234,9 +225,19 @@
       fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getTransactions" }) })
       .then(r => r.json()).then(res => { 
         globalTransactions = res.data; 
+        
+        // Auto-select filter berdasarkan user login
+        const loggedInUser = localStorage.getItem("fw_user");
+        const filterSelect = document.getElementById("filter-pencatat");
+        if(loggedInUser === "Suami" || loggedInUser === "Istri") {
+            filterSelect.value = loggedInUser;
+        }
+
+        // Auto-select bulan
         const currentMonth = new Date().getMonth();
         const monthSelect = document.getElementById("filter-bulan");
         if(currentMonth <= 5) monthSelect.value = currentMonth;
+        
         renderFilteredData(); 
         document.getElementById("loader").classList.add("hidden"); 
       });
