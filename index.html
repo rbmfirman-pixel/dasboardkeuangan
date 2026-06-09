@@ -9,18 +9,23 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body { font-family: 'Poppins', sans-serif; }
+    .password-wrapper { position: relative; }
+    .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #64748b; font-size: 1.2rem; }
     .loader { border: 3px solid #f3f3f3; border-top: 3px solid #4f46e5; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen">
+<body class="bg-slate-50 min-h-screen">
 
   <div id="login-section" class="fixed inset-0 flex items-center justify-center p-4 z-50 bg-slate-50">
     <div class="w-full max-w-sm bg-white p-8 rounded-2xl shadow-xl">
       <h1 class="text-2xl font-bold text-center mb-6">FamilyWealth</h1>
       <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
         <input type="text" id="username" placeholder="Username" required class="w-full p-3 rounded-xl border bg-slate-50">
-        <input type="password" id="password" placeholder="Password" required class="w-full p-3 rounded-xl border bg-slate-50">
+        <div class="password-wrapper">
+          <input type="password" id="password" placeholder="Password" required class="w-full p-3 rounded-xl border bg-slate-50">
+          <span onclick="togglePassword()" class="toggle-password" id="eye-icon">👁️</span>
+        </div>
         <button type="submit" id="btn-login" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold">Masuk</button>
       </form>
     </div>
@@ -66,11 +71,21 @@
     let globalTransactions = [];
     let chartInstance = null;
 
-    // FUNGSI LOGIN (Sama seperti sebelumnya)
+    // Toggle Password
+    function togglePassword() {
+      const p = document.getElementById("password");
+      const i = document.getElementById("eye-icon");
+      if(p.type === "password") { p.type = "text"; i.innerText = "🙈"; }
+      else { p.type = "password"; i.innerText = "👁️"; }
+    }
+
     function handleLogin(e) {
       e.preventDefault();
+      const btn = document.getElementById("btn-login");
+      btn.disabled = true; btn.innerText = "Memproses...";
       const user = document.getElementById("username").value;
       const pass = document.getElementById("password").value;
+      
       fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "login", username: user, password: pass }) })
       .then(res => res.json()).then(res => {
         if(res.status === "success") {
@@ -78,13 +93,12 @@
           localStorage.setItem("fw_role", res.role);
           localStorage.setItem("fw_pencatat", res.pencatat);
           location.reload();
-        } else alert(res.message);
-      });
+        } else { btn.disabled = false; btn.innerText = "Masuk"; alert(res.message); }
+      }).catch(err => { console.error(err); btn.disabled = false; alert("Gagal koneksi server."); });
     }
 
     function handleLogout() { localStorage.clear(); location.reload(); }
 
-    // FUNGSI RENDER UTAMA
     function renderFilteredData() {
       const filter = document.getElementById("filter-pencatat").value;
       const now = new Date();
@@ -103,7 +117,6 @@
 
         if (d.getFullYear() === currentYear) bulananNet[d.getMonth()] += val;
         
-        // Logika Saldo: Semua transaksi sebelum bulan ini adalah Saldo Awal
         if (d.getFullYear() < currentYear || (d.getFullYear() === currentYear && d.getMonth() < currentMonth)) {
           saldoAwal += val;
         } else if (d.getFullYear() === currentYear && d.getMonth() === currentMonth) {
@@ -112,38 +125,45 @@
         }
       });
 
-      document.getElementById("txt-saldo-awal").innerText = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(saldoAwal);
-      document.getElementById("txt-saldo").innerText = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(saldoAwal + pemasukan - pengeluaran);
+      const formatter = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
+      document.getElementById("txt-saldo-awal").innerText = formatter.format(saldoAwal);
+      document.getElementById("txt-saldo").innerText = formatter.format(saldoAwal + pemasukan - pengeluaran);
 
-      // Grafik
       let dataGrafik = [];
       let running = 0;
       for(let i=0; i<=currentMonth; i++) { running += bulananNet[i]; dataGrafik.push(running); }
-      renderChart(dataGrafik);
+      
+      if(chartInstance) chartInstance.destroy();
+      chartInstance = new Chart(document.getElementById('canvasTrenSaldo'), {
+        type: 'line',
+        data: { labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'].slice(0, dataGrafik.length), datasets: [{ data: dataGrafik, borderColor: '#4f46e5', tension: 0.3 }] },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
 
-      // List
       let html = "";
       globalTransactions.slice(0, 5).forEach(trx => {
-        html += `<div class="flex justify-between text-sm"><span>${trx.kategori}</span><span class="${trx.jenis == 'Pengeluaran' ? 'text-red-500' : 'text-green-500'}">${trx.jenis == 'Pengeluaran' ? '-' : '+'}${trx.nominal}</span></div>`;
+        html += `<div class="flex justify-between text-sm py-1 border-b"><span>${trx.kategori}</span><span class="${trx.jenis == 'Pengeluaran' ? 'text-red-500' : 'text-green-500'}">${trx.jenis == 'Pengeluaran' ? '-' : '+'}${formatter.format(trx.nominal)}</span></div>`;
       });
       document.getElementById("list-riwayat-singkat").innerHTML = html;
     }
 
-    function renderChart(data) {
-      if(chartInstance) chartInstance.destroy();
-      chartInstance = new Chart(document.getElementById('canvasTrenSaldo'), {
-        type: 'line',
-        data: { labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'].slice(0, data.length), datasets: [{ data: data, borderColor: '#4f46e5', tension: 0.3 }] },
-        options: { responsive: true, maintainAspectRatio: false }
-      });
-    }
-
-    // INIT
+    // Load App
     if(localStorage.getItem("fw_user")) {
       document.getElementById("login-section").classList.add("hidden");
       document.getElementById("app-section").classList.remove("hidden");
+      
       fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getTransactions" }) })
-      .then(r=>r.json()).then(res => { globalTransactions = res.data; renderFilteredData(); });
+      .then(r => r.json())
+      .then(res => { 
+        if(res.status === "success") {
+          globalTransactions = res.data; 
+          renderFilteredData(); 
+        } else {
+          console.error("API Error:", res.message);
+          alert("Gagal ambil data: " + res.message);
+        }
+      })
+      .catch(err => { console.error("Fetch Error:", err); alert("Gagal koneksi ke API."); });
     }
   </script>
 </body>
