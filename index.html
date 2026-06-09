@@ -10,10 +10,24 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
     body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+    
+    /* Global Styles */
     .card { background: white; border-radius: 20px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); border: 1px solid #f1f5f9; }
     .fade-in { animation: fadeIn 0.5s ease-in; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    input, select, button { min-height: 52px; padding-left: 1rem; padding-right: 1rem; }
+    
+    /* Optimasi Spacing & Symmetry */
+    input, select { 
+        padding: 14px 20px !important; 
+        width: 100%;
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        outline: none;
+    }
+    input:focus, select:focus { border-color: #4f46e5; ring: 2px solid #e0e7ff; }
+    
+    button { padding: 14px 20px; border-radius: 14px; }
+    
     .loader-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -27,15 +41,15 @@
   </div>
 
   <div id="login-section" class="fixed inset-0 flex items-center justify-center p-4 z-50 bg-slate-50 hidden">
-    <div class="w-full max-w-sm bg-white p-6 rounded-3xl shadow-2xl border border-slate-100">
-      <h1 class="text-2xl font-bold text-center mb-6 text-slate-800">FamilyWealth</h1>
+    <div class="w-full max-w-sm bg-white p-8 rounded-3xl shadow-2xl border border-slate-100">
+      <h1 class="text-2xl font-bold text-center mb-8 text-slate-800">FamilyWealth</h1>
       <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
-        <input type="text" id="username" placeholder="Username" required class="w-full rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none">
+        <input type="text" id="username" placeholder="Username" required>
         <div class="relative">
-          <input type="password" id="password" placeholder="Password" required class="w-full rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none">
-          <span onclick="togglePassword()" class="absolute right-4 top-4 cursor-pointer text-slate-400" id="eye-icon">👁️</span>
+          <input type="password" id="password" placeholder="Password" required>
+          <span onclick="togglePassword()" class="absolute right-5 top-4 cursor-pointer text-slate-400 select-none" id="eye-icon">👁️</span>
         </div>
-        <button type="submit" class="w-full bg-indigo-600 text-white rounded-xl font-bold">Masuk</button>
+        <button type="submit" class="w-full bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition">Masuk</button>
       </form>
     </div>
   </div>
@@ -47,30 +61,30 @@
     </header>
 
     <main class="px-6 space-y-6">
-      <div class="grid grid-cols-2 gap-3">
-        <select id="filter-pencatat" onchange="renderFilteredData()" class="w-full rounded-xl border border-slate-200 bg-white font-bold text-sm outline-none">
+      <div class="grid grid-cols-2 gap-4">
+        <select id="filter-pencatat" onchange="renderFilteredData()">
           <option value="all">Semua Orang</option>
           <option value="Suami">Suami</option>
           <option value="Istri">Istri</option>
         </select>
-        <select id="filter-bulan" onchange="renderFilteredData()" class="w-full rounded-xl border border-slate-200 bg-white font-bold text-sm outline-none">
+        <select id="filter-bulan" onchange="renderFilteredData()">
           <option value="all">Semua Bulan</option>
           <option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option>
           <option value="3">Apr</option><option value="4">Mei</option><option value="5">Jun</option>
         </select>
       </div>
 
-      <div class="bg-indigo-600 text-white p-6 rounded-3xl shadow-lg shadow-indigo-200">
-        <p class="text-indigo-200 text-xs uppercase tracking-widest font-bold">Total Sisa Saldo</p>
-        <h1 id="txt-saldo" class="text-3xl font-bold mt-2">Rp 0</h1>
+      <div class="bg-indigo-600 text-white p-7 rounded-3xl shadow-lg shadow-indigo-200">
+        <p class="text-indigo-200 text-[11px] uppercase tracking-widest font-bold">Total Sisa Saldo</p>
+        <h1 id="txt-saldo" class="text-3xl font-bold mt-1">Rp 0</h1>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
-        <div class="card p-4">
+        <div class="card p-5">
           <p class="text-[10px] text-slate-400 font-bold uppercase">Saldo Awal</p>
           <p id="txt-saldo-awal" class="text-sm font-bold mt-1 text-slate-700">Rp 0</p>
         </div>
-        <div class="card p-4">
+        <div class="card p-5">
           <p class="text-[10px] text-slate-400 font-bold uppercase">Pengeluaran</p>
           <p id="txt-pengeluaran" class="text-sm font-bold mt-1 text-rose-500">Rp 0</p>
         </div>
@@ -80,7 +94,7 @@
         <canvas id="canvasTrenSaldo"></canvas>
       </div>
 
-      <div class="card p-5">
+      <div class="card p-6">
         <h3 class="font-bold text-sm text-slate-700 mb-4">Transaksi Terbaru</h3>
         <div id="list-riwayat-singkat" class="space-y-4"></div>
       </div>
@@ -127,7 +141,6 @@
         const isPemasukan = trx.jenis.toLowerCase() === "pemasukan";
         const trxPencatat = trx.pencatat.toLowerCase();
         
-        // Filter Pencatat (Case Insensitive)
         if (filterPencatat !== "all" && trxPencatat !== filterPencatat) return;
 
         if (filterBulan === "all") {
@@ -151,11 +164,10 @@
       document.getElementById("txt-pengeluaran").innerText = formatter.format(totalPengeluaran);
       document.getElementById("txt-saldo").innerText = formatter.format(sisaSaldo);
 
-      // Render Riwayat
       let html = "";
       globalTransactions.filter(t => (filterPencatat === "all" || t.pencatat.toLowerCase() === filterPencatat) && (filterBulan === "all" || new Date(t.timestamp).getMonth().toString() === filterBulan))
       .slice(-5).reverse().forEach(trx => {
-        html += `<div class="flex justify-between items-center py-2"><p class="text-sm font-semibold">${trx.kategori}</p><span class="${trx.jenis.toLowerCase() == 'pengeluaran' ? 'text-rose-500' : 'text-emerald-500'} font-bold text-sm">${trx.jenis.toLowerCase() == 'pengeluaran' ? '-' : '+'}${formatter.format(trx.nominal)}</span></div>`;
+        html += `<div class="flex justify-between items-center py-1"><p class="text-sm font-semibold">${trx.kategori}</p><span class="${trx.jenis.toLowerCase() == 'pengeluaran' ? 'text-rose-500' : 'text-emerald-500'} font-bold text-sm">${trx.jenis.toLowerCase() == 'pengeluaran' ? '-' : '+'}${formatter.format(trx.nominal)}</span></div>`;
       });
       document.getElementById("list-riwayat-singkat").innerHTML = html;
 
@@ -176,7 +188,6 @@
         let dailySpend = 0;
         globalTransactions.forEach(trx => {
           const tDate = new Date(trx.timestamp);
-          // Filter tanggal dan pencatat
           const matchesDate = tDate.getDate() === d.getDate() && tDate.getMonth() === d.getMonth() && tDate.getFullYear() === d.getFullYear();
           const matchesPencatat = filterPencatat === "all" || trx.pencatat.toLowerCase() === filterPencatat;
           
@@ -225,19 +236,14 @@
       fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getTransactions" }) })
       .then(r => r.json()).then(res => { 
         globalTransactions = res.data; 
-        
-        // Auto-select filter berdasarkan user login
         const loggedInUser = localStorage.getItem("fw_user");
         const filterSelect = document.getElementById("filter-pencatat");
         if(loggedInUser === "Suami" || loggedInUser === "Istri") {
             filterSelect.value = loggedInUser;
         }
-
-        // Auto-select bulan
         const currentMonth = new Date().getMonth();
         const monthSelect = document.getElementById("filter-bulan");
         if(currentMonth <= 5) monthSelect.value = currentMonth;
-        
         renderFilteredData(); 
         document.getElementById("loader").classList.add("hidden"); 
       });
