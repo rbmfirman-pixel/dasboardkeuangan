@@ -9,95 +9,353 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { font-family: 'Poppins', sans-serif; }
+    body { font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
     .touch-target { min-height: 44px; min-width: 44px; }
+    /* Style khusus form password */
+    .password-wrapper { position: relative; }
+    .toggle-password { 
+      position: absolute; right: 15px; top: 50%; transform: translateY(-50%); 
+      cursor: pointer; color: #64748b; font-size: 1.2rem; user-select: none;
+    }
+    /* Loading Spinner */
+    .loader { border: 3px solid #f3f3f3; border-top: 3px solid #4f46e5; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
 
   <div id="login-section" class="flex-1 flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8">
-      <h1 class="text-2xl font-bold text-center mb-6">FamilyWealth</h1>
-      <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
-        <input type="text" id="username" placeholder="Username" required class="w-full px-4 py-3 rounded-xl border bg-slate-50 dark:bg-slate-900">
-        <input type="password" id="password" placeholder="Password" required class="w-full px-4 py-3 rounded-xl border bg-slate-50 dark:bg-slate-900">
-        <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-xl">Masuk</button>
+    <div class="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 p-8">
+      <div class="text-center mb-8">
+        <h1 class="text-2xl font-bold tracking-tight text-slate-800 dark:text-white">FamilyWealth</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Silakan masuk ke akun Anda</p>
+      </div>
+
+      <form id="form-login" onsubmit="handleLogin(event)" class="space-y-5">
+        <div>
+          <input type="text" id="username" placeholder="Username" required 
+                 class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+        </div>
+        
+        <div class="password-wrapper">
+          <input type="password" id="password" placeholder="Password" required 
+                 class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+          <span onclick="togglePassword()" class="toggle-password" id="eye-icon">👁️</span>
+        </div>
+        
+        <div id="login-error" class="hidden p-3 rounded-xl bg-red-50 text-red-600 text-sm text-center font-medium"></div>
+
+        <button type="submit" id="btn-login" class="touch-target w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none transition-all">
+          Masuk
+        </button>
       </form>
     </div>
   </div>
 
   <div id="app-section" class="hidden flex-1 flex flex-col">
-    <header class="bg-white dark:bg-slate-800 border-b px-4 py-3 sticky top-0 z-50">
-      <div class="max-w-5xl mx-auto flex justify-between items-center">
-        <span class="text-xl font-bold text-indigo-600">FamilyWealth</span>
-        <button onclick="handleLogout()" class="text-red-500">Keluar</button>
+    <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-3 sticky top-0 z-50 shadow-sm">
+      <div class="max-w-5xl mx-auto flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <span class="text-xl font-bold tracking-tight text-indigo-600 dark:text-indigo-400">FamilyWealth</span>
+          <span id="badge-role" class="text-[10px] px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300 font-bold uppercase"></span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="switchTab('nav-setting')" class="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700">⚙️</button>
+          <button onclick="handleLogout()" class="p-2 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 font-medium text-sm">Keluar</button>
+        </div>
       </div>
     </header>
 
-    <main class="flex-1 max-w-5xl w-full mx-auto p-4 pb-28">
+    <main class="flex-1 max-w-5xl w-full mx-auto p-4 pb-24">
       
-      <div id="tab-home" class="tab-content space-y-6">
-        <select id="filter-pencatat" onchange="loadHomeData()" class="w-full p-3 rounded-xl border dark:bg-slate-800">
-          <option value="all">Semua Data</option>
-          <option value="Suami">Suami</option>
-          <option value="Istri">Istri</option>
-        </select>
+      <div id="tab-home" class="tab-content space-y-5">
+        <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+          <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Filter Pencatat</label>
+          <select id="filter-pencatat" onchange="loadHomeData()" class="w-full bg-slate-50 dark:bg-slate-700 border-none rounded-xl p-2 text-sm font-medium outline-none cursor-pointer">
+            <option value="all">Keseluruhan Data</option>
+            <option value="Suami">Suami</option>
+            <option value="Istri">Istri</option>
+          </select>
+        </div>
 
-        <div class="grid grid-cols-2 gap-4">
-          <div class="p-4 bg-white dark:bg-slate-800 rounded-2xl border shadow-sm">
-            <p class="text-xs text-slate-400">Saldo Awal</p>
-            <p id="saldo-awal" class="text-lg font-bold">Rp 0</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-center">
+            <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Pemasukan Bulan Ini</p>
+            <p id="txt-pemasukan" class="text-lg font-bold text-green-600 dark:text-green-400">Rp 0</p>
           </div>
-          <div class="p-4 bg-indigo-600 text-white rounded-2xl shadow-lg">
-            <p class="text-xs text-indigo-100">Sisa Uang</p>
-            <p id="saldo-akhir" class="text-lg font-bold">Rp 0</p>
+          <div class="p-4 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-200 dark:shadow-none flex flex-col justify-center">
+            <p class="text-xs font-medium text-indigo-100">Sisa Saldo</p>
+            <p id="txt-saldo" class="text-xl font-bold text-white">Rp 0</p>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border shadow-sm">
-          <canvas id="chartPengeluaran"></canvas>
+        <div id="home-loading" class="text-center py-10 hidden">
+          <div class="loader mb-2"></div>
+          <p class="text-sm text-slate-500">Memuat data transaksi...</p>
         </div>
 
-        <div id="list-riwayat-singkat" class="space-y-3">
-          <h3 class="font-bold">Transaksi Terbaru</h3>
+        <div id="home-content" class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm">
+          <h3 class="font-bold text-sm mb-4 border-b border-slate-100 dark:border-slate-700 pb-2">Transaksi Terbaru</h3>
+          <div id="list-riwayat-singkat" class="space-y-3">
+            <p class="text-sm text-center text-slate-400 py-4">Belum ada data ditarik</p>
           </div>
+        </div>
       </div>
 
-      <div id="tab-riwayat" class="tab-content hidden">...</div>
-      <div id="tab-laporan" class="tab-content hidden">...</div>
-      <div id="tab-setting" class="tab-content hidden">...</div>
+      <div id="tab-riwayat" class="tab-content hidden">
+        <h2 class="text-xl font-bold mb-4">Semua Riwayat</h2>
+        <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 text-center text-slate-500">
+          Fitur ini akan segera disempurnakan.
+        </div>
+      </div>
+
+      <div id="tab-laporan" class="tab-content hidden">
+        <h2 class="text-xl font-bold mb-4">Laporan & Analitik</h2>
+        <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 text-center text-slate-500">
+          Fitur grafik laporan akan segera disempurnakan.
+        </div>
+      </div>
+
+      <div id="tab-setting" class="tab-content hidden">
+        <h2 class="text-xl font-bold mb-4">Pengaturan</h2>
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="font-bold text-sm">Tema Aplikasi</p>
+              <p class="text-xs text-slate-500">Pilih terang atau gelap</p>
+            </div>
+            <div class="flex space-x-2 bg-slate-100 dark:bg-slate-700 p-1 rounded-xl">
+              <button onclick="setTheme('light')" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-white shadow-sm text-slate-800 dark:bg-transparent dark:shadow-none dark:text-slate-400 transition-all">Terang</button>
+              <button onclick="setTheme('dark')" class="px-3 py-1.5 text-xs font-bold rounded-lg text-slate-500 dark:bg-slate-600 dark:text-white dark:shadow-sm transition-all">Gelap</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
 
-    <nav class="bg-white dark:bg-slate-800 border-t fixed bottom-0 w-full p-4 flex justify-around">
-      <button onclick="switchTab('nav-home')">Home</button>
-      <button onclick="switchTab('nav-riwayat')">Riwayat</button>
-      <button onclick="switchTab('nav-laporan')">Laporan</button>
+    <nav class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-700 fixed bottom-0 left-0 right-0 z-50 pb-safe">
+      <div class="max-w-md mx-auto px-6 h-16 flex justify-between items-center">
+        <button onclick="switchTab('nav-home')" id="nav-home" class="nav-btn flex flex-col items-center justify-center text-indigo-600 dark:text-indigo-400 w-16">
+          <svg class="w-6 h-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v11a1 1 0 001 1h3m10-11v11a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          <span class="text-[10px] font-bold">Home</span>
+        </button>
+        <button onclick="switchTab('nav-riwayat')" id="nav-riwayat" class="nav-btn flex flex-col items-center justify-center text-slate-400 hover:text-indigo-500 transition-colors w-16">
+          <svg class="w-6 h-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+          <span class="text-[10px] font-medium">Riwayat</span>
+        </button>
+        <button onclick="switchTab('nav-laporan')" id="nav-laporan" class="nav-btn flex flex-col items-center justify-center text-slate-400 hover:text-indigo-500 transition-colors w-16">
+          <svg class="w-6 h-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+          <span class="text-[10px] font-medium">Laporan</span>
+        </button>
+      </div>
     </nav>
   </div>
 
   <script>
-    // FUNGSI LOGIN (sama seperti sebelumnya)
+    let globalTransactions = []; // Simpan data agar tidak perlu load ulang saat ganti filter
+
+    // --- INISIALISASI ---
+    document.addEventListener("DOMContentLoaded", function() {
+      const activeUser = localStorage.getItem("fw_user");
+      const activeRole = localStorage.getItem("fw_role");
+      setTheme(localStorage.getItem("fw_theme") || "light");
+
+      if (activeUser && activeRole) {
+        showApp(activeRole);
+      } else {
+        showLogin();
+      }
+    });
+
+    // --- FUNGSI UI SEDERHANA ---
+    function showLogin() {
+      document.getElementById("login-section").classList.remove("hidden");
+      document.getElementById("app-section").classList.add("hidden");
+    }
+
+    function showApp(role) {
+      document.getElementById("login-section").classList.add("hidden");
+      document.getElementById("app-section").classList.remove("hidden");
+      document.getElementById("badge-role").innerText = role;
+      
+      // Jika Admin bisa lihat semua filter, jika User sembunyikan atau set otomatis
+      if(role.toLowerCase() !== 'admin') {
+        document.getElementById("filter-pencatat").value = localStorage.getItem("fw_pencatat");
+      }
+      
+      loadHomeData(); // Otomatis tarik data saat masuk app
+    }
+
+    function togglePassword() {
+      const passInput = document.getElementById("password");
+      const icon = document.getElementById("eye-icon");
+      if (passInput.type === "password") {
+        passInput.type = "text";
+        icon.innerText = "🙈";
+      } else {
+        passInput.type = "password";
+        icon.innerText = "👁️";
+      }
+    }
+
+    // --- FUNGSI LOGIN & LOGOUT ---
     function handleLogin(e) {
       e.preventDefault();
-      // ... (kode login yang sudah Anda miliki)
-      // Setelah berhasil, panggil: loadHomeData();
+      const btn = document.getElementById("btn-login");
+      const errorDiv = document.getElementById("login-error");
+      
+      btn.innerHTML = `<span class="loader"></span>`;
+      btn.disabled = true;
+      errorDiv.classList.add("hidden");
+
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          btn.innerHTML = "Masuk";
+          btn.disabled = false;
+          if (res.status === "success") {
+            localStorage.setItem("fw_user", user);
+            localStorage.setItem("fw_role", res.role);
+            localStorage.setItem("fw_pencatat", res.pencatat);
+            showApp(res.role);
+          } else {
+            errorDiv.innerText = res.message;
+            errorDiv.classList.remove("hidden");
+          }
+        })
+        .withFailureHandler(function() {
+          btn.innerHTML = "Masuk";
+          btn.disabled = false;
+          errorDiv.innerText = "Gagal terhubung ke server.";
+          errorDiv.classList.remove("hidden");
+        })
+        .verifyLogin(user, pass);
     }
 
-    // FUNGSI LOAD DATA HOME
+    function handleLogout() {
+      localStorage.clear();
+      showLogin();
+    }
+
+    // --- FUNGSI TAB & TEMA ---
+    function switchTab(navId) {
+      // Reset warna icon bawah
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        btn.classList.remove("text-indigo-600", "dark:text-indigo-400");
+        btn.classList.add("text-slate-400");
+        btn.querySelector("span").classList.replace("font-bold", "font-medium");
+      });
+      // Sembunyikan semua tab
+      document.querySelectorAll(".tab-content").forEach(tab => tab.classList.add("hidden"));
+
+      let target = "home";
+      if (navId === 'nav-riwayat') target = "riwayat";
+      if (navId === 'nav-laporan') target = "laporan";
+      if (navId === 'nav-setting') target = "setting";
+
+      document.getElementById("tab-" + target).classList.remove("hidden");
+      
+      // Warnai icon yang aktif
+      const activeBtn = document.getElementById(navId);
+      if(activeBtn) {
+        activeBtn.classList.remove("text-slate-400");
+        activeBtn.classList.add("text-indigo-600", "dark:text-indigo-400");
+        activeBtn.querySelector("span").classList.replace("font-medium", "font-bold");
+      }
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    function setTheme(mode) {
+      const html = document.documentElement;
+      if (mode === 'dark') {
+        html.classList.add("dark");
+        html.classList.remove("light");
+      } else {
+        html.classList.add("light");
+        html.classList.remove("dark");
+      }
+      localStorage.setItem("fw_theme", mode);
+    }
+
+    // --- FUNGSI AMBIL & RENDER DATA HOME ---
+    function formatRupiah(angka) {
+      return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(angka);
+    }
+
     function loadHomeData() {
-      const pencatat = document.getElementById("filter-pencatat").value;
-      google.script.run.withSuccessHandler(renderHome).getAllTransactions();
+      document.getElementById("home-loading").classList.remove("hidden");
+      document.getElementById("list-riwayat-singkat").innerHTML = ""; // Kosongkan list
+
+      // Jika data sudah pernah di-load, langsung render ulang saja sesuai filter
+      if(globalTransactions.length > 0) {
+        processAndRenderHome(globalTransactions);
+      } else {
+        google.script.run
+          .withSuccessHandler(function(data) {
+            globalTransactions = data; // Simpan ke global
+            processAndRenderHome(data);
+          })
+          .getAllTransactions();
+      }
     }
 
-    function renderHome(data) {
-      // 1. Hitung Saldo (Logika sederhana)
-      // 2. Render Chart (Chart.js)
-      // 3. Render Daftar Transaksi
-      console.log("Data diterima:", data);
-    }
+    function processAndRenderHome(data) {
+      document.getElementById("home-loading").classList.add("hidden");
+      const filter = document.getElementById("filter-pencatat").value;
+      
+      let totalPemasukan = 0;
+      let totalPengeluaran = 0;
+      let listHTML = "";
+      let countList = 0;
 
-    // Fungsi Navigasi & Switch Tab (sama seperti sebelumnya)
-    function switchTab(tab) { /* ... */ }
+      data.forEach(trx => {
+        // Filter data berdasarkan dropdown
+        if (filter !== "all" && trx.pencatat !== filter) return;
+
+        // Hitung Saldo
+        if (trx.jenis.toLowerCase() === "pemasukan") totalPemasukan += trx.nominal;
+        if (trx.jenis.toLowerCase() === "pengeluaran") totalPengeluaran += trx.nominal;
+
+        // Buat List UI (maksimal 5 transaksi terbaru)
+        if (countList < 5) {
+          const isPengeluaran = trx.jenis.toLowerCase() === "pengeluaran";
+          const colorNominal = isPengeluaran ? "text-red-500" : "text-green-500";
+          const sign = isPengeluaran ? "-" : "+";
+          
+          listHTML += `
+            <div class="flex justify-between items-center py-2 border-b border-slate-50 dark:border-slate-700/50 last:border-0">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-lg">
+                  ${isPengeluaran ? '💸' : '💰'}
+                </div>
+                <div>
+                  <p class="font-semibold text-sm leading-tight">${trx.kategori}</p>
+                  <p class="text-[10px] text-slate-400">${trx.dateStr} • ${trx.pencatat}</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="font-bold text-sm ${colorNominal}">${sign}${formatRupiah(trx.nominal).replace('Rp','').trim()}</p>
+              </div>
+            </div>`;
+          countList++;
+        }
+      });
+
+      // Update Teks Saldo
+      const sisaSaldo = totalPemasukan - totalPengeluaran;
+      document.getElementById("txt-pemasukan").innerText = formatRupiah(totalPemasukan);
+      document.getElementById("txt-saldo").innerText = formatRupiah(sisaSaldo);
+
+      // Render List
+      const listContainer = document.getElementById("list-riwayat-singkat");
+      if (listHTML === "") {
+        listContainer.innerHTML = `<p class="text-sm text-center text-slate-400 py-4">Belum ada transaksi</p>`;
+      } else {
+        listContainer.innerHTML = listHTML;
+      }
+    }
   </script>
 </body>
 </html>
