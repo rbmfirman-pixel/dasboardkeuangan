@@ -11,42 +11,53 @@
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
     body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
     .card { background: white; border-radius: 20px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); border: 1px solid #f1f5f9; }
-    input, select, button { min-height: 48px; }
     .loader-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.8); backdrop-filter: blur(4px); z-index: 100; display: flex; justify-content: center; align-items: center; }
-    .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #4f46e5; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="min-h-screen text-slate-800">
 
   <div id="loader" class="loader-overlay hidden"><div class="spinner"></div></div>
 
-  <div id="app-section" class="pb-10 max-w-lg mx-auto">
-    <main class="px-6 py-6 space-y-6">
+  <div id="login-section" class="fixed inset-0 flex items-center justify-center p-4 z-50 bg-slate-50">
+    <div class="w-full max-w-sm bg-white p-6 rounded-3xl shadow-2xl">
+      <h1 class="text-2xl font-bold text-center mb-6">FamilyWealth</h1>
+      <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
+        <input type="text" id="username" placeholder="Username" required class="w-full px-4 py-3 rounded-xl border border-slate-200">
+        <input type="password" id="password" placeholder="Password" required class="w-full px-4 py-3 rounded-xl border border-slate-200">
+        <button type="submit" class="w-full bg-indigo-600 text-white rounded-xl font-bold py-3">Masuk</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="app-section" class="hidden pb-10 max-w-lg mx-auto">
+    <header class="p-6 flex justify-between items-center">
+      <h2 class="font-bold text-xl">Dashboard</h2>
+      <button onclick="handleLogout()" class="text-xs text-rose-500 font-bold">Keluar</button>
+    </header>
+
+    <main class="px-6 space-y-6">
       <div class="grid grid-cols-2 gap-3">
-        <select id="filter-pencatat" onchange="renderFilteredData()" class="px-4 rounded-xl border border-slate-200 bg-white font-bold text-sm outline-none">
+        <select id="filter-pencatat" onchange="renderFilteredData()" class="px-4 rounded-xl border border-slate-200 bg-white font-bold text-sm">
           <option value="all">Semua Orang</option>
           <option value="Suami">Suami</option>
           <option value="Istri">Istri</option>
         </select>
-        <select id="filter-bulan" onchange="renderFilteredData()" class="px-4 rounded-xl border border-slate-200 bg-white font-bold text-sm outline-none">
+        <select id="filter-bulan" onchange="renderFilteredData()" class="px-4 rounded-xl border border-slate-200 bg-white font-bold text-sm">
           <option value="all">Semua Bulan</option>
           <option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option>
           <option value="3">Apr</option><option value="4">Mei</option><option value="5">Jun</option>
-          <option value="6">Jul</option><option value="7">Agu</option><option value="8">Sep</option>
-          <option value="9">Okt</option><option value="10">Nov</option><option value="11">Des</option>
         </select>
       </div>
 
       <div class="bg-indigo-600 text-white p-6 rounded-3xl shadow-lg">
-        <p class="text-indigo-200 text-xs uppercase tracking-widest font-bold">Total Sisa Saldo</p>
+        <p class="text-indigo-200 text-xs uppercase font-bold">Total Sisa Saldo</p>
         <h1 id="txt-saldo" class="text-3xl font-bold mt-2">Rp 0</h1>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div class="card p-4">
           <p class="text-[10px] text-slate-400 font-bold uppercase">Saldo Awal</p>
-          <p id="txt-saldo-awal" class="text-sm font-bold mt-1 text-slate-700">Rp 0</p>
+          <p id="txt-saldo-awal" class="text-sm font-bold mt-1">Rp 0</p>
         </div>
         <div class="card p-4">
           <p class="text-[10px] text-slate-400 font-bold uppercase">Pengeluaran</p>
@@ -55,6 +66,11 @@
       </div>
 
       <div class="card p-5 h-64"><canvas id="canvasTrenSaldo"></canvas></div>
+
+      <div class="card p-5">
+        <h3 class="font-bold text-sm mb-4">Transaksi Terbaru</h3>
+        <div id="list-riwayat" class="space-y-4"></div>
+      </div>
     </main>
   </div>
 
@@ -63,14 +79,28 @@
     let globalTransactions = [];
     let chartInstance = null;
 
+    // --- Login Logic ---
+    function handleLogin(e) {
+      e.preventDefault();
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "login", username: user, password: pass }) })
+      .then(res => res.json()).then(res => {
+        if(res.status === "success") { localStorage.setItem("fw_user", user); location.reload(); }
+        else alert(res.message);
+      });
+    }
+    function handleLogout() { localStorage.clear(); location.reload(); }
+
+    // --- Dashboard Logic ---
     function renderFilteredData() {
       const filterPencatat = document.getElementById("filter-pencatat").value;
       const filterBulan = document.getElementById("filter-bulan").value;
       
-      let saldoAwal = 0; // Akumulasi dari bulan sebelumnya
-      let pemasukanBulanIni = 0; // Pendapatan bulan ini
-      let pengeluaranBulanIni = 0; // Pengeluaran bulan ini
-      let dataGrafik = Array(12).fill(0);
+      let saldoAwal = 0; 
+      let pemasukanBulanIni = 0;
+      let pengeluaranBulanIni = 0;
+      let dataGrafik = Array(6).fill(0); // Jan - Jun
 
       globalTransactions.forEach(trx => {
         const d = new Date(trx.timestamp);
@@ -78,44 +108,54 @@
         const nominal = parseFloat(trx.nominal) || 0;
         const isPemasukan = trx.jenis.toLowerCase() === "pemasukan";
         
-        // Filter Pencatat (Berlaku untuk semua perhitungan)
         if (filterPencatat !== "all" && trx.pencatat !== filterPencatat) return;
 
-        // 1. Logika Saldo Awal (Akumulasi bulan-bulan sebelumnya)
+        // Hitung Saldo Awal (Rolling)
         if (filterBulan !== "all" && parseInt(m) < parseInt(filterBulan)) {
            saldoAwal += (isPemasukan ? nominal : -nominal);
         }
 
-        // 2. Logika Bulan Ini (Pemasukan & Pengeluaran)
+        // Hitung Bulan Ini
         if (filterBulan === "all" || m === filterBulan) {
            if (isPemasukan) pemasukanBulanIni += nominal;
            else pengeluaranBulanIni += nominal;
         }
 
-        // 3. Data Grafik (Trend tahunan)
+        // Data Grafik
         dataGrafik[d.getMonth()] += (isPemasukan ? nominal : -nominal);
       });
 
-      const totalSisaSaldo = saldoAwal + pemasukanBulanIni - pengeluaranBulanIni;
+      const totalSisaSaldo = (filterBulan === "all") ? (pemasukanBulanIni - pengeluaranBulanIni) : (saldoAwal + pemasukanBulanIni - pengeluaranBulanIni);
       const formatter = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
       
-      document.getElementById("txt-saldo-awal").innerText = formatter.format(saldoAwal);
+      document.getElementById("txt-saldo-awal").innerText = formatter.format(filterBulan === "all" ? 0 : saldoAwal);
       document.getElementById("txt-pengeluaran").innerText = formatter.format(pengeluaranBulanIni);
       document.getElementById("txt-saldo").innerText = formatter.format(totalSisaSaldo);
+
+      // Render Riwayat
+      const list = document.getElementById("list-riwayat");
+      list.innerHTML = globalTransactions
+        .filter(t => (filterPencatat === "all" || t.pencatat === filterPencatat) && (filterBulan === "all" || new Date(t.timestamp).getMonth().toString() === filterBulan))
+        .slice(-5).reverse()
+        .map(t => `<div class="flex justify-between text-sm"><span>${t.kategori}</span><span class="${t.jenis.toLowerCase()=='pengeluaran'?'text-rose-500':'text-emerald-500'} font-bold">${t.jenis.toLowerCase()=='pengeluaran'?'-':'+'}${formatter.format(t.nominal)}</span></div>`)
+        .join('');
 
       // Render Chart
       if(chartInstance) chartInstance.destroy();
       chartInstance = new Chart(document.getElementById('canvasTrenSaldo'), {
         type: 'line',
-        data: { labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'], datasets: [{ data: dataGrafik, borderColor: '#4f46e5', tension: 0.4, fill: true, backgroundColor: 'rgba(79, 70, 229, 0.1)' }] },
+        data: { labels: ['Jan','Feb','Mar','Apr','Mei','Jun'], datasets: [{ data: dataGrafik, borderColor: '#4f46e5', tension: 0.4 }] },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
       });
     }
 
-    // Load data
-    fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getTransactions" }) })
-      .then(r => r.json())
-      .then(res => { globalTransactions = res.data; renderFilteredData(); });
+    // --- Init ---
+    if(localStorage.getItem("fw_user")) {
+      document.getElementById("login-section").classList.add("hidden");
+      document.getElementById("app-section").classList.remove("hidden");
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getTransactions" }) })
+      .then(r => r.json()).then(res => { globalTransactions = res.data; renderFilteredData(); });
+    }
   </script>
 </body>
 </html>
