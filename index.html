@@ -14,7 +14,6 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .card { background: white; border-radius: 20px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); border: 1px solid #f1f5f9; }
     input, select, button { min-height: 48px; }
-    /* Loading Spinner */
     .loader-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.8); backdrop-filter: blur(4px); z-index: 100; display: flex; justify-content: center; align-items: center; }
     .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #4f46e5; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -55,10 +54,10 @@
         </select>
         <select id="filter-bulan" onchange="renderFilteredData()" class="px-4 rounded-xl border border-slate-200 bg-white font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500">
           <option value="all">Semua Bulan</option>
-          <option value="0">Januari</option><option value="1">Februari</option><option value="2">Maret</option>
-          <option value="3">April</option><option value="4">Mei</option><option value="5">Juni</option>
-          <option value="6">Juli</option><option value="7">Agustus</option><option value="8">September</option>
-          <option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
+          <option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option>
+          <option value="3">Apr</option><option value="4">Mei</option><option value="5">Jun</option>
+          <option value="6">Jul</option><option value="7">Agu</option><option value="8">Sep</option>
+          <option value="9">Okt</option><option value="10">Nov</option><option value="11">Des</option>
         </select>
       </div>
 
@@ -122,48 +121,49 @@
 
     function renderFilteredData() {
       const filterPencatat = document.getElementById("filter-pencatat").value;
-      const filterBulan = document.getElementById("filter-bulan").value;
-      const now = new Date();
-      const currentYear = now.getFullYear();
-
+      const filterBulanVal = document.getElementById("filter-bulan").value;
+      const filterBulan = filterBulanVal === "all" ? null : parseInt(filterBulanVal);
+      
       let saldoAwal = 0;
-      let pemasukan = 0;
-      let pengeluaran = 0;
-      let bulananNet = Array(12).fill(0);
+      let pemasukanBulanIni = 0;
+      let pengeluaranBulanIni = 0;
 
-      globalTransactions.forEach(trx => {
+      // Urutkan transaksi dari terlama ke terbaru agar kalkulasi akurat
+      const sortedTrx = [...globalTransactions].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+      sortedTrx.forEach(trx => {
         const d = new Date(trx.timestamp);
-        // Filter Logic
-        if (filterPencatat !== "all" && trx.pencatat !== filterPencatat) return;
-        if (filterBulan !== "all" && d.getMonth().toString() !== filterBulan) return;
-        
+        const m = d.getMonth();
         const val = trx.jenis.toLowerCase() === "pengeluaran" ? -trx.nominal : trx.nominal;
 
-        if (d.getFullYear() === currentYear) bulananNet[d.getMonth()] += val;
-        
-        if (d.getFullYear() < currentYear || (d.getFullYear() === currentYear && d.getMonth() < d.getMonth())) {
+        // Cek filter orang
+        if (filterPencatat !== "all" && trx.pencatat !== filterPencatat) return;
+
+        // Hitung Saldo Awal (semua sebelum bulan terpilih)
+        if (filterBulan !== null && m < filterBulan) {
           saldoAwal += val;
-        } else if (d.getFullYear() === currentYear && d.getMonth() === (filterBulan !== "all" ? parseInt(filterBulan) : d.getMonth())) {
-          if (trx.jenis.toLowerCase() === "pengeluaran") pengeluaran += trx.nominal;
-          else pemasukan += trx.nominal;
+        } else if (filterBulan === null) {
+          // Jika filter bulan "all", saldo awal selalu 0 (karena ini akumulasi global)
+          saldoAwal = 0; 
+        }
+
+        // Hitung Transaksi di Bulan Terpilih
+        if (filterBulan === null || m === filterBulan) {
+          if (trx.jenis.toLowerCase() === "pengeluaran") pengeluaranBulanIni += trx.nominal;
+          else pemasukanBulanIni += trx.nominal;
         }
       });
 
+      const totalSisaSaldo = saldoAwal + pemasukanBulanIni - pengeluaranBulanIni;
       const formatter = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
+      
       document.getElementById("txt-saldo-awal").innerText = formatter.format(saldoAwal);
-      document.getElementById("txt-saldo").innerText = formatter.format(saldoAwal + pemasukan - pengeluaran);
-      document.getElementById("txt-pengeluaran").innerText = formatter.format(pengeluaran);
+      document.getElementById("txt-saldo").innerText = formatter.format(totalSisaSaldo);
+      document.getElementById("txt-pengeluaran").innerText = formatter.format(pengeluaranBulanIni);
 
-      // Render Chart
-      if(chartInstance) chartInstance.destroy();
-      chartInstance = new Chart(document.getElementById('canvasTrenSaldo'), {
-        type: 'line',
-        data: { labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'], datasets: [{ data: bulananNet, borderColor: '#4f46e5', tension: 0.4 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-      });
-
+      // Render Riwayat
       let html = "";
-      [...globalTransactions].filter(t => (filterPencatat === "all" || t.pencatat === filterPencatat) && (filterBulan === "all" || new Date(t.timestamp).getMonth().toString() === filterBulan)).reverse().slice(0, 5).forEach(trx => {
+      sortedTrx.filter(t => (filterPencatat === "all" || t.pencatat === filterPencatat) && (filterBulan === null || new Date(t.timestamp).getMonth() === filterBulan)).reverse().slice(0, 5).forEach(trx => {
         html += `<div class="flex justify-between items-center py-2"><p class="text-sm font-semibold">${trx.kategori}</p><span class="${trx.jenis.toLowerCase() == 'pengeluaran' ? 'text-rose-500' : 'text-emerald-500'} font-bold text-sm">${trx.jenis.toLowerCase() == 'pengeluaran' ? '-' : '+'}${formatter.format(trx.nominal)}</span></div>`;
       });
       document.getElementById("list-riwayat-singkat").innerHTML = html;
