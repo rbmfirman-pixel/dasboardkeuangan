@@ -5,62 +5,69 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FamilyWealth</title>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { font-family: 'Poppins', sans-serif; }
-    .password-wrapper { position: relative; }
-    .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #64748b; font-size: 1.2rem; }
-    .hidden { display: none; }
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+    .fade-in { animation: fadeIn 0.5s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .card { background: white; border-radius: 20px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); border: 1px solid #f1f5f9; }
+    .toggle-password { cursor: pointer; }
   </style>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="min-h-screen text-slate-800">
 
   <div id="login-section" class="fixed inset-0 flex items-center justify-center p-4 z-50 bg-slate-50">
-    <div class="w-full max-w-sm bg-white p-8 rounded-2xl shadow-xl">
-      <h1 class="text-2xl font-bold text-center mb-6">FamilyWealth</h1>
+    <div class="w-full max-w-sm bg-white p-8 rounded-3xl shadow-2xl border border-slate-100">
+      <h1 class="text-2xl font-bold text-center mb-6 text-slate-800">FamilyWealth</h1>
       <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
-        <input type="text" id="username" placeholder="Username" required class="w-full p-3 rounded-xl border bg-slate-50">
-        <div class="password-wrapper">
-          <input type="password" id="password" placeholder="Password" required class="w-full p-3 rounded-xl border bg-slate-50">
-          <span onclick="togglePassword()" class="toggle-password" id="eye-icon">👁️</span>
+        <input type="text" id="username" placeholder="Username" required class="w-full p-4 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+        <div class="relative">
+          <input type="password" id="password" placeholder="Password" required class="w-full p-4 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+          <span onclick="togglePassword()" class="absolute right-4 top-4 cursor-pointer text-slate-400" id="eye-icon">👁️</span>
         </div>
-        <button type="submit" id="btn-login" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold">Masuk</button>
+        <button type="submit" id="btn-login" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 active:scale-95 transition-all">Masuk</button>
       </form>
     </div>
   </div>
 
-  <div id="app-section" class="hidden pb-24">
-    <header class="p-4 bg-white border-b flex justify-between items-center sticky top-0 z-40">
-      <h2 class="font-bold text-lg">FamilyWealth</h2>
-      <button onclick="handleLogout()" class="text-xs text-red-500 font-bold">Keluar</button>
+  <div id="app-section" class="hidden pb-10 max-w-lg mx-auto fade-in">
+    <header class="p-6 flex justify-between items-center">
+      <h2 class="font-bold text-xl text-slate-800">Dashboard</h2>
+      <button onclick="handleLogout()" class="text-xs text-rose-500 font-bold bg-rose-50 px-3 py-1 rounded-full">Keluar</button>
     </header>
 
-    <main class="p-4 space-y-4">
-      <select id="filter-pencatat" onchange="renderFilteredData()" class="w-full p-3 rounded-xl border bg-white font-medium text-sm">
+    <main class="px-6 space-y-6">
+      <select id="filter-pencatat" onchange="renderFilteredData()" class="w-full p-3 rounded-xl border border-slate-200 bg-white font-medium text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
         <option value="all">Semua Data</option>
         <option value="Suami">Suami</option>
         <option value="Istri">Istri</option>
       </select>
 
-      <div class="grid grid-cols-2 gap-3">
-        <div class="p-4 bg-white rounded-2xl border shadow-sm">
-          <p class="text-[10px] text-slate-500 uppercase font-bold">Saldo Awal</p>
+      <div class="bg-indigo-600 text-white p-6 rounded-3xl shadow-lg shadow-indigo-200">
+        <p class="text-indigo-200 text-xs uppercase tracking-widest font-bold">Total Sisa Saldo</p>
+        <h1 id="txt-saldo" class="text-3xl font-bold mt-2">Rp 0</h1>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="card p-4">
+          <p class="text-[10px] text-slate-400 font-bold uppercase">Saldo Awal</p>
           <p id="txt-saldo-awal" class="text-sm font-bold mt-1 text-slate-700">Rp 0</p>
         </div>
-        <div class="p-4 bg-indigo-600 rounded-2xl shadow-lg text-white">
-          <p class="text-[10px] text-indigo-100 uppercase font-bold">Sisa Saldo</p>
-          <p id="txt-saldo" class="text-sm font-bold mt-1">Rp 0</p>
+        <div class="card p-4">
+          <p class="text-[10px] text-slate-400 font-bold uppercase">Pengeluaran</p>
+          <p id="txt-pengeluaran" class="text-sm font-bold mt-1 text-rose-500">Rp 0</p>
         </div>
       </div>
 
-      <div class="bg-white p-4 rounded-2xl border shadow-sm h-64">
+      <div class="card p-5 h-64">
         <canvas id="canvasTrenSaldo"></canvas>
       </div>
 
-      <div class="bg-white p-4 rounded-2xl border shadow-sm">
-        <h3 class="font-bold text-sm mb-3">Transaksi Terbaru</h3>
-        <div id="list-riwayat-singkat" class="space-y-3"></div>
+      <div class="card p-5">
+        <h3 class="font-bold text-sm text-slate-700 mb-4">Transaksi Terbaru</h3>
+        <div id="list-riwayat-singkat" class="space-y-4"></div>
       </div>
     </main>
   </div>
@@ -85,7 +92,6 @@
       .then(res => res.json()).then(res => {
         if(res.status === "success") {
           localStorage.setItem("fw_user", user);
-          localStorage.setItem("fw_pencatat", res.pencatat);
           location.reload();
         } else alert(res.message);
       });
@@ -106,7 +112,6 @@
 
       globalTransactions.forEach(trx => {
         if (filter !== "all" && trx.pencatat !== filter) return;
-        
         const d = new Date(trx.timestamp);
         const val = trx.jenis.toLowerCase() === "pengeluaran" ? -trx.nominal : trx.nominal;
 
@@ -123,6 +128,7 @@
       const formatter = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
       document.getElementById("txt-saldo-awal").innerText = formatter.format(saldoAwal);
       document.getElementById("txt-saldo").innerText = formatter.format(saldoAwal + pemasukan - pengeluaran);
+      document.getElementById("txt-pengeluaran").innerText = formatter.format(pengeluaran);
 
       let dataGrafik = [];
       let running = 0;
@@ -131,13 +137,22 @@
       if(chartInstance) chartInstance.destroy();
       chartInstance = new Chart(document.getElementById('canvasTrenSaldo'), {
         type: 'line',
-        data: { labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'].slice(0, dataGrafik.length), datasets: [{ data: dataGrafik, borderColor: '#4f46e5', tension: 0.3 }] },
-        options: { responsive: true, maintainAspectRatio: false }
+        data: { labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'].slice(0, dataGrafik.length), datasets: [{ label: 'Saldo', data: dataGrafik, borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)', fill: true, tension: 0.4 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
       });
 
       let html = "";
       [...globalTransactions].reverse().slice(0, 5).forEach(trx => {
-        html += `<div class="flex justify-between text-sm py-1 border-b"><span>${trx.kategori}</span><span class="${trx.jenis.toLowerCase() == 'pengeluaran' ? 'text-red-500' : 'text-green-500'}">${trx.jenis.toLowerCase() == 'pengeluaran' ? '-' : '+'}${formatter.format(trx.nominal)}</span></div>`;
+        html += `
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-sm font-semibold">${trx.kategori}</p>
+              <p class="text-[10px] text-slate-400">${new Date(trx.timestamp).toLocaleDateString()}</p>
+            </div>
+            <span class="${trx.jenis.toLowerCase() == 'pengeluaran' ? 'text-rose-500' : 'text-emerald-500'} font-bold text-sm">
+              ${trx.jenis.toLowerCase() == 'pengeluaran' ? '-' : '+'}${formatter.format(trx.nominal)}
+            </span>
+          </div>`;
       });
       document.getElementById("list-riwayat-singkat").innerHTML = html;
     }
