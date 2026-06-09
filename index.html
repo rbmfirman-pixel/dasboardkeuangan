@@ -11,8 +11,7 @@
     body { font-family: 'Poppins', sans-serif; }
     .password-wrapper { position: relative; }
     .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #64748b; font-size: 1.2rem; }
-    .loader { border: 3px solid #f3f3f3; border-top: 3px solid #4f46e5; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .hidden { display: none; }
   </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
@@ -47,7 +46,7 @@
       <div class="grid grid-cols-2 gap-3">
         <div class="p-4 bg-white rounded-2xl border shadow-sm">
           <p class="text-[10px] text-slate-500 uppercase font-bold">Saldo Awal</p>
-          <p id="txt-saldo-awal" class="text-sm font-bold mt-1">Rp 0</p>
+          <p id="txt-saldo-awal" class="text-sm font-bold mt-1 text-slate-700">Rp 0</p>
         </div>
         <div class="p-4 bg-indigo-600 rounded-2xl shadow-lg text-white">
           <p class="text-[10px] text-indigo-100 uppercase font-bold">Sisa Saldo</p>
@@ -71,7 +70,6 @@
     let globalTransactions = [];
     let chartInstance = null;
 
-    // Toggle Password
     function togglePassword() {
       const p = document.getElementById("password");
       const i = document.getElementById("eye-icon");
@@ -81,20 +79,16 @@
 
     function handleLogin(e) {
       e.preventDefault();
-      const btn = document.getElementById("btn-login");
-      btn.disabled = true; btn.innerText = "Memproses...";
       const user = document.getElementById("username").value;
       const pass = document.getElementById("password").value;
-      
       fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "login", username: user, password: pass }) })
       .then(res => res.json()).then(res => {
         if(res.status === "success") {
           localStorage.setItem("fw_user", user);
-          localStorage.setItem("fw_role", res.role);
           localStorage.setItem("fw_pencatat", res.pencatat);
           location.reload();
-        } else { btn.disabled = false; btn.innerText = "Masuk"; alert(res.message); }
-      }).catch(err => { console.error(err); btn.disabled = false; alert("Gagal koneksi server."); });
+        } else alert(res.message);
+      });
     }
 
     function handleLogout() { localStorage.clear(); location.reload(); }
@@ -112,6 +106,7 @@
 
       globalTransactions.forEach(trx => {
         if (filter !== "all" && trx.pencatat !== filter) return;
+        
         const d = new Date(trx.timestamp);
         const val = trx.jenis.toLowerCase() === "pengeluaran" ? -trx.nominal : trx.nominal;
 
@@ -141,13 +136,12 @@
       });
 
       let html = "";
-      globalTransactions.slice(0, 5).forEach(trx => {
-        html += `<div class="flex justify-between text-sm py-1 border-b"><span>${trx.kategori}</span><span class="${trx.jenis == 'Pengeluaran' ? 'text-red-500' : 'text-green-500'}">${trx.jenis == 'Pengeluaran' ? '-' : '+'}${formatter.format(trx.nominal)}</span></div>`;
+      [...globalTransactions].reverse().slice(0, 5).forEach(trx => {
+        html += `<div class="flex justify-between text-sm py-1 border-b"><span>${trx.kategori}</span><span class="${trx.jenis.toLowerCase() == 'pengeluaran' ? 'text-red-500' : 'text-green-500'}">${trx.jenis.toLowerCase() == 'pengeluaran' ? '-' : '+'}${formatter.format(trx.nominal)}</span></div>`;
       });
       document.getElementById("list-riwayat-singkat").innerHTML = html;
     }
 
-    // Load App
     if(localStorage.getItem("fw_user")) {
       document.getElementById("login-section").classList.add("hidden");
       document.getElementById("app-section").classList.remove("hidden");
@@ -155,15 +149,9 @@
       fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getTransactions" }) })
       .then(r => r.json())
       .then(res => { 
-        if(res.status === "success") {
-          globalTransactions = res.data; 
-          renderFilteredData(); 
-        } else {
-          console.error("API Error:", res.message);
-          alert("Gagal ambil data: " + res.message);
-        }
-      })
-      .catch(err => { console.error("Fetch Error:", err); alert("Gagal koneksi ke API."); });
+        globalTransactions = res.data; 
+        renderFilteredData(); 
+      });
     }
   </script>
 </body>
