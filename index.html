@@ -13,21 +13,22 @@
     .fade-in { animation: fadeIn 0.5s ease-in; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .card { background: white; border-radius: 20px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); border: 1px solid #f1f5f9; }
-    .toggle-password { cursor: pointer; }
+    /* Touch optimization */
+    input, select, button { min-height: 48px; }
   </style>
 </head>
 <body class="min-h-screen text-slate-800">
 
   <div id="login-section" class="fixed inset-0 flex items-center justify-center p-4 z-50 bg-slate-50">
-    <div class="w-full max-w-sm bg-white p-8 rounded-3xl shadow-2xl border border-slate-100">
+    <div class="w-full max-w-sm bg-white p-6 rounded-3xl shadow-2xl border border-slate-100">
       <h1 class="text-2xl font-bold text-center mb-6 text-slate-800">FamilyWealth</h1>
       <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
-        <input type="text" id="username" placeholder="Username" required class="w-full p-4 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+        <input type="text" id="username" placeholder="Username" required class="w-full px-4 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
         <div class="relative">
-          <input type="password" id="password" placeholder="Password" required class="w-full p-4 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+          <input type="password" id="password" placeholder="Password" required class="w-full px-4 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
           <span onclick="togglePassword()" class="absolute right-4 top-4 cursor-pointer text-slate-400" id="eye-icon">👁️</span>
         </div>
-        <button type="submit" id="btn-login" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 active:scale-95 transition-all">Masuk</button>
+        <button type="submit" id="btn-login" class="w-full bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 active:scale-95 transition-all">Masuk</button>
       </form>
     </div>
   </div>
@@ -35,11 +36,11 @@
   <div id="app-section" class="hidden pb-10 max-w-lg mx-auto fade-in">
     <header class="p-6 flex justify-between items-center">
       <h2 class="font-bold text-xl text-slate-800">Dashboard</h2>
-      <button onclick="handleLogout()" class="text-xs text-rose-500 font-bold bg-rose-50 px-3 py-1 rounded-full">Keluar</button>
+      <button onclick="handleLogout()" class="text-xs text-rose-500 font-bold bg-rose-50 px-4 py-2 rounded-full">Keluar</button>
     </header>
 
     <main class="px-6 space-y-6">
-      <select id="filter-pencatat" onchange="renderFilteredData()" class="w-full p-3 rounded-xl border border-slate-200 bg-white font-medium text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+      <select id="filter-pencatat" onchange="renderFilteredData()" class="w-full px-4 rounded-xl border border-slate-200 bg-white font-bold text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
         <option value="all">Semua Data</option>
         <option value="Suami">Suami</option>
         <option value="Istri">Istri</option>
@@ -138,13 +139,25 @@
       chartInstance = new Chart(document.getElementById('canvasTrenSaldo'), {
         type: 'line',
         data: { labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'].slice(0, dataGrafik.length), datasets: [{ label: 'Saldo', data: dataGrafik, borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)', fill: true, tension: 0.4 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false, 
+          plugins: { legend: { display: false } },
+          // Mobile Optimization for Chart
+          elements: {
+            point: {
+              radius: 6, // Titik lebih besar
+              hitRadius: 25, // Area sentuh jari lebih luas
+              hoverRadius: 10
+            }
+          }
+        }
       });
 
       let html = "";
       [...globalTransactions].reverse().slice(0, 5).forEach(trx => {
         html += `
-          <div class="flex justify-between items-center">
+          <div class="flex justify-between items-center py-2">
             <div>
               <p class="text-sm font-semibold">${trx.kategori}</p>
               <p class="text-[10px] text-slate-400">${new Date(trx.timestamp).toLocaleDateString()}</p>
