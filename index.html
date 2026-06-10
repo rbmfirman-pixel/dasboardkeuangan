@@ -132,18 +132,24 @@
 
   </div>
 
-  <button onclick="loadDataFromServer(true)" id="btn-reload" class="hidden fixed bottom-24 right-6 bg-indigo-600 text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center z-50 active:scale-90 transition transform duration-150 text-xl select-none">
-    🔄
+  <button onclick="loadDataFromServer(true)" id="btn-reload" class="hidden fixed bottom-24 right-6 bg-white/70 backdrop-blur-lg border border-white/50 text-indigo-600 w-14 h-14 rounded-full shadow-[0_12px_30px_rgba(79,70,229,0.25)] flex items-center justify-center z-50 active:scale-90 transition-all duration-200 select-none">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+    </svg>
   </button>
 
-  <nav id="bottom-nav" class="hidden fixed bottom-0 w-full bg-white border-t border-slate-100 px-6 py-3 z-40 pb-safe">
+  <nav id="bottom-nav" class="hidden fixed bottom-0 w-full bg-white/70 backdrop-blur-lg border-t border-white/50 px-6 py-3 z-40 pb-safe shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
     <div class="max-w-lg mx-auto flex justify-around items-center">
-      <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center p-2 text-indigo-600 transition">
-        <span class="text-xl mb-1">🏠</span>
+      <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center p-2 text-indigo-600 transition active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 mb-1">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        </svg>
         <span class="text-[10px] font-bold">Home</span>
       </button>
-      <button onclick="switchTab('riwayat')" id="nav-riwayat" class="flex flex-col items-center p-2 text-slate-400 transition hover:text-slate-600">
-        <span class="text-xl mb-1">📋</span>
+      <button onclick="switchTab('riwayat')" id="nav-riwayat" class="flex flex-col items-center p-2 text-slate-400 transition active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 mb-1">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
         <span class="text-[10px] font-bold">Riwayat</span>
       </button>
     </div>
@@ -200,7 +206,6 @@
         }
     }
 
-    // FUNGSI UTAMA AMBIL DATA (SEKARANG BISA REUSE UNTUK RELOAD DATA)
     function loadDataFromServer(isReload = false) {
       document.getElementById("loader").classList.remove("hidden");
       
@@ -210,14 +215,12 @@
             globalTransactions = res.data; 
             
             if(!isReload) {
-                // Setup default awal saat pertama kali buka aplikasi
                 const loggedInUser = localStorage.getItem("fw_user");
                 const filterSelect = document.getElementById("filter-pencatat");
                 if(loggedInUser === "Suami" || loggedInUser === "Istri") { filterSelect.value = loggedInUser; }
                 document.getElementById("filter-bulan").value = new Date().getMonth();
             }
             
-            // Perbarui Filter Tahun & Render Ulang Kedua View
             initRiwayatFilters();
             renderFilteredData(); 
             renderRiwayatLengkap();
@@ -233,8 +236,8 @@
 
     function initRiwayatFilters() {
         const selectTahun = document.getElementById("filter-riwayat-tahun");
-        const currentSelection = selectTahun.value; // simpan pilihan tahun aktif
-        selectTahun.innerHTML = '<option value="all">Semua Tahun</option>'; // bersihkan duplikasi saat reload
+        const currentSelection = selectTahun.value;
+        selectTahun.innerHTML = '<option value="all">Semua Tahun</option>';
         
         const tahunSet = new Set();
         globalTransactions.forEach(trx => {
@@ -251,7 +254,6 @@
             selectTahun.appendChild(option);
         });
 
-        // Pertahankan opsi tahun yang dipilih sebelum reload, jika baru pertama kali set ke tahun berjalan
         if(currentSelection && currentSelection !== "") {
             selectTahun.value = currentSelection;
         } else {
@@ -259,7 +261,6 @@
             if(tahunArray.includes(parseInt(currentYear))) { selectTahun.value = currentYear; }
         }
         
-        // Atur default bulan riwayat jika baru pertama kali load
         if(!document.getElementById("filter-riwayat-bulan").value) {
             document.getElementById("filter-riwayat-bulan").value = new Date().getMonth().toString();
         }
@@ -403,14 +404,13 @@
       });
     }
 
-    // INITIAL LOAD CHECK
     if(localStorage.getItem("fw_user")) {
       document.getElementById("login-section").classList.add("hidden");
       document.getElementById("app-section").classList.remove("hidden");
       document.getElementById("bottom-nav").classList.remove("hidden");
-      document.getElementById("btn-reload").classList.remove("hidden"); // Tampilkan tombol reload jika sudah login
+      document.getElementById("btn-reload").classList.remove("hidden");
       
-      loadDataFromServer(false); // Jalankan load data pertama kali
+      loadDataFromServer(false);
     } else {
       document.getElementById("login-section").classList.remove("hidden");
       document.getElementById("loader").classList.add("hidden"); 
