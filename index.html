@@ -60,14 +60,12 @@
     </div>
   </div>
 
-  <!-- APP CONTAINER -->
   <div id="app-section" class="hidden max-w-lg mx-auto fade-in">
     <header class="p-6 flex justify-between items-center bg-[#f8fafc] sticky top-0 z-30">
       <h2 id="header-title" class="font-bold text-xl text-slate-800">Dashboard</h2>
       <button onclick="handleLogout()" class="text-sm text-rose-500 font-bold bg-rose-50 px-5 py-2 rounded-full">Keluar</button>
     </header>
 
-    <!-- VIEW: HOME (DASHBOARD) -->
     <main id="view-home" class="px-6 space-y-6">
       <div class="grid grid-cols-2 gap-4">
         <select id="filter-pencatat" onchange="renderFilteredData()">
@@ -110,16 +108,12 @@
       </div>
     </main>
 
-    <!-- VIEW: RIWAYAT LENGKAP -->
     <main id="view-riwayat" class="hidden px-6 space-y-4 fade-in">
-      
-      <!-- Search Bar (FIXED OVERLAP BUG) -->
       <div class="relative">
         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-base select-none z-10">🔍</span>
         <input type="text" id="search-riwayat" placeholder="Cari kategori atau keterangan..." oninput="renderRiwayatLengkap()" class="bg-white border-none shadow-sm" style="padding-left: 44px !important;">
       </div>
 
-      <!-- Filters Riwayat -->
       <div class="grid grid-cols-2 gap-4">
         <select id="filter-riwayat-bulan" onchange="renderRiwayatLengkap()" class="border-none shadow-sm">
           <option value="all">Semua Bulan</option>
@@ -133,13 +127,15 @@
         </select>
       </div>
 
-      <!-- List Container -->
       <div id="list-riwayat-lengkap" class="space-y-3 pb-6"></div>
     </main>
 
   </div>
 
-  <!-- BOTTOM NAVIGATION -->
+  <button onclick="loadDataFromServer(true)" id="btn-reload" class="hidden fixed bottom-24 right-6 bg-indigo-600 text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center z-50 active:scale-90 transition transform duration-150 text-xl select-none">
+    🔄
+  </button>
+
   <nav id="bottom-nav" class="hidden fixed bottom-0 w-full bg-white border-t border-slate-100 px-6 py-3 z-40 pb-safe">
     <div class="max-w-lg mx-auto flex justify-around items-center">
       <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center p-2 text-indigo-600 transition">
@@ -204,7 +200,42 @@
         }
     }
 
+    // FUNGSI UTAMA AMBIL DATA (SEKARANG BISA REUSE UNTUK RELOAD DATA)
+    function loadDataFromServer(isReload = false) {
+      document.getElementById("loader").classList.remove("hidden");
+      
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getTransactions" }) })
+      .then(r => r.json()).then(res => { 
+        if(res.status === "success") {
+            globalTransactions = res.data; 
+            
+            if(!isReload) {
+                // Setup default awal saat pertama kali buka aplikasi
+                const loggedInUser = localStorage.getItem("fw_user");
+                const filterSelect = document.getElementById("filter-pencatat");
+                if(loggedInUser === "Suami" || loggedInUser === "Istri") { filterSelect.value = loggedInUser; }
+                document.getElementById("filter-bulan").value = new Date().getMonth();
+            }
+            
+            // Perbarui Filter Tahun & Render Ulang Kedua View
+            initRiwayatFilters();
+            renderFilteredData(); 
+            renderRiwayatLengkap();
+        } else {
+            alert("Gagal memuat data: " + res.message);
+        }
+        document.getElementById("loader").classList.add("hidden"); 
+      }).catch(err => {
+          document.getElementById("loader").classList.add("hidden");
+          alert("Gagal mengambil data dari server.");
+      });
+    }
+
     function initRiwayatFilters() {
+        const selectTahun = document.getElementById("filter-riwayat-tahun");
+        const currentSelection = selectTahun.value; // simpan pilihan tahun aktif
+        selectTahun.innerHTML = '<option value="all">Semua Tahun</option>'; // bersihkan duplikasi saat reload
+        
         const tahunSet = new Set();
         globalTransactions.forEach(trx => {
             if(trx.timestamp) {
@@ -213,19 +244,24 @@
             }
         });
         
-        const selectTahun = document.getElementById("filter-riwayat-tahun");
         let tahunArray = Array.from(tahunSet).sort((a,b) => b - a);
-        
         tahunArray.forEach(thn => {
             let option = document.createElement("option");
             option.value = thn; option.text = thn;
             selectTahun.appendChild(option);
         });
 
-        const currentDate = new Date();
-        document.getElementById("filter-riwayat-bulan").value = currentDate.getMonth().toString();
-        if(tahunArray.includes(currentDate.getFullYear())) {
-            selectTahun.value = currentDate.getFullYear().toString();
+        // Pertahankan opsi tahun yang dipilih sebelum reload, jika baru pertama kali set ke tahun berjalan
+        if(currentSelection && currentSelection !== "") {
+            selectTahun.value = currentSelection;
+        } else {
+            const currentYear = new Date().getFullYear().toString();
+            if(tahunArray.includes(parseInt(currentYear))) { selectTahun.value = currentYear; }
+        }
+        
+        // Atur default bulan riwayat jika baru pertama kali load
+        if(!document.getElementById("filter-riwayat-bulan").value) {
+            document.getElementById("filter-riwayat-bulan").value = new Date().getMonth().toString();
         }
     }
 
@@ -367,29 +403,14 @@
       });
     }
 
+    // INITIAL LOAD CHECK
     if(localStorage.getItem("fw_user")) {
       document.getElementById("login-section").classList.add("hidden");
       document.getElementById("app-section").classList.remove("hidden");
       document.getElementById("bottom-nav").classList.remove("hidden");
+      document.getElementById("btn-reload").classList.remove("hidden"); // Tampilkan tombol reload jika sudah login
       
-      fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getTransactions" }) })
-      .then(r => r.json()).then(res => { 
-        if(res.status === "success") {
-            globalTransactions = res.data; 
-            const loggedInUser = localStorage.getItem("fw_user");
-            const filterSelect = document.getElementById("filter-pencatat");
-            if(loggedInUser === "Suami" || loggedInUser === "Istri") { filterSelect.value = loggedInUser; }
-            document.getElementById("filter-bulan").value = new Date().getMonth();
-            initRiwayatFilters();
-            renderFilteredData(); 
-        } else {
-            alert("Gagal memuat data: " + res.message);
-        }
-        document.getElementById("loader").classList.add("hidden"); 
-      }).catch(err => {
-          document.getElementById("loader").classList.add("hidden");
-          alert("Gagal mengambil data dari server.");
-      });
+      loadDataFromServer(false); // Jalankan load data pertama kali
     } else {
       document.getElementById("login-section").classList.remove("hidden");
       document.getElementById("loader").classList.add("hidden"); 
