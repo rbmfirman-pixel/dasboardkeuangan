@@ -10,32 +10,14 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
     body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
-    
     .card { background: white; border-radius: 20px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); border: 1px solid #f1f5f9; }
     .fade-in { animation: fadeIn 0.4s ease-in; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    
-    /* Touch-Friendly Optimations */
-    input, select { 
-        height: 52px !important; 
-        padding: 0 16px !important; 
-        width: 100%;
-        border-radius: 16px;
-        border: 1px solid #e2e8f0;
-        outline: none;
-        font-size: 14px;
-        background-color: white;
-    }
-    
-    /* Tampilan dropdown yang terkunci */
-    select:disabled { background-color: #f1f5f9; color: #64748b; opacity: 0.8; cursor: not-allowed; }
-    
+    input, select { height: 52px !important; padding: 0 16px !important; width: 100%; border-radius: 16px; border: 1px solid #e2e8f0; outline: none; font-size: 14px; background-color: white; }
     button { border-radius: 16px; }
-    
     .loader-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
     ::-webkit-scrollbar { width: 0px; background: transparent; }
   </style>
 </head>
@@ -145,8 +127,7 @@
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwzGOv26svKIlGAJg7pmzVfixFVPYtdAPjX9X8g2qYcGK8cwa0dNJTfjAUc2qNsXtQ/exec";
-    let globalTransactions = [];
-    let chartInstance = null;
+    let globalTransactions = []; let chartInstance = null;
     const formatter = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
 
     function togglePassword() { const p = document.getElementById("password"); const i = document.getElementById("eye-icon"); if(p.type === "password") { p.type = "text"; i.innerText = "🙈"; } else { p.type = "password"; i.innerText = "👁️"; } }
@@ -154,20 +135,8 @@
     function handleLogout() { localStorage.clear(); location.reload(); }
 
     function switchTab(tab) {
-        if(tab === 'home') {
-            document.getElementById("view-home").classList.remove("hidden");
-            document.getElementById("view-riwayat").classList.add("hidden");
-            document.getElementById("header-title").innerText = "Dashboard";
-            document.getElementById("nav-home").classList.replace("text-slate-400", "text-indigo-600");
-            document.getElementById("nav-riwayat").classList.replace("text-indigo-600", "text-slate-400");
-        } else {
-            document.getElementById("view-home").classList.add("hidden");
-            document.getElementById("view-riwayat").classList.remove("hidden");
-            document.getElementById("header-title").innerText = "Riwayat Transaksi";
-            document.getElementById("nav-riwayat").classList.replace("text-slate-400", "text-indigo-600");
-            document.getElementById("nav-home").classList.replace("text-indigo-600", "text-slate-400");
-            renderRiwayatLengkap();
-        }
+        if(tab === 'home') { document.getElementById("view-home").classList.remove("hidden"); document.getElementById("view-riwayat").classList.add("hidden"); document.getElementById("header-title").innerText = "Dashboard"; document.getElementById("nav-home").classList.replace("text-slate-400", "text-indigo-600"); document.getElementById("nav-riwayat").classList.replace("text-indigo-600", "text-slate-400"); } 
+        else { document.getElementById("view-home").classList.add("hidden"); document.getElementById("view-riwayat").classList.remove("hidden"); document.getElementById("header-title").innerText = "Riwayat Transaksi"; document.getElementById("nav-riwayat").classList.replace("text-slate-400", "text-indigo-600"); document.getElementById("nav-home").classList.replace("text-indigo-600", "text-slate-400"); renderRiwayatLengkap(); }
     }
 
     function loadDataFromServer(isReload = false) {
@@ -176,139 +145,102 @@
       .then(r => r.json()).then(res => { 
         if(res.status === "success") {
             globalTransactions = res.data;
-            // UPDATE DINAMIS PENCATAT (TANPA MENGUBAH STRUKTUR)
-            updateDropdownPencatat(); 
-            if(!isReload) applyUserAccess();
-            initRiwayatFilters();
-            renderFilteredData(); 
-            renderRiwayatLengkap();
+            if(!isReload) {
+                const curM = new Date().getMonth().toString();
+                document.getElementById("filter-bulan").value = curM;
+                document.getElementById("filter-riwayat-bulan").value = curM;
+                const user = localStorage.getItem("fw_user");
+                if (user === "Suami" || user === "Istri") { document.getElementById("filter-pencatat").value = user; }
+            }
+            initRiwayatFilters(); renderFilteredData(); renderRiwayatLengkap();
         } else { alert("Gagal memuat data: " + res.message); }
         document.getElementById("loader").classList.add("hidden"); 
       }).catch(err => { document.getElementById("loader").classList.add("hidden"); alert("Gagal mengambil data."); });
     }
 
-    function updateDropdownPencatat() {
-        const uniquePencatat = [...new Set(globalTransactions.map(t => t.pencatat).filter(p => p))];
-        const el = document.getElementById("filter-pencatat");
-        const currentVal = el.value;
-        el.innerHTML = '<option value="all">Semua Orang</option>';
-        uniquePencatat.forEach(p => { el.innerHTML += `<option value="${p}">${p}</option>`; });
-        el.value = currentVal;
-    }
-
-    function applyUserAccess() {
-        const user = localStorage.getItem("fw_user");
-        if (user && user.toLowerCase() !== "admin") {
-            const el = document.getElementById("filter-pencatat");
-            el.value = user;
-            el.disabled = true;
-        }
-    }
-
     function initRiwayatFilters() {
         const selectTahun = document.getElementById("filter-riwayat-tahun");
-        const currentSelection = selectTahun.value;
+        const curr = selectTahun.value;
         selectTahun.innerHTML = '<option value="all">Semua Tahun</option>';
         const tahunSet = new Set();
         globalTransactions.forEach(trx => { if(trx.timestamp) { const year = new Date(trx.timestamp).getFullYear(); if(year) tahunSet.add(year); } });
-        let tahunArray = Array.from(tahunSet).sort((a,b) => b - a);
-        tahunArray.forEach(thn => { let option = document.createElement("option"); option.value = thn; option.text = thn; selectTahun.appendChild(option); });
-        if(currentSelection && currentSelection !== "") selectTahun.value = currentSelection;
-        if(!document.getElementById("filter-riwayat-bulan").value) document.getElementById("filter-riwayat-bulan").value = new Date().getMonth().toString();
+        Array.from(tahunSet).sort((a,b) => b - a).forEach(thn => { let option = document.createElement("option"); option.value = thn; option.text = thn; selectTahun.appendChild(option); });
+        if(curr && curr !== "all") selectTahun.value = curr;
+        else { const currentYear = new Date().getFullYear().toString(); if(document.querySelector(`#filter-riwayat-tahun option[value="${currentYear}"]`)) selectTahun.value = currentYear; }
     }
 
     function renderRiwayatLengkap() {
-        const filterPencatat = document.getElementById("filter-pencatat").value.toLowerCase();
-        const filterBulan = document.getElementById("filter-riwayat-bulan").value;
-        const filterTahun = document.getElementById("filter-riwayat-tahun").value;
+        const filterP = document.getElementById("filter-pencatat").value.toLowerCase();
+        const filterB = document.getElementById("filter-riwayat-bulan").value;
+        const filterT = document.getElementById("filter-riwayat-tahun").value;
         const searchVal = document.getElementById("search-riwayat").value.toLowerCase();
-        
         let filtered = globalTransactions.filter(trx => {
             if(!trx.timestamp) return false;
             const date = new Date(trx.timestamp);
-            const matchPencatat = (filterPencatat === "all" || (trx.pencatat && trx.pencatat.toLowerCase() === filterPencatat));
-            const matchBulan = (filterBulan === "all" || date.getMonth().toString() === filterBulan);
-            const matchTahun = (filterTahun === "all" || date.getFullYear().toString() === filterTahun);
-            const matchSearch = (searchVal === "" || (trx.kategori && trx.kategori.toLowerCase().includes(searchVal)) || (trx.keterangan && trx.keterangan.toLowerCase().includes(searchVal)));
-            return matchPencatat && matchBulan && matchTahun && matchSearch;
+            return (filterB === "all" || date.getMonth().toString() === filterB) && (filterT === "all" || date.getFullYear().toString() === filterT) && (searchVal === "" || (trx.kategori && trx.kategori.toLowerCase().includes(searchVal)) || (trx.keterangan && trx.keterangan.toLowerCase().includes(searchVal)));
         });
-
         filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         let html = "";
         filtered.forEach(trx => {
             const isPengeluaran = (trx.jenis ? trx.jenis.toLowerCase() : "") === 'pengeluaran';
             const badgeColor = (trx.pencatat && trx.pencatat.toLowerCase() === 'suami') ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700';
-            html += `
-            <div class="card p-4 flex flex-col gap-2">
-                <div class="flex justify-between items-center border-b border-slate-50 pb-2">
-                    <span class="text-[10px] font-bold text-slate-400">📅 ${new Date(trx.timestamp).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${badgeColor}">${trx.pencatat || '?'}</span>
-                </div>
-                <div class="flex justify-between items-center pt-1">
-                    <div class="min-w-0 pr-3 flex-1"><p class="text-sm font-bold text-slate-800 truncate">${trx.kategori}</p><p class="text-[11px] text-slate-500 truncate mt-0.5">${trx.keterangan || "-"}</p></div>
-                    <span class="${isPengeluaran ? 'text-rose-500' : 'text-emerald-500'} font-bold text-sm whitespace-nowrap pl-2">${isPengeluaran ? '-' : '+'}${formatter.format(trx.nominal)}</span>
-                </div>
+            html += `<div class="card p-4 flex flex-col gap-2">
+                <div class="flex justify-between items-center border-b border-slate-50 pb-2"><span class="text-[10px] font-bold text-slate-400">📅 ${new Date(trx.timestamp).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</span><span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${badgeColor}">${trx.pencatat || '?'}</span></div>
+                <div class="flex justify-between items-center pt-1"><div class="min-w-0 pr-3 flex-1"><p class="text-sm font-bold text-slate-800 truncate">${trx.kategori}</p><p class="text-[11px] text-slate-500 truncate mt-0.5">${trx.keterangan || "-"}</p></div><span class="${isPengeluaran ? 'text-rose-500' : 'text-emerald-500'} font-bold text-sm">${isPengeluaran ? '-' : '+'}${formatter.format(trx.nominal)}</span></div>
             </div>`;
         });
         document.getElementById("list-riwayat-lengkap").innerHTML = html || '<div class="text-center py-10"><p class="text-sm text-slate-500">Tidak ada transaksi.</p></div>';
     }
 
     function renderFilteredData() {
-      const filterPencatat = document.getElementById("filter-pencatat").value.toLowerCase();
-      const filterBulan = document.getElementById("filter-bulan").value;
-      let saldoAwal = 0; let totalPemasukan = 0; let totalPengeluaran = 0;
+      const filterP = document.getElementById("filter-pencatat").value.toLowerCase();
+      const filterB = document.getElementById("filter-bulan").value;
+      let saldoAwal = 0; let totalP = 0; let totalK = 0;
       globalTransactions.forEach(trx => {
-        const d = new Date(trx.timestamp);
-        const m = d.getMonth().toString();
-        const nominal = parseFloat(trx.nominal) || 0;
-        const trxPencatat = trx.pencatat ? trx.pencatat.toLowerCase() : "";
-        if (filterPencatat !== "all" && trxPencatat !== filterPencatat) return;
-        if (filterBulan === "all") { if (trx.jenis === "Pemasukan") saldoAwal += nominal; } 
-        else { if (parseInt(m) < parseInt(filterBulan)) { saldoAwal += (trx.jenis === "Pemasukan" ? nominal : -nominal); } }
-        if (filterBulan === "all" || m === filterBulan) {
-           if (trx.jenis === "Pemasukan") totalPemasukan += nominal; else totalPengeluaran += nominal;
-        }
+        const d = new Date(trx.timestamp); const m = d.getMonth().toString(); const n = parseFloat(trx.nominal) || 0;
+        if (filterP !== "all" && (trx.pencatat || "").toLowerCase() !== filterP) return;
+        if (filterB === "all") { if (trx.jenis === "Pemasukan") saldoAwal += n; } else { if (parseInt(m) < parseInt(filterB)) { saldoAwal += (trx.jenis === "Pemasukan" ? n : -n); } }
+        if (filterB === "all" || m === filterB) { if (trx.jenis === "Pemasukan") totalP += n; else totalK += n; }
       });
-      document.getElementById("txt-saldo-awal").innerText = formatter.format(filterBulan === "all" ? totalPemasukan : saldoAwal);
-      document.getElementById("txt-pengeluaran").innerText = formatter.format(totalPengeluaran);
-      document.getElementById("txt-saldo").innerText = formatter.format((filterBulan === "all" ? totalPemasukan : saldoAwal) + totalPemasukan - totalPengeluaran);
+      document.getElementById("txt-saldo-awal").innerText = formatter.format(filterB === "all" ? totalP : saldoAwal);
+      document.getElementById("txt-pengeluaran").innerText = formatter.format(totalK);
+      document.getElementById("txt-saldo").innerText = formatter.format((filterB === "all" ? totalP : saldoAwal) + totalP - totalK);
+      let html = "";
+      globalTransactions.filter(t => (filterP === "all" || (t.pencatat || "").toLowerCase() === filterP) && (filterB === "all" || new Date(t.timestamp).getMonth().toString() === filterB))
+      .slice(-5).reverse().forEach(trx => {
+        const isPengeluaran = (trx.jenis || "").toLowerCase() === 'pengeluaran';
+        html += `<div class="flex justify-between items-center py-2 border-b border-slate-50 last:border-0"><div class="min-w-0 pr-4 flex-1"><p class="text-sm font-semibold text-slate-800 truncate">${trx.kategori}</p><p class="text-[11px] text-slate-400 truncate mt-0.5">${trx.keterangan || "-"}</p></div><span class="${isPengeluaran ? 'text-rose-500' : 'text-emerald-500'} font-bold text-sm">${isPengeluaran ? '-' : '+'}${formatter.format(trx.nominal)}</span></div>`;
+      });
+      document.getElementById("list-riwayat-singkat").innerHTML = html || `<p class="text-sm text-slate-400 text-center py-4">Belum ada transaksi.</p>`;
       renderDailyChart();
     }
 
     function renderDailyChart() {
-      const filterPencatat = document.getElementById("filter-pencatat").value.toLowerCase();
+      const filterP = document.getElementById("filter-pencatat").value.toLowerCase();
       const labels = []; const data = []; const today = new Date();
       for(let i = 6; i >= 0; i--) {
         const d = new Date(); d.setDate(today.getDate() - i);
         labels.push(d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }));
-        let dailySpend = 0;
+        let ds = 0;
         globalTransactions.forEach(trx => {
           if(!trx.timestamp) return;
-          const tDate = new Date(trx.timestamp);
-          const matchesDate = tDate.getDate() === d.getDate() && tDate.getMonth() === d.getMonth() && tDate.getFullYear() === d.getFullYear();
-          const trxPencatat = trx.pencatat ? trx.pencatat.toLowerCase() : "";
-          if (matchesDate && (filterPencatat === "all" || trxPencatat === filterPencatat) && trx.jenis === 'Pengeluaran') dailySpend += parseFloat(trx.nominal) || 0;
+          const tD = new Date(trx.timestamp);
+          if (tD.getDate() === d.getDate() && tD.getMonth() === d.getMonth() && tD.getFullYear() === d.getFullYear() && (filterP === "all" || (trx.pencatat || "").toLowerCase() === filterP) && (trx.jenis || "").toLowerCase() === 'pengeluaran') ds += parseFloat(trx.nominal) || 0;
         });
-        data.push(dailySpend);
+        data.push(ds);
       }
       if(chartInstance) chartInstance.destroy();
       chartInstance = new Chart(document.getElementById('canvasTrenSaldo'), {
         type: 'line',
         data: { labels: labels, datasets: [{ label: 'Pengeluaran', data: data, borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)', fill: true, tension: 0.4, pointRadius: 6, pointBackgroundColor: '#4f46e5' }] },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { display: false }, x: { grid: { display: false } } } }
+        options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, elements: { point: { hitRadius: 25 } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
       });
     }
 
     if(localStorage.getItem("fw_user")) {
-      document.getElementById("login-section").classList.add("hidden");
-      document.getElementById("app-section").classList.remove("hidden");
-      document.getElementById("bottom-nav").classList.remove("hidden");
-      document.getElementById("btn-reload").classList.remove("hidden");
+      document.getElementById("login-section").classList.add("hidden"); document.getElementById("app-section").classList.remove("hidden"); document.getElementById("bottom-nav").classList.remove("hidden"); document.getElementById("btn-reload").classList.remove("hidden");
       loadDataFromServer(false);
-    } else {
-      document.getElementById("login-section").classList.remove("hidden");
-      document.getElementById("loader").classList.add("hidden"); 
-    }
+    } else { document.getElementById("login-section").classList.remove("hidden"); document.getElementById("loader").classList.add("hidden"); }
   </script>
 </body>
 </html>
