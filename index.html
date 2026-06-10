@@ -39,7 +39,9 @@
     ::-webkit-scrollbar { width: 0px; background: transparent; }
   </style>
 </head>
-<body class="min-h-screen text-slate-800 pb-20"> <div id="loader" class="loader-overlay">
+<body class="min-h-screen text-slate-800 pb-20">
+
+  <div id="loader" class="loader-overlay">
     <div class="spinner mb-4"></div>
     <p class="font-bold text-slate-500">Memuat Data...</p>
   </div>
@@ -58,12 +60,14 @@
     </div>
   </div>
 
+  <!-- APP CONTAINER -->
   <div id="app-section" class="hidden max-w-lg mx-auto fade-in">
     <header class="p-6 flex justify-between items-center bg-[#f8fafc] sticky top-0 z-30">
       <h2 id="header-title" class="font-bold text-xl text-slate-800">Dashboard</h2>
       <button onclick="handleLogout()" class="text-sm text-rose-500 font-bold bg-rose-50 px-5 py-2 rounded-full">Keluar</button>
     </header>
 
+    <!-- VIEW: HOME (DASHBOARD) -->
     <main id="view-home" class="px-6 space-y-6">
       <div class="grid grid-cols-2 gap-4">
         <select id="filter-pencatat" onchange="renderFilteredData()">
@@ -106,13 +110,16 @@
       </div>
     </main>
 
+    <!-- VIEW: RIWAYAT LENGKAP -->
     <main id="view-riwayat" class="hidden px-6 space-y-4 fade-in">
       
+      <!-- Search Bar (FIXED OVERLAP BUG) -->
       <div class="relative">
-        <span class="absolute left-4 top-3.5 text-slate-400">🔍</span>
-        <input type="text" id="search-riwayat" placeholder="Cari kategori atau keterangan..." oninput="renderRiwayatLengkap()" class="pl-11 bg-white border-none shadow-sm">
+        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-base select-none z-10">🔍</span>
+        <input type="text" id="search-riwayat" placeholder="Cari kategori atau keterangan..." oninput="renderRiwayatLengkap()" class="bg-white border-none shadow-sm" style="padding-left: 44px !important;">
       </div>
 
+      <!-- Filters Riwayat -->
       <div class="grid grid-cols-2 gap-4">
         <select id="filter-riwayat-bulan" onchange="renderRiwayatLengkap()" class="border-none shadow-sm">
           <option value="all">Semua Bulan</option>
@@ -123,15 +130,16 @@
         </select>
         <select id="filter-riwayat-tahun" onchange="renderRiwayatLengkap()" class="border-none shadow-sm">
           <option value="all">Semua Tahun</option>
-          </select>
+        </select>
       </div>
 
-      <div id="list-riwayat-lengkap" class="space-y-3 pb-6">
-         </div>
+      <!-- List Container -->
+      <div id="list-riwayat-lengkap" class="space-y-3 pb-6"></div>
     </main>
 
   </div>
 
+  <!-- BOTTOM NAVIGATION -->
   <nav id="bottom-nav" class="hidden fixed bottom-0 w-full bg-white border-t border-slate-100 px-6 py-3 z-40 pb-safe">
     <div class="max-w-lg mx-auto flex justify-around items-center">
       <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center p-2 text-indigo-600 transition">
@@ -162,7 +170,6 @@
       e.preventDefault();
       const user = document.getElementById("username").value;
       const pass = document.getElementById("password").value;
-      
       document.getElementById("loader").classList.remove("hidden");
       
       fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "login", username: user, password: pass }) })
@@ -193,11 +200,10 @@
             document.getElementById("header-title").innerText = "Riwayat Transaksi";
             document.getElementById("nav-riwayat").classList.replace("text-slate-400", "text-indigo-600");
             document.getElementById("nav-home").classList.replace("text-indigo-600", "text-slate-400");
-            renderRiwayatLengkap(); // Refresh data saat tab dibuka
+            renderRiwayatLengkap();
         }
     }
 
-    // --- FUNGSI UNTUK TAB RIWAYAT LENGKAP ---
     function initRiwayatFilters() {
         const tahunSet = new Set();
         globalTransactions.forEach(trx => {
@@ -208,16 +214,14 @@
         });
         
         const selectTahun = document.getElementById("filter-riwayat-tahun");
-        let tahunArray = Array.from(tahunSet).sort((a,b) => b - a); // Urut dari terbaru
+        let tahunArray = Array.from(tahunSet).sort((a,b) => b - a);
         
         tahunArray.forEach(thn => {
             let option = document.createElement("option");
-            option.value = thn;
-            option.text = thn;
+            option.value = thn; option.text = thn;
             selectTahun.appendChild(option);
         });
 
-        // Set default filter ke bulan dan tahun saat ini
         const currentDate = new Date();
         document.getElementById("filter-riwayat-bulan").value = currentDate.getMonth().toString();
         if(tahunArray.includes(currentDate.getFullYear())) {
@@ -246,7 +250,6 @@
             return matchBulan && matchTahun && matchSearch;
         });
 
-        // Urutkan berdasarkan Timestamp (Terbaru ke Terlama)
         filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
         let html = "";
@@ -254,8 +257,6 @@
             const isPengeluaran = (trx.jenis ? trx.jenis.toLowerCase() : "") === 'pengeluaran';
             const ketDisplay = (trx.keterangan && trx.keterangan.trim() !== "") ? trx.keterangan : "-";
             const tglDisplay = new Date(trx.timestamp).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
-            
-            // Badge untuk pencatat
             const badgeColor = (trx.pencatat && trx.pencatat.toLowerCase() === 'suami') ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700';
 
             html += `
@@ -285,7 +286,6 @@
         document.getElementById("list-riwayat-lengkap").innerHTML = html;
     }
 
-    // --- FUNGSI UNTUK DASHBOARD/HOME (TETAP SAMA SEPERTI SEBELUMNYA) ---
     function renderFilteredData() {
       const filterPencatat = document.getElementById("filter-pencatat").value.toLowerCase();
       const filterBulan = document.getElementById("filter-bulan").value;
@@ -367,7 +367,6 @@
       });
     }
 
-    // INITIALIZATION
     if(localStorage.getItem("fw_user")) {
       document.getElementById("login-section").classList.add("hidden");
       document.getElementById("app-section").classList.remove("hidden");
@@ -377,16 +376,11 @@
       .then(r => r.json()).then(res => { 
         if(res.status === "success") {
             globalTransactions = res.data; 
-            
-            // Setup Filter Dashboard
             const loggedInUser = localStorage.getItem("fw_user");
             const filterSelect = document.getElementById("filter-pencatat");
             if(loggedInUser === "Suami" || loggedInUser === "Istri") { filterSelect.value = loggedInUser; }
             document.getElementById("filter-bulan").value = new Date().getMonth();
-            
-            // Setup Filter Riwayat Lengkap
             initRiwayatFilters();
-
             renderFilteredData(); 
         } else {
             alert("Gagal memuat data: " + res.message);
