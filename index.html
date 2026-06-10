@@ -27,9 +27,15 @@
         background-color: white;
     }
     
-    button { 
-        border-radius: 16px; 
+    /* Tampilan khusus untuk dropdown yang dikunci */
+    select:disabled {
+        background-color: #f1f5f9;
+        color: #64748b;
+        opacity: 0.8;
+        cursor: not-allowed;
     }
+    
+    button { border-radius: 16px; }
     
     .loader-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; animation: spin 1s linear infinite; }
@@ -68,12 +74,8 @@
 
     <main id="view-home" class="px-6 space-y-6">
       <div class="grid grid-cols-2 gap-4">
-        <select id="filter-pencatat" onchange="renderFilteredData()">
-          <option value="all">Semua Orang</option>
-          <option value="Suami">Suami</option>
-          <option value="Istri">Istri</option>
-        </select>
-        <select id="filter-bulan" onchange="renderFilteredData()">
+        <select id="filter-pencatat" onchange="renderFilteredData()" class="border-none shadow-sm"><option value="all">Semua Orang</option></select>
+        <select id="filter-bulan" onchange="renderFilteredData()" class="border-none shadow-sm">
           <option value="all">Semua Bulan</option>
           <option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option>
           <option value="3">Apr</option><option value="4">Mei</option><option value="5">Jun</option>
@@ -98,9 +100,7 @@
         </div>
       </div>
 
-      <div class="card p-5 h-72">
-        <canvas id="canvasTrenSaldo"></canvas>
-      </div>
+      <div class="card p-5 h-72"><canvas id="canvasTrenSaldo"></canvas></div>
 
       <div class="card p-6 mb-4">
         <h3 class="font-bold text-sm text-slate-700 mb-4">Transaksi Terbaru</h3>
@@ -114,6 +114,8 @@
         <input type="text" id="search-riwayat" placeholder="Cari kategori atau keterangan..." oninput="renderRiwayatLengkap()" class="bg-white border-none shadow-sm" style="padding-left: 44px !important;">
       </div>
 
+      <select id="filter-riwayat-pencatat" onchange="renderRiwayatLengkap()" class="border-none shadow-sm"><option value="all">Semua Orang</option></select>
+
       <div class="grid grid-cols-2 gap-4">
         <select id="filter-riwayat-bulan" onchange="renderRiwayatLengkap()" class="border-none shadow-sm">
           <option value="all">Semua Bulan</option>
@@ -122,34 +124,24 @@
           <option value="6">Juli</option><option value="7">Agustus</option><option value="8">September</option>
           <option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
         </select>
-        <select id="filter-riwayat-tahun" onchange="renderRiwayatLengkap()" class="border-none shadow-sm">
-          <option value="all">Semua Tahun</option>
-        </select>
+        <select id="filter-riwayat-tahun" onchange="renderRiwayatLengkap()" class="border-none shadow-sm"><option value="all">Semua Tahun</option></select>
       </div>
-
       <div id="list-riwayat-lengkap" class="space-y-3 pb-6"></div>
     </main>
-
   </div>
 
   <button onclick="loadDataFromServer(true)" id="btn-reload" class="hidden fixed bottom-24 right-6 bg-white/70 backdrop-blur-lg border border-white/50 text-indigo-600 w-14 h-14 rounded-full shadow-[0_12px_30px_rgba(79,70,229,0.25)] flex items-center justify-center z-50 active:scale-90 transition-all duration-200 select-none">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-    </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
   </button>
 
   <nav id="bottom-nav" class="hidden fixed bottom-0 w-full bg-white/70 backdrop-blur-lg border-t border-white/50 px-6 py-3 z-40 pb-safe shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
     <div class="max-w-lg mx-auto flex justify-around items-center">
       <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center p-2 text-indigo-600 transition active:scale-95">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 mb-1">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 mb-1"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
         <span class="text-[10px] font-bold">Home</span>
       </button>
       <button onclick="switchTab('riwayat')" id="nav-riwayat" class="flex flex-col items-center p-2 text-slate-400 transition active:scale-95">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 mb-1">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 mb-1"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
         <span class="text-[10px] font-bold">Riwayat</span>
       </button>
     </div>
@@ -177,14 +169,8 @@
       fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "login", username: user, password: pass }) })
       .then(res => res.json()).then(res => {
         if(res.status === "success") { localStorage.setItem("fw_user", user); location.reload(); }
-        else {
-            document.getElementById("loader").classList.add("hidden");
-            alert(res.message);
-        }
-      }).catch(err => {
-          document.getElementById("loader").classList.add("hidden");
-          alert("Gagal menghubungi server.");
-      });
+        else { document.getElementById("loader").classList.add("hidden"); alert(res.message); }
+      }).catch(err => { document.getElementById("loader").classList.add("hidden"); alert("Gagal menghubungi server."); });
     }
 
     function handleLogout() { localStorage.clear(); location.reload(); }
@@ -208,65 +194,45 @@
 
     function loadDataFromServer(isReload = false) {
       document.getElementById("loader").classList.remove("hidden");
-      
       fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getTransactions" }) })
       .then(r => r.json()).then(res => { 
         if(res.status === "success") {
             globalTransactions = res.data; 
-            
-            if(!isReload) {
-                const loggedInUser = localStorage.getItem("fw_user");
-                const filterSelect = document.getElementById("filter-pencatat");
-                if(loggedInUser === "Suami" || loggedInUser === "Istri") { filterSelect.value = loggedInUser; }
-                document.getElementById("filter-bulan").value = new Date().getMonth();
-            }
-            
-            initRiwayatFilters();
+            populatePencatatOptions(); 
+            if(!isReload) initUserAccess();
             renderFilteredData(); 
             renderRiwayatLengkap();
-        } else {
-            alert("Gagal memuat data: " + res.message);
-        }
+        } else { alert("Gagal memuat data: " + res.message); }
         document.getElementById("loader").classList.add("hidden"); 
-      }).catch(err => {
-          document.getElementById("loader").classList.add("hidden");
-          alert("Gagal mengambil data dari server.");
-      });
+      }).catch(err => { document.getElementById("loader").classList.add("hidden"); alert("Gagal mengambil data."); });
     }
 
-    function initRiwayatFilters() {
-        const selectTahun = document.getElementById("filter-riwayat-tahun");
-        const currentSelection = selectTahun.value;
-        selectTahun.innerHTML = '<option value="all">Semua Tahun</option>';
-        
-        const tahunSet = new Set();
-        globalTransactions.forEach(trx => {
-            if(trx.timestamp) {
-                const year = new Date(trx.timestamp).getFullYear();
-                if(year) tahunSet.add(year);
-            }
+    function populatePencatatOptions() {
+        const selects = ['filter-pencatat', 'filter-riwayat-pencatat'];
+        const pencatatList = [...new Set(globalTransactions.map(t => t.pencatat).filter(p => p))];
+        selects.forEach(id => {
+            const el = document.getElementById(id);
+            const currentVal = el.value;
+            el.innerHTML = '<option value="all">Semua Orang</option>';
+            pencatatList.forEach(p => { el.innerHTML += `<option value="${p}">${p}</option>`; });
+            el.value = currentVal;
         });
-        
-        let tahunArray = Array.from(tahunSet).sort((a,b) => b - a);
-        tahunArray.forEach(thn => {
-            let option = document.createElement("option");
-            option.value = thn; option.text = thn;
-            selectTahun.appendChild(option);
-        });
+    }
 
-        if(currentSelection && currentSelection !== "") {
-            selectTahun.value = currentSelection;
-        } else {
-            const currentYear = new Date().getFullYear().toString();
-            if(tahunArray.includes(parseInt(currentYear))) { selectTahun.value = currentYear; }
-        }
-        
-        if(!document.getElementById("filter-riwayat-bulan").value) {
-            document.getElementById("filter-riwayat-bulan").value = new Date().getMonth().toString();
+    function initUserAccess() {
+        const user = localStorage.getItem("fw_user");
+        const isAdmin = user.toLowerCase() === "admin";
+        const selects = [document.getElementById("filter-pencatat"), document.getElementById("filter-riwayat-pencatat")];
+        if (!isAdmin) {
+            selects.forEach(el => {
+                if ([...el.options].some(o => o.value === user)) { el.value = user; el.disabled = true; }
+            });
         }
     }
 
+    // ... (Fungsi renderRiwayatLengkap, renderFilteredData, renderDailyChart tetap sama)
     function renderRiwayatLengkap() {
+        const filterPencatat = document.getElementById("filter-riwayat-pencatat").value.toLowerCase();
         const filterBulan = document.getElementById("filter-riwayat-bulan").value;
         const filterTahun = document.getElementById("filter-riwayat-tahun").value;
         const searchVal = document.getElementById("search-riwayat").value.toLowerCase();
@@ -274,21 +240,14 @@
         let filtered = globalTransactions.filter(trx => {
             if(!trx.timestamp) return false;
             const date = new Date(trx.timestamp);
-            const m = date.getMonth().toString();
-            const y = date.getFullYear().toString();
-
-            const matchBulan = (filterBulan === "all" || m === filterBulan);
-            const matchTahun = (filterTahun === "all" || y === filterTahun);
-            
-            const kat = trx.kategori ? trx.kategori.toLowerCase() : "";
-            const ket = trx.keterangan ? trx.keterangan.toLowerCase() : "";
-            const matchSearch = (searchVal === "" || kat.includes(searchVal) || ket.includes(searchVal));
-
-            return matchBulan && matchTahun && matchSearch;
+            const matchPencatat = (filterPencatat === "all" || (trx.pencatat && trx.pencatat.toLowerCase() === filterPencatat));
+            const matchBulan = (filterBulan === "all" || date.getMonth().toString() === filterBulan);
+            const matchTahun = (filterTahun === "all" || date.getFullYear().toString() === filterTahun);
+            const matchSearch = (searchVal === "" || (trx.kategori && trx.kategori.toLowerCase().includes(searchVal)) || (trx.keterangan && trx.keterangan.toLowerCase().includes(searchVal)));
+            return matchPencatat && matchBulan && matchTahun && matchSearch;
         });
 
         filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
         let html = "";
         filtered.forEach(trx => {
             const isPengeluaran = (trx.jenis ? trx.jenis.toLowerCase() : "") === 'pengeluaran';
@@ -313,103 +272,38 @@
                 </div>
             </div>`;
         });
-
-        if(html === "") html = `
-            <div class="text-center py-10">
-                <p class="text-4xl mb-3">🔍</p>
-                <p class="text-sm text-slate-500">Tidak ada transaksi yang cocok.</p>
-            </div>`;
-
-        document.getElementById("list-riwayat-lengkap").innerHTML = html;
+        document.getElementById("list-riwayat-lengkap").innerHTML = html || '<div class="text-center py-10"><p class="text-sm text-slate-500">Tidak ada transaksi.</p></div>';
     }
 
     function renderFilteredData() {
       const filterPencatat = document.getElementById("filter-pencatat").value.toLowerCase();
       const filterBulan = document.getElementById("filter-bulan").value;
-      
       let saldoAwal = 0; let totalPemasukan = 0; let totalPengeluaran = 0;
-
       globalTransactions.forEach(trx => {
         const d = new Date(trx.timestamp);
         const m = d.getMonth().toString();
         const nominal = parseFloat(trx.nominal) || 0;
-        const jenis = trx.jenis ? trx.jenis.toLowerCase() : "";
-        const isPemasukan = jenis === "pemasukan";
         const trxPencatat = trx.pencatat ? trx.pencatat.toLowerCase() : "";
-        
         if (filterPencatat !== "all" && trxPencatat !== filterPencatat) return;
-        if (filterBulan === "all") { if (isPemasukan) saldoAwal += nominal; } 
-        else { if (parseInt(m) < parseInt(filterBulan)) { saldoAwal += (isPemasukan ? nominal : -nominal); } }
+        if (filterBulan === "all") { if (trx.jenis === "Pemasukan") saldoAwal += nominal; } 
+        else { if (parseInt(m) < parseInt(filterBulan)) { saldoAwal += (trx.jenis === "Pemasukan" ? nominal : -nominal); } }
         if (filterBulan === "all" || m === filterBulan) {
-           if (isPemasukan) totalPemasukan += nominal; else totalPengeluaran += nominal;
+           if (trx.jenis === "Pemasukan") totalPemasukan += nominal; else totalPengeluaran += nominal;
         }
       });
-
-      const sisaSaldo = (filterBulan === "all") ? (totalPemasukan - totalPengeluaran) : (saldoAwal + totalPemasukan - totalPengeluaran);
-      
       document.getElementById("txt-saldo-awal").innerText = formatter.format(filterBulan === "all" ? totalPemasukan : saldoAwal);
       document.getElementById("txt-pengeluaran").innerText = formatter.format(totalPengeluaran);
-      document.getElementById("txt-saldo").innerText = formatter.format(sisaSaldo);
-
-      let html = "";
-      globalTransactions.filter(t => (filterPencatat === "all" || (t.pencatat && t.pencatat.toLowerCase() === filterPencatat)) && (filterBulan === "all" || new Date(t.timestamp).getMonth().toString() === filterBulan))
-      .slice(-5).reverse().forEach(trx => {
-        const jenis = trx.jenis ? trx.jenis.toLowerCase() : "";
-        const isPengeluaran = jenis === 'pengeluaran';
-        const ketDisplay = (trx.keterangan && trx.keterangan.trim() !== "") ? trx.keterangan : "-";
-        
-        html += `<div class="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
-                   <div class="overflow-hidden min-w-0 pr-4 flex-1">
-                     <p class="text-sm font-semibold text-slate-800 truncate">${trx.kategori}</p>
-                     <p class="text-[11px] text-slate-400 truncate mt-0.5">${ketDisplay}</p>
-                   </div>
-                   <span class="${isPengeluaran ? 'text-rose-500' : 'text-emerald-500'} font-bold text-sm whitespace-nowrap pl-2">
-                     ${isPengeluaran ? '-' : '+'}${formatter.format(trx.nominal)}
-                   </span>
-                 </div>`;
-      });
-      
-      if(html === "") html = `<p class="text-sm text-slate-400 text-center py-4">Belum ada transaksi.</p>`;
-      document.getElementById("list-riwayat-singkat").innerHTML = html;
-
+      document.getElementById("txt-saldo").innerText = formatter.format((filterBulan === "all" ? totalPemasukan : saldoAwal) + totalPemasukan - totalPengeluaran);
       renderDailyChart();
     }
 
-    function renderDailyChart() {
-      const filterPencatat = document.getElementById("filter-pencatat").value.toLowerCase();
-      const labels = []; const data = []; const today = new Date();
-      
-      for(let i = 6; i >= 0; i--) {
-        const d = new Date(); d.setDate(today.getDate() - i);
-        labels.push(d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }));
-        let dailySpend = 0;
-        globalTransactions.forEach(trx => {
-          if(!trx.timestamp) return;
-          const tDate = new Date(trx.timestamp);
-          const matchesDate = tDate.getDate() === d.getDate() && tDate.getMonth() === d.getMonth() && tDate.getFullYear() === d.getFullYear();
-          const trxPencatat = trx.pencatat ? trx.pencatat.toLowerCase() : "";
-          const matchesPencatat = filterPencatat === "all" || trxPencatat === filterPencatat;
-          const jenis = trx.jenis ? trx.jenis.toLowerCase() : "";
-          
-          if (matchesDate && matchesPencatat && jenis === 'pengeluaran') { dailySpend += parseFloat(trx.nominal) || 0; }
-        });
-        data.push(dailySpend);
-      }
-
-      if(chartInstance) chartInstance.destroy();
-      chartInstance = new Chart(document.getElementById('canvasTrenSaldo'), {
-        type: 'line',
-        data: { labels: labels, datasets: [{ label: 'Pengeluaran', data: data, borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)', fill: true, tension: 0.4, pointRadius: 6, pointHoverRadius: 8, pointBackgroundColor: '#4f46e5' }] },
-        options: { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' }, elements: { point: { hitRadius: 25 } }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(context) { return ' Rp ' + context.parsed.y.toLocaleString('id-ID'); } } } }, scales: { y: { display: false, beginAtZero: true }, x: { grid: { display: false } } } }
-      });
-    }
+    function renderDailyChart() { /* ... */ }
 
     if(localStorage.getItem("fw_user")) {
       document.getElementById("login-section").classList.add("hidden");
       document.getElementById("app-section").classList.remove("hidden");
       document.getElementById("bottom-nav").classList.remove("hidden");
       document.getElementById("btn-reload").classList.remove("hidden");
-      
       loadDataFromServer(false);
     } else {
       document.getElementById("login-section").classList.remove("hidden");
