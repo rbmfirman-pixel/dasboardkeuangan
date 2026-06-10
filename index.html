@@ -9,35 +9,37 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
     
     .card { background: white; border-radius: 20px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); border: 1px solid #f1f5f9; }
-    .fade-in { animation: fadeIn 0.5s ease-in; }
+    .fade-in { animation: fadeIn 0.4s ease-in; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     
     /* Touch-Friendly Optimations */
     input, select { 
-        height: 56px !important; 
-        padding: 0 20px !important; 
+        height: 52px !important; 
+        padding: 0 16px !important; 
         width: 100%;
         border-radius: 16px;
         border: 1px solid #e2e8f0;
         outline: none;
+        font-size: 14px;
+        background-color: white;
     }
     
     button { 
-        height: 56px; 
         border-radius: 16px; 
     }
     
     .loader-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* Hide scrollbar for aesthetic */
+    ::-webkit-scrollbar { width: 0px; background: transparent; }
   </style>
 </head>
-<body class="min-h-screen text-slate-800">
-
-  <div id="loader" class="loader-overlay">
+<body class="min-h-screen text-slate-800 pb-20"> <div id="loader" class="loader-overlay">
     <div class="spinner mb-4"></div>
     <p class="font-bold text-slate-500">Memuat Data...</p>
   </div>
@@ -49,20 +51,20 @@
         <input type="text" id="username" placeholder="Username" required>
         <div class="relative">
           <input type="password" id="password" placeholder="Password" required>
-          <span onclick="togglePassword()" class="absolute right-5 top-5 cursor-pointer text-slate-400 select-none" id="eye-icon">👁️</span>
+          <span onclick="togglePassword()" class="absolute right-5 top-4 cursor-pointer text-slate-400 select-none text-lg" id="eye-icon">👁️</span>
         </div>
-        <button type="submit" class="w-full bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition active:scale-95">Masuk</button>
+        <button type="submit" class="w-full h-[56px] bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition active:scale-95">Masuk</button>
       </form>
     </div>
   </div>
 
-  <div id="app-section" class="hidden pb-10 max-w-lg mx-auto fade-in">
-    <header class="p-6 flex justify-between items-center">
-      <h2 class="font-bold text-xl text-slate-800">Dashboard</h2>
-      <button onclick="handleLogout()" class="text-sm text-rose-500 font-bold bg-rose-50 px-6 py-2 rounded-full">Keluar</button>
+  <div id="app-section" class="hidden max-w-lg mx-auto fade-in">
+    <header class="p-6 flex justify-between items-center bg-[#f8fafc] sticky top-0 z-30">
+      <h2 id="header-title" class="font-bold text-xl text-slate-800">Dashboard</h2>
+      <button onclick="handleLogout()" class="text-sm text-rose-500 font-bold bg-rose-50 px-5 py-2 rounded-full">Keluar</button>
     </header>
 
-    <main class="px-6 space-y-6">
+    <main id="view-home" class="px-6 space-y-6">
       <div class="grid grid-cols-2 gap-4">
         <select id="filter-pencatat" onchange="renderFilteredData()">
           <option value="all">Semua Orang</option>
@@ -98,18 +100,56 @@
         <canvas id="canvasTrenSaldo"></canvas>
       </div>
 
-      <div class="card p-6">
+      <div class="card p-6 mb-4">
         <h3 class="font-bold text-sm text-slate-700 mb-4">Transaksi Terbaru</h3>
         <div id="list-riwayat-singkat" class="space-y-2"></div>
       </div>
     </main>
+
+    <main id="view-riwayat" class="hidden px-6 space-y-4 fade-in">
+      
+      <div class="relative">
+        <span class="absolute left-4 top-3.5 text-slate-400">🔍</span>
+        <input type="text" id="search-riwayat" placeholder="Cari kategori atau keterangan..." oninput="renderRiwayatLengkap()" class="pl-11 bg-white border-none shadow-sm">
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <select id="filter-riwayat-bulan" onchange="renderRiwayatLengkap()" class="border-none shadow-sm">
+          <option value="all">Semua Bulan</option>
+          <option value="0">Januari</option><option value="1">Februari</option><option value="2">Maret</option>
+          <option value="3">April</option><option value="4">Mei</option><option value="5">Juni</option>
+          <option value="6">Juli</option><option value="7">Agustus</option><option value="8">September</option>
+          <option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
+        </select>
+        <select id="filter-riwayat-tahun" onchange="renderRiwayatLengkap()" class="border-none shadow-sm">
+          <option value="all">Semua Tahun</option>
+          </select>
+      </div>
+
+      <div id="list-riwayat-lengkap" class="space-y-3 pb-6">
+         </div>
+    </main>
+
   </div>
 
+  <nav id="bottom-nav" class="hidden fixed bottom-0 w-full bg-white border-t border-slate-100 px-6 py-3 z-40 pb-safe">
+    <div class="max-w-lg mx-auto flex justify-around items-center">
+      <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center p-2 text-indigo-600 transition">
+        <span class="text-xl mb-1">🏠</span>
+        <span class="text-[10px] font-bold">Home</span>
+      </button>
+      <button onclick="switchTab('riwayat')" id="nav-riwayat" class="flex flex-col items-center p-2 text-slate-400 transition hover:text-slate-600">
+        <span class="text-xl mb-1">📋</span>
+        <span class="text-[10px] font-bold">Riwayat</span>
+      </button>
+    </div>
+  </nav>
+
   <script>
-    // Link API terbaru yang Anda kirimkan
     const API_URL = "https://script.google.com/macros/s/AKfycbwzGOv26svKIlGAJg7pmzVfixFVPYtdAPjX9X8g2qYcGK8cwa0dNJTfjAUc2qNsXtQ/exec";
     let globalTransactions = [];
     let chartInstance = null;
+    const formatter = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
 
     function togglePassword() {
       const p = document.getElementById("password");
@@ -123,7 +163,6 @@
       const user = document.getElementById("username").value;
       const pass = document.getElementById("password").value;
       
-      // Tampilkan loading saat login
       document.getElementById("loader").classList.remove("hidden");
       
       fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "login", username: user, password: pass }) })
@@ -141,54 +180,145 @@
 
     function handleLogout() { localStorage.clear(); location.reload(); }
 
+    function switchTab(tab) {
+        if(tab === 'home') {
+            document.getElementById("view-home").classList.remove("hidden");
+            document.getElementById("view-riwayat").classList.add("hidden");
+            document.getElementById("header-title").innerText = "Dashboard";
+            document.getElementById("nav-home").classList.replace("text-slate-400", "text-indigo-600");
+            document.getElementById("nav-riwayat").classList.replace("text-indigo-600", "text-slate-400");
+        } else {
+            document.getElementById("view-home").classList.add("hidden");
+            document.getElementById("view-riwayat").classList.remove("hidden");
+            document.getElementById("header-title").innerText = "Riwayat Transaksi";
+            document.getElementById("nav-riwayat").classList.replace("text-slate-400", "text-indigo-600");
+            document.getElementById("nav-home").classList.replace("text-indigo-600", "text-slate-400");
+            renderRiwayatLengkap(); // Refresh data saat tab dibuka
+        }
+    }
+
+    // --- FUNGSI UNTUK TAB RIWAYAT LENGKAP ---
+    function initRiwayatFilters() {
+        const tahunSet = new Set();
+        globalTransactions.forEach(trx => {
+            if(trx.timestamp) {
+                const year = new Date(trx.timestamp).getFullYear();
+                if(year) tahunSet.add(year);
+            }
+        });
+        
+        const selectTahun = document.getElementById("filter-riwayat-tahun");
+        let tahunArray = Array.from(tahunSet).sort((a,b) => b - a); // Urut dari terbaru
+        
+        tahunArray.forEach(thn => {
+            let option = document.createElement("option");
+            option.value = thn;
+            option.text = thn;
+            selectTahun.appendChild(option);
+        });
+
+        // Set default filter ke bulan dan tahun saat ini
+        const currentDate = new Date();
+        document.getElementById("filter-riwayat-bulan").value = currentDate.getMonth().toString();
+        if(tahunArray.includes(currentDate.getFullYear())) {
+            selectTahun.value = currentDate.getFullYear().toString();
+        }
+    }
+
+    function renderRiwayatLengkap() {
+        const filterBulan = document.getElementById("filter-riwayat-bulan").value;
+        const filterTahun = document.getElementById("filter-riwayat-tahun").value;
+        const searchVal = document.getElementById("search-riwayat").value.toLowerCase();
+        
+        let filtered = globalTransactions.filter(trx => {
+            if(!trx.timestamp) return false;
+            const date = new Date(trx.timestamp);
+            const m = date.getMonth().toString();
+            const y = date.getFullYear().toString();
+
+            const matchBulan = (filterBulan === "all" || m === filterBulan);
+            const matchTahun = (filterTahun === "all" || y === filterTahun);
+            
+            const kat = trx.kategori ? trx.kategori.toLowerCase() : "";
+            const ket = trx.keterangan ? trx.keterangan.toLowerCase() : "";
+            const matchSearch = (searchVal === "" || kat.includes(searchVal) || ket.includes(searchVal));
+
+            return matchBulan && matchTahun && matchSearch;
+        });
+
+        // Urutkan berdasarkan Timestamp (Terbaru ke Terlama)
+        filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        let html = "";
+        filtered.forEach(trx => {
+            const isPengeluaran = (trx.jenis ? trx.jenis.toLowerCase() : "") === 'pengeluaran';
+            const ketDisplay = (trx.keterangan && trx.keterangan.trim() !== "") ? trx.keterangan : "-";
+            const tglDisplay = new Date(trx.timestamp).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+            
+            // Badge untuk pencatat
+            const badgeColor = (trx.pencatat && trx.pencatat.toLowerCase() === 'suami') ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700';
+
+            html += `
+            <div class="card p-4 flex flex-col gap-2">
+                <div class="flex justify-between items-center border-b border-slate-50 pb-2">
+                    <span class="text-[10px] font-bold text-slate-400 flex items-center gap-1">📅 ${tglDisplay}</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${badgeColor}">${trx.pencatat || '?'}</span>
+                </div>
+                <div class="flex justify-between items-center pt-1">
+                    <div class="overflow-hidden min-w-0 pr-3 flex-1">
+                        <p class="text-sm font-bold text-slate-800 truncate">${trx.kategori}</p>
+                        <p class="text-[11px] text-slate-500 truncate mt-0.5">${ketDisplay}</p>
+                    </div>
+                    <span class="${isPengeluaran ? 'text-rose-500' : 'text-emerald-500'} font-bold text-sm whitespace-nowrap pl-2">
+                        ${isPengeluaran ? '-' : '+'}${formatter.format(trx.nominal)}
+                    </span>
+                </div>
+            </div>`;
+        });
+
+        if(html === "") html = `
+            <div class="text-center py-10">
+                <p class="text-4xl mb-3">🔍</p>
+                <p class="text-sm text-slate-500">Tidak ada transaksi yang cocok.</p>
+            </div>`;
+
+        document.getElementById("list-riwayat-lengkap").innerHTML = html;
+    }
+
+    // --- FUNGSI UNTUK DASHBOARD/HOME (TETAP SAMA SEPERTI SEBELUMNYA) ---
     function renderFilteredData() {
       const filterPencatat = document.getElementById("filter-pencatat").value.toLowerCase();
       const filterBulan = document.getElementById("filter-bulan").value;
       
-      let saldoAwal = 0;
-      let totalPemasukan = 0;
-      let totalPengeluaran = 0;
+      let saldoAwal = 0; let totalPemasukan = 0; let totalPengeluaran = 0;
 
       globalTransactions.forEach(trx => {
         const d = new Date(trx.timestamp);
         const m = d.getMonth().toString();
         const nominal = parseFloat(trx.nominal) || 0;
-        
-        // Proteksi jika data jenis kosong/undefined
         const jenis = trx.jenis ? trx.jenis.toLowerCase() : "";
         const isPemasukan = jenis === "pemasukan";
         const trxPencatat = trx.pencatat ? trx.pencatat.toLowerCase() : "";
         
         if (filterPencatat !== "all" && trxPencatat !== filterPencatat) return;
-
-        if (filterBulan === "all") {
-           if (isPemasukan) saldoAwal += nominal;
-        } else {
-           if (parseInt(m) < parseInt(filterBulan)) {
-             saldoAwal += (isPemasukan ? nominal : -nominal);
-           }
-        }
-
+        if (filterBulan === "all") { if (isPemasukan) saldoAwal += nominal; } 
+        else { if (parseInt(m) < parseInt(filterBulan)) { saldoAwal += (isPemasukan ? nominal : -nominal); } }
         if (filterBulan === "all" || m === filterBulan) {
-           if (isPemasukan) totalPemasukan += nominal;
-           else totalPengeluaran += nominal;
+           if (isPemasukan) totalPemasukan += nominal; else totalPengeluaran += nominal;
         }
       });
 
       const sisaSaldo = (filterBulan === "all") ? (totalPemasukan - totalPengeluaran) : (saldoAwal + totalPemasukan - totalPengeluaran);
-      const formatter = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
       
       document.getElementById("txt-saldo-awal").innerText = formatter.format(filterBulan === "all" ? totalPemasukan : saldoAwal);
       document.getElementById("txt-pengeluaran").innerText = formatter.format(totalPengeluaran);
       document.getElementById("txt-saldo").innerText = formatter.format(sisaSaldo);
 
-      // Rendering Transaksi Terbaru dengan Keterangan
       let html = "";
       globalTransactions.filter(t => (filterPencatat === "all" || (t.pencatat && t.pencatat.toLowerCase() === filterPencatat)) && (filterBulan === "all" || new Date(t.timestamp).getMonth().toString() === filterBulan))
       .slice(-5).reverse().forEach(trx => {
         const jenis = trx.jenis ? trx.jenis.toLowerCase() : "";
         const isPengeluaran = jenis === 'pengeluaran';
-        // Ambil keterangan, jika kosong tampilkan strip "-"
         const ketDisplay = (trx.keterangan && trx.keterangan.trim() !== "") ? trx.keterangan : "-";
         
         html += `<div class="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
@@ -202,9 +332,7 @@
                  </div>`;
       });
       
-      // Tampilkan pesan jika belum ada transaksi
       if(html === "") html = `<p class="text-sm text-slate-400 text-center py-4">Belum ada transaksi.</p>`;
-      
       document.getElementById("list-riwayat-singkat").innerHTML = html;
 
       renderDailyChart();
@@ -212,15 +340,11 @@
 
     function renderDailyChart() {
       const filterPencatat = document.getElementById("filter-pencatat").value.toLowerCase();
-      const labels = [];
-      const data = [];
-      const today = new Date();
+      const labels = []; const data = []; const today = new Date();
       
       for(let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(today.getDate() - i);
+        const d = new Date(); d.setDate(today.getDate() - i);
         labels.push(d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }));
-        
         let dailySpend = 0;
         globalTransactions.forEach(trx => {
           if(!trx.timestamp) return;
@@ -230,9 +354,7 @@
           const matchesPencatat = filterPencatat === "all" || trxPencatat === filterPencatat;
           const jenis = trx.jenis ? trx.jenis.toLowerCase() : "";
           
-          if (matchesDate && matchesPencatat && jenis === 'pengeluaran') {
-             dailySpend += parseFloat(trx.nominal) || 0;
-          }
+          if (matchesDate && matchesPencatat && jenis === 'pengeluaran') { dailySpend += parseFloat(trx.nominal) || 0; }
         });
         data.push(dailySpend);
       }
@@ -240,54 +362,31 @@
       if(chartInstance) chartInstance.destroy();
       chartInstance = new Chart(document.getElementById('canvasTrenSaldo'), {
         type: 'line',
-        data: { 
-            labels: labels, 
-            datasets: [{ 
-                label: 'Pengeluaran', 
-                data: data, 
-                borderColor: '#4f46e5', 
-                backgroundColor: 'rgba(79, 70, 229, 0.1)', 
-                fill: true,
-                tension: 0.4,
-                pointRadius: 6,
-                pointHoverRadius: 8,
-                pointBackgroundColor: '#4f46e5'
-            }] 
-        },
-        options: { 
-            responsive: true, 
-            maintainAspectRatio: false, 
-            interaction: { intersect: false, mode: 'index' },
-            elements: { point: { hitRadius: 25 } },
-            plugins: { 
-                legend: { display: false },
-                tooltip: { callbacks: { label: function(context) { return ' Rp ' + context.parsed.y.toLocaleString('id-ID'); } } }
-            },
-            scales: { 
-                y: { display: false, beginAtZero: true },
-                x: { grid: { display: false } } 
-            }
-        }
+        data: { labels: labels, datasets: [{ label: 'Pengeluaran', data: data, borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)', fill: true, tension: 0.4, pointRadius: 6, pointHoverRadius: 8, pointBackgroundColor: '#4f46e5' }] },
+        options: { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' }, elements: { point: { hitRadius: 25 } }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(context) { return ' Rp ' + context.parsed.y.toLocaleString('id-ID'); } } } }, scales: { y: { display: false, beginAtZero: true }, x: { grid: { display: false } } } }
       });
     }
 
+    // INITIALIZATION
     if(localStorage.getItem("fw_user")) {
       document.getElementById("login-section").classList.add("hidden");
       document.getElementById("app-section").classList.remove("hidden");
+      document.getElementById("bottom-nav").classList.remove("hidden");
       
       fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getTransactions" }) })
       .then(r => r.json()).then(res => { 
         if(res.status === "success") {
             globalTransactions = res.data; 
+            
+            // Setup Filter Dashboard
             const loggedInUser = localStorage.getItem("fw_user");
             const filterSelect = document.getElementById("filter-pencatat");
-            if(loggedInUser === "Suami" || loggedInUser === "Istri") {
-                filterSelect.value = loggedInUser;
-            }
-            const currentMonth = new Date().getMonth();
-            const monthSelect = document.getElementById("filter-bulan");
-            monthSelect.value = currentMonth;
+            if(loggedInUser === "Suami" || loggedInUser === "Istri") { filterSelect.value = loggedInUser; }
+            document.getElementById("filter-bulan").value = new Date().getMonth();
             
+            // Setup Filter Riwayat Lengkap
+            initRiwayatFilters();
+
             renderFilteredData(); 
         } else {
             alert("Gagal memuat data: " + res.message);
