@@ -73,6 +73,8 @@
           <option value="all">Semua Bulan</option>
           <option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option>
           <option value="3">Apr</option><option value="4">Mei</option><option value="5">Jun</option>
+          <option value="6">Jul</option><option value="7">Ags</option><option value="8">Sep</option>
+          <option value="9">Okt</option><option value="10">Nov</option><option value="11">Des</option>
         </select>
       </div>
 
@@ -98,12 +100,13 @@
 
       <div class="card p-6">
         <h3 class="font-bold text-sm text-slate-700 mb-4">Transaksi Terbaru</h3>
-        <div id="list-riwayat-singkat" class="space-y-4"></div>
+        <div id="list-riwayat-singkat" class="space-y-2"></div>
       </div>
     </main>
   </div>
 
   <script>
+    // Link API terbaru yang Anda kirimkan
     const API_URL = "https://script.google.com/macros/s/AKfycbwzGOv26svKIlGAJg7pmzVfixFVPYtdAPjX9X8g2qYcGK8cwa0dNJTfjAUc2qNsXtQ/exec";
     let globalTransactions = [];
     let chartInstance = null;
@@ -119,10 +122,20 @@
       e.preventDefault();
       const user = document.getElementById("username").value;
       const pass = document.getElementById("password").value;
+      
+      // Tampilkan loading saat login
+      document.getElementById("loader").classList.remove("hidden");
+      
       fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "login", username: user, password: pass }) })
       .then(res => res.json()).then(res => {
         if(res.status === "success") { localStorage.setItem("fw_user", user); location.reload(); }
-        else alert(res.message);
+        else {
+            document.getElementById("loader").classList.add("hidden");
+            alert(res.message);
+        }
+      }).catch(err => {
+          document.getElementById("loader").classList.add("hidden");
+          alert("Gagal menghubungi server.");
       });
     }
 
@@ -140,8 +153,11 @@
         const d = new Date(trx.timestamp);
         const m = d.getMonth().toString();
         const nominal = parseFloat(trx.nominal) || 0;
-        const isPemasukan = trx.jenis.toLowerCase() === "pemasukan";
-        const trxPencatat = trx.pencatat.toLowerCase();
+        
+        // Proteksi jika data jenis kosong/undefined
+        const jenis = trx.jenis ? trx.jenis.toLowerCase() : "";
+        const isPemasukan = jenis === "pemasukan";
+        const trxPencatat = trx.pencatat ? trx.pencatat.toLowerCase() : "";
         
         if (filterPencatat !== "all" && trxPencatat !== filterPencatat) return;
 
@@ -166,18 +182,29 @@
       document.getElementById("txt-pengeluaran").innerText = formatter.format(totalPengeluaran);
       document.getElementById("txt-saldo").innerText = formatter.format(sisaSaldo);
 
+      // Rendering Transaksi Terbaru dengan Keterangan
       let html = "";
-      globalTransactions.filter(t => (filterPencatat === "all" || t.pencatat.toLowerCase() === filterPencatat) && (filterBulan === "all" || new Date(t.timestamp).getMonth().toString() === filterBulan))
+      globalTransactions.filter(t => (filterPencatat === "all" || (t.pencatat && t.pencatat.toLowerCase() === filterPencatat)) && (filterBulan === "all" || new Date(t.timestamp).getMonth().toString() === filterBulan))
       .slice(-5).reverse().forEach(trx => {
-        // Menambahkan Keterangan dengan format truncate agar tidak merusak layout
-        html += `<div class="flex justify-between items-start py-1">
-                   <div class="overflow-hidden min-w-0 pr-2">
+        const jenis = trx.jenis ? trx.jenis.toLowerCase() : "";
+        const isPengeluaran = jenis === 'pengeluaran';
+        // Ambil keterangan, jika kosong tampilkan strip "-"
+        const ketDisplay = (trx.keterangan && trx.keterangan.trim() !== "") ? trx.keterangan : "-";
+        
+        html += `<div class="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
+                   <div class="overflow-hidden min-w-0 pr-4 flex-1">
                      <p class="text-sm font-semibold text-slate-800 truncate">${trx.kategori}</p>
-                     <p class="text-[11px] text-slate-400 truncate">${trx.keterangan || '-'}</p>
+                     <p class="text-[11px] text-slate-400 truncate mt-0.5">${ketDisplay}</p>
                    </div>
-                   <span class="${trx.jenis.toLowerCase() == 'pengeluaran' ? 'text-rose-500' : 'text-emerald-500'} font-bold text-sm whitespace-nowrap">${trx.jenis.toLowerCase() == 'pengeluaran' ? '-' : '+'}${formatter.format(trx.nominal)}</span>
+                   <span class="${isPengeluaran ? 'text-rose-500' : 'text-emerald-500'} font-bold text-sm whitespace-nowrap pl-2">
+                     ${isPengeluaran ? '-' : '+'}${formatter.format(trx.nominal)}
+                   </span>
                  </div>`;
       });
+      
+      // Tampilkan pesan jika belum ada transaksi
+      if(html === "") html = `<p class="text-sm text-slate-400 text-center py-4">Belum ada transaksi.</p>`;
+      
       document.getElementById("list-riwayat-singkat").innerHTML = html;
 
       renderDailyChart();
@@ -196,12 +223,15 @@
         
         let dailySpend = 0;
         globalTransactions.forEach(trx => {
+          if(!trx.timestamp) return;
           const tDate = new Date(trx.timestamp);
           const matchesDate = tDate.getDate() === d.getDate() && tDate.getMonth() === d.getMonth() && tDate.getFullYear() === d.getFullYear();
-          const matchesPencatat = filterPencatat === "all" || trx.pencatat.toLowerCase() === filterPencatat;
+          const trxPencatat = trx.pencatat ? trx.pencatat.toLowerCase() : "";
+          const matchesPencatat = filterPencatat === "all" || trxPencatat === filterPencatat;
+          const jenis = trx.jenis ? trx.jenis.toLowerCase() : "";
           
-          if (matchesDate && matchesPencatat) {
-             if (trx.jenis.toLowerCase() === 'pengeluaran') dailySpend += parseFloat(trx.nominal);
+          if (matchesDate && matchesPencatat && jenis === 'pengeluaran') {
+             dailySpend += parseFloat(trx.nominal) || 0;
           }
         });
         data.push(dailySpend);
@@ -247,17 +277,25 @@
       
       fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getTransactions" }) })
       .then(r => r.json()).then(res => { 
-        globalTransactions = res.data; 
-        const loggedInUser = localStorage.getItem("fw_user");
-        const filterSelect = document.getElementById("filter-pencatat");
-        if(loggedInUser === "Suami" || loggedInUser === "Istri") {
-            filterSelect.value = loggedInUser;
+        if(res.status === "success") {
+            globalTransactions = res.data; 
+            const loggedInUser = localStorage.getItem("fw_user");
+            const filterSelect = document.getElementById("filter-pencatat");
+            if(loggedInUser === "Suami" || loggedInUser === "Istri") {
+                filterSelect.value = loggedInUser;
+            }
+            const currentMonth = new Date().getMonth();
+            const monthSelect = document.getElementById("filter-bulan");
+            monthSelect.value = currentMonth;
+            
+            renderFilteredData(); 
+        } else {
+            alert("Gagal memuat data: " + res.message);
         }
-        const currentMonth = new Date().getMonth();
-        const monthSelect = document.getElementById("filter-bulan");
-        if(currentMonth <= 5) monthSelect.value = currentMonth;
-        renderFilteredData(); 
         document.getElementById("loader").classList.add("hidden"); 
+      }).catch(err => {
+          document.getElementById("loader").classList.add("hidden");
+          alert("Gagal mengambil data dari server.");
       });
     } else {
       document.getElementById("login-section").classList.remove("hidden");
