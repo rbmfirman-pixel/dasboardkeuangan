@@ -13,7 +13,7 @@
     .card { background: white; border-radius: 20px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); border: 1px solid #f1f5f9; }
     .fade-in { animation: fadeIn 0.4s ease-in; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    input, select { height: 52px !important; padding: 0 16px !important; width: 100%; border-radius: 16px; border: 1px solid #e2e8f0; outline: none; font-size: 14px; background-color: white; }
+    input, select { height: 52px !important; padding: 0 16px !important; width: 100%; border-radius: 16px; border: 1px solid #e2e8f0; outline: none; font-size: 14px; background-color: white; transition: all 0.2s; }
     button { border-radius: 16px; }
     .loader-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; animation: spin 1s linear infinite; }
@@ -131,7 +131,19 @@
     const formatter = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
 
     function togglePassword() { const p = document.getElementById("password"); const i = document.getElementById("eye-icon"); if(p.type === "password") { p.type = "text"; i.innerText = "🙈"; } else { p.type = "password"; i.innerText = "👁️"; } }
-    function handleLogin(e) { e.preventDefault(); const user = document.getElementById("username").value; const pass = document.getElementById("password").value; document.getElementById("loader").classList.remove("hidden"); fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "login", username: user, password: pass }) }).then(res => res.json()).then(res => { if(res.status === "success") { localStorage.setItem("fw_user", user); location.reload(); } else { document.getElementById("loader").classList.add("hidden"); alert(res.message); } }).catch(err => { document.getElementById("loader").classList.add("hidden"); alert("Gagal menghubungi server."); }); }
+    
+    function handleLogin(e) { 
+        e.preventDefault(); 
+        const user = document.getElementById("username").value; 
+        const pass = document.getElementById("password").value; 
+        document.getElementById("loader").classList.remove("hidden"); 
+        fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "login", username: user, password: pass }) })
+        .then(res => res.json()).then(res => { 
+            if(res.status === "success") { localStorage.setItem("fw_user", user); location.reload(); } 
+            else { document.getElementById("loader").classList.add("hidden"); alert(res.message); } 
+        }).catch(err => { document.getElementById("loader").classList.add("hidden"); alert("Gagal menghubungi server."); }); 
+    }
+    
     function handleLogout() { localStorage.clear(); location.reload(); }
 
     function switchTab(tab) {
@@ -149,8 +161,24 @@
                 const curM = new Date().getMonth().toString();
                 document.getElementById("filter-bulan").value = curM;
                 document.getElementById("filter-riwayat-bulan").value = curM;
+                
+                // LOGIKA ADMIN VS USER (Frontend Enforcement)
                 const user = localStorage.getItem("fw_user");
-                if (user === "Suami" || user === "Istri") { document.getElementById("filter-pencatat").value = user; }
+                const filterPencatat = document.getElementById("filter-pencatat");
+                
+                if (user && user.toLowerCase() !== "admin") {
+                    // Kunci dropdown untuk user biasa
+                    let matchedOpt = Array.from(filterPencatat.options).find(opt => opt.value.toLowerCase() === user.toLowerCase());
+                    if(matchedOpt) { filterPencatat.value = matchedOpt.value; } 
+                    else { filterPencatat.innerHTML = `<option value="${user}">${user}</option>`; }
+                    
+                    filterPencatat.disabled = true;
+                    filterPencatat.classList.add("bg-slate-100", "text-slate-500", "cursor-not-allowed");
+                } else {
+                    // Bebaskan dropdown untuk Admin
+                    filterPencatat.disabled = false;
+                    filterPencatat.classList.remove("bg-slate-100", "text-slate-500", "cursor-not-allowed");
+                }
             }
             initRiwayatFilters(); renderFilteredData(); renderRiwayatLengkap();
         } else { alert("Gagal memuat data: " + res.message); }
@@ -170,15 +198,26 @@
     }
 
     function renderRiwayatLengkap() {
-        const filterP = document.getElementById("filter-pencatat").value.toLowerCase();
+        const currentUser = (localStorage.getItem("fw_user") || "").toLowerCase();
+        const rawFilterP = document.getElementById("filter-pencatat").value.toLowerCase();
+        // Paksa filter menggunakan nama user jika dia bukan admin
+        const filterP = (currentUser === "admin") ? rawFilterP : currentUser; 
+
         const filterB = document.getElementById("filter-riwayat-bulan").value;
         const filterT = document.getElementById("filter-riwayat-tahun").value;
         const searchVal = document.getElementById("search-riwayat").value.toLowerCase();
+        
         let filtered = globalTransactions.filter(trx => {
             if(!trx.timestamp) return false;
             const date = new Date(trx.timestamp);
-            return (filterB === "all" || date.getMonth().toString() === filterB) && (filterT === "all" || date.getFullYear().toString() === filterT) && (searchVal === "" || (trx.kategori && trx.kategori.toLowerCase().includes(searchVal)) || (trx.keterangan && trx.keterangan.toLowerCase().includes(searchVal)));
+            const matchPencatat = (filterP === "all" || (trx.pencatat || "").toLowerCase() === filterP);
+            const matchBulan = (filterB === "all" || date.getMonth().toString() === filterB);
+            const matchTahun = (filterT === "all" || date.getFullYear().toString() === filterT);
+            const matchSearch = (searchVal === "" || (trx.kategori && trx.kategori.toLowerCase().includes(searchVal)) || (trx.keterangan && trx.keterangan.toLowerCase().includes(searchVal)));
+            
+            return matchPencatat && matchBulan && matchTahun && matchSearch;
         });
+        
         filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         let html = "";
         filtered.forEach(trx => {
@@ -193,18 +232,30 @@
     }
 
     function renderFilteredData() {
-      const filterP = document.getElementById("filter-pencatat").value.toLowerCase();
+      const currentUser = (localStorage.getItem("fw_user") || "").toLowerCase();
+      const rawFilterP = document.getElementById("filter-pencatat").value.toLowerCase();
+      // Paksa filter menggunakan nama user jika dia bukan admin
+      const filterP = (currentUser === "admin") ? rawFilterP : currentUser; 
+      
       const filterB = document.getElementById("filter-bulan").value;
       let saldoAwal = 0; let totalP = 0; let totalK = 0;
+      
       globalTransactions.forEach(trx => {
         const d = new Date(trx.timestamp); const m = d.getMonth().toString(); const n = parseFloat(trx.nominal) || 0;
+        
+        // Lewati data jika pencatatnya tidak sesuai dengan filter ter-kunci
         if (filterP !== "all" && (trx.pencatat || "").toLowerCase() !== filterP) return;
-        if (filterB === "all") { if (trx.jenis === "Pemasukan") saldoAwal += n; } else { if (parseInt(m) < parseInt(filterB)) { saldoAwal += (trx.jenis === "Pemasukan" ? n : -n); } }
+        
+        if (filterB === "all") { if (trx.jenis === "Pemasukan") saldoAwal += n; } 
+        else { if (parseInt(m) < parseInt(filterB)) { saldoAwal += (trx.jenis === "Pemasukan" ? n : -n); } }
+        
         if (filterB === "all" || m === filterB) { if (trx.jenis === "Pemasukan") totalP += n; else totalK += n; }
       });
+      
       document.getElementById("txt-saldo-awal").innerText = formatter.format(filterB === "all" ? totalP : saldoAwal);
       document.getElementById("txt-pengeluaran").innerText = formatter.format(totalK);
       document.getElementById("txt-saldo").innerText = formatter.format((filterB === "all" ? totalP : saldoAwal) + totalP - totalK);
+      
       let html = "";
       globalTransactions.filter(t => (filterP === "all" || (t.pencatat || "").toLowerCase() === filterP) && (filterB === "all" || new Date(t.timestamp).getMonth().toString() === filterB))
       .slice(-5).reverse().forEach(trx => {
@@ -216,7 +267,10 @@
     }
 
     function renderDailyChart() {
-      const filterP = document.getElementById("filter-pencatat").value.toLowerCase();
+      const currentUser = (localStorage.getItem("fw_user") || "").toLowerCase();
+      const rawFilterP = document.getElementById("filter-pencatat").value.toLowerCase();
+      const filterP = (currentUser === "admin") ? rawFilterP : currentUser; 
+
       const labels = []; const data = []; const today = new Date();
       for(let i = 6; i >= 0; i--) {
         const d = new Date(); d.setDate(today.getDate() - i);
@@ -225,7 +279,11 @@
         globalTransactions.forEach(trx => {
           if(!trx.timestamp) return;
           const tD = new Date(trx.timestamp);
-          if (tD.getDate() === d.getDate() && tD.getMonth() === d.getMonth() && tD.getFullYear() === d.getFullYear() && (filterP === "all" || (trx.pencatat || "").toLowerCase() === filterP) && (trx.jenis || "").toLowerCase() === 'pengeluaran') ds += parseFloat(trx.nominal) || 0;
+          const matchPencatat = (filterP === "all" || (trx.pencatat || "").toLowerCase() === filterP);
+          
+          if (tD.getDate() === d.getDate() && tD.getMonth() === d.getMonth() && tD.getFullYear() === d.getFullYear() && matchPencatat && (trx.jenis || "").toLowerCase() === 'pengeluaran') {
+              ds += parseFloat(trx.nominal) || 0;
+          }
         });
         data.push(ds);
       }
