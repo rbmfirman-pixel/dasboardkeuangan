@@ -104,6 +104,11 @@
         </select>
         <select id="filter-riwayat-tahun" onchange="renderRiwayatLengkap()" class="border-none shadow-sm"><option value="all">Semua Tahun</option></select>
       </div>
+
+      <select id="filter-riwayat-kategori" onchange="renderRiwayatLengkap()" class="border-none shadow-sm w-full">
+        <option value="all">Semua Kategori</option>
+      </select>
+
       <div id="list-riwayat-lengkap" class="space-y-3 pb-6"></div>
     </main>
   </div>
@@ -167,7 +172,6 @@
                 const filterPencatat = document.getElementById("filter-pencatat");
                 
                 if (user && user.toLowerCase() !== "admin") {
-                    // Kunci dropdown untuk user biasa
                     let matchedOpt = Array.from(filterPencatat.options).find(opt => opt.value.toLowerCase() === user.toLowerCase());
                     if(matchedOpt) { filterPencatat.value = matchedOpt.value; } 
                     else { filterPencatat.innerHTML = `<option value="${user}">${user}</option>`; }
@@ -175,7 +179,6 @@
                     filterPencatat.disabled = true;
                     filterPencatat.classList.add("bg-slate-100", "text-slate-500", "cursor-not-allowed");
                 } else {
-                    // Bebaskan dropdown untuk Admin
                     filterPencatat.disabled = false;
                     filterPencatat.classList.remove("bg-slate-100", "text-slate-500", "cursor-not-allowed");
                 }
@@ -187,24 +190,50 @@
     }
 
     function initRiwayatFilters() {
+        // --- Populate Filter Tahun ---
         const selectTahun = document.getElementById("filter-riwayat-tahun");
-        const curr = selectTahun.value;
+        const currTahun = selectTahun.value;
         selectTahun.innerHTML = '<option value="all">Semua Tahun</option>';
         const tahunSet = new Set();
-        globalTransactions.forEach(trx => { if(trx.timestamp) { const year = new Date(trx.timestamp).getFullYear(); if(year) tahunSet.add(year); } });
-        Array.from(tahunSet).sort((a,b) => b - a).forEach(thn => { let option = document.createElement("option"); option.value = thn; option.text = thn; selectTahun.appendChild(option); });
-        if(curr && curr !== "all") selectTahun.value = curr;
+        
+        // --- Populate Filter Kategori ---
+        const selectKategori = document.getElementById("filter-riwayat-kategori");
+        const currKategori = selectKategori.value;
+        selectKategori.innerHTML = '<option value="all">Semua Kategori</option>';
+        const kategoriSet = new Set();
+
+        globalTransactions.forEach(trx => { 
+            if(trx.timestamp) { 
+                const year = new Date(trx.timestamp).getFullYear(); 
+                if(year) tahunSet.add(year); 
+            } 
+            if(trx.kategori) {
+                kategoriSet.add(trx.kategori.trim());
+            }
+        });
+
+        // Set Tahun
+        Array.from(tahunSet).sort((a,b) => b - a).forEach(thn => { 
+            let option = document.createElement("option"); option.value = thn; option.text = thn; selectTahun.appendChild(option); 
+        });
+        if(currTahun && currTahun !== "all") selectTahun.value = currTahun;
         else { const currentYear = new Date().getFullYear().toString(); if(document.querySelector(`#filter-riwayat-tahun option[value="${currentYear}"]`)) selectTahun.value = currentYear; }
+
+        // Set Kategori
+        Array.from(kategoriSet).sort().forEach(kat => {
+            let option = document.createElement("option"); option.value = kat.toLowerCase(); option.text = kat; selectKategori.appendChild(option);
+        });
+        if(currKategori && currKategori !== "all") selectKategori.value = currKategori;
     }
 
     function renderRiwayatLengkap() {
         const currentUser = (localStorage.getItem("fw_user") || "").toLowerCase();
         const rawFilterP = document.getElementById("filter-pencatat").value.toLowerCase();
-        // Paksa filter menggunakan nama user jika dia bukan admin
         const filterP = (currentUser === "admin") ? rawFilterP : currentUser; 
 
         const filterB = document.getElementById("filter-riwayat-bulan").value;
         const filterT = document.getElementById("filter-riwayat-tahun").value;
+        const filterK = document.getElementById("filter-riwayat-kategori").value.toLowerCase(); // Ambil value kategori
         const searchVal = document.getElementById("search-riwayat").value.toLowerCase();
         
         let filtered = globalTransactions.filter(trx => {
@@ -213,9 +242,13 @@
             const matchPencatat = (filterP === "all" || (trx.pencatat || "").toLowerCase() === filterP);
             const matchBulan = (filterB === "all" || date.getMonth().toString() === filterB);
             const matchTahun = (filterT === "all" || date.getFullYear().toString() === filterT);
+            
+            // Logika filter kategori
+            const matchKategori = (filterK === "all" || (trx.kategori && trx.kategori.toLowerCase().trim() === filterK)); 
+            
             const matchSearch = (searchVal === "" || (trx.kategori && trx.kategori.toLowerCase().includes(searchVal)) || (trx.keterangan && trx.keterangan.toLowerCase().includes(searchVal)));
             
-            return matchPencatat && matchBulan && matchTahun && matchSearch;
+            return matchPencatat && matchBulan && matchTahun && matchKategori && matchSearch;
         });
         
         filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -234,7 +267,6 @@
     function renderFilteredData() {
       const currentUser = (localStorage.getItem("fw_user") || "").toLowerCase();
       const rawFilterP = document.getElementById("filter-pencatat").value.toLowerCase();
-      // Paksa filter menggunakan nama user jika dia bukan admin
       const filterP = (currentUser === "admin") ? rawFilterP : currentUser; 
       
       const filterB = document.getElementById("filter-bulan").value;
@@ -243,7 +275,6 @@
       globalTransactions.forEach(trx => {
         const d = new Date(trx.timestamp); const m = d.getMonth().toString(); const n = parseFloat(trx.nominal) || 0;
         
-        // Lewati data jika pencatatnya tidak sesuai dengan filter ter-kunci
         if (filterP !== "all" && (trx.pencatat || "").toLowerCase() !== filterP) return;
         
         if (filterB === "all") { if (trx.jenis === "Pemasukan") saldoAwal += n; } 
