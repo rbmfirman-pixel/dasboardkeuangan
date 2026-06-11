@@ -125,6 +125,15 @@
       </div>
 
       <div class="card p-6">
+        <div class="border-b border-slate-100 pb-4 mb-4 flex justify-between items-center">
+          <div>
+            <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">Selisih Arus Kas</p>
+            <p id="rep-selisih" class="text-2xl font-bold text-emerald-500 mt-1">Rp 0</p>
+          </div>
+          <div id="rep-badge" class="bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-full text-xs font-bold">
+            Surplus Keuangan
+          </div>
+        </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
             <p class="text-[10px] text-slate-400 font-bold uppercase">Total Pemasukan</p>
@@ -378,6 +387,8 @@
         html += `<div class="flex justify-between items-center py-2 border-b border-slate-50 last:border-0"><div class="min-w-0 pr-4 flex-1"><p class="text-sm font-semibold text-slate-800 truncate">${trx.kategori}</p><p class="text-[11px] text-slate-400 truncate mt-0.5">${trx.keterangan || "-"}</p></div><span class="${isPengeluaran ? 'text-rose-500' : 'text-emerald-500'} font-bold text-sm">${isPengeluaran ? '-' : '+'}${formatter.format(trx.nominal)}</span></div>`;
       });
       document.getElementById("list-riwayat-singkat").innerHTML = html || `<p class="text-sm text-slate-400 text-center py-4">Belum ada transaksi.</p>`;
+      
+      // Update Line Chart Dinamis
       renderDailyChart();
     }
 
@@ -385,199 +396,33 @@
       const currentUser = (localStorage.getItem("fw_user") || "").toLowerCase();
       const rawFilterP = document.getElementById("filter-pencatat").value.toLowerCase();
       const filterP = (currentUser === "admin") ? rawFilterP : currentUser; 
+      const filterB = document.getElementById("filter-bulan").value;
 
-      const labels = []; const data = []; const today = new Date();
-      for(let i = 6; i >= 0; i--) {
-        const d = new Date(); d.setDate(today.getDate() - i);
-        labels.push(d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }));
-        let ds = 0;
-        globalTransactions.forEach(trx => {
-          if(!trx.timestamp) return;
-          const tD = new Date(trx.timestamp);
-          const matchPencatat = (filterP === "all" || (trx.pencatat || "").toLowerCase() === filterP);
-          
-          if (tD.getDate() === d.getDate() && tD.getMonth() === d.getMonth() && tD.getFullYear() === d.getFullYear() && matchPencatat && (trx.jenis || "").toLowerCase() === 'pengeluaran') {
-              ds += parseFloat(trx.nominal) || 0;
-          }
-        });
-        data.push(ds);
-      }
-      if(chartInstance) chartInstance.destroy();
-      chartInstance = new Chart(document.getElementById('canvasTrenSaldo'), {
-        type: 'line',
-        data: { labels: labels, datasets: [{ label: 'Pengeluaran 7 Hari Terakhir', data: data, borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)', fill: true, tension: 0.4, pointRadius: 6, pointBackgroundColor: '#4f46e5' }] },
-        options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, elements: { point: { hitRadius: 25 } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
-      });
-    }
-
-    function renderLaporanKeuangan() {
-        const currentUser = (localStorage.getItem("fw_user") || "").toLowerCase();
-        const rawFilterP = document.getElementById("filter-pencatat").value.toLowerCase();
-        const filterP = (currentUser === "admin") ? rawFilterP : currentUser; 
-        
-        const filterB = document.getElementById("filter-laporan-bulan").value;
-        const filterT = document.getElementById("filter-laporan-tahun").value;
-        
-        let totalPemasukan = 0;
-        let totalPengeluaran = 0;
-        const kategoriMap = {};
-        
-        // 1. Filter data untuk ringkasan & pie chart
-        globalTransactions.forEach(trx => {
-            if(!trx.timestamp) return;
-            const date = new Date(trx.timestamp);
-            
-            const matchPencatat = (filterP === "all" || (trx.pencatat || "").toLowerCase() === filterP);
-            const matchBulan = (filterB === "all" || date.getMonth().toString() === filterB);
-            const matchTahun = (filterT === "all" || date.getFullYear().toString() === filterT);
-            
-            if(matchPencatat && matchBulan && matchTahun) {
-                const nominal = parseFloat(trx.nominal) || 0;
-                const jenis = (trx.jenis || "").toLowerCase();
-                
-                if(jenis === 'pemasukan') {
-                    totalPemasukan += nominal;
-                } else if(jenis === 'pengeluaran') {
-                    totalPengeluaran += nominal;
-                    const kat = trx.kategori ? trx.kategori.trim() : "Lainnya";
-                    kategoriMap[kat] = (kategoriMap[kat] || 0) + nominal;
-                }
-            }
-        });
-        
-        // Render Ringkasan Arus Kas (Tanpa Selisih)
-        document.getElementById("rep-total-masuk").innerText = formatter.format(totalPemasukan);
-        document.getElementById("rep-total-keluar").innerText = formatter.format(totalPengeluaran);
-        
-        // Render Pie/Doughnut Chart Distribusi Kategori
-        const katLabels = Object.keys(kategoriMap);
-        const katData = Object.values(kategoriMap);
-        
-        if(chartDoughnutInstance) chartDoughnutInstance.destroy();
-        
-        if(katData.length > 0) {
-            document.getElementById("canvasDistribusiKategori").classList.remove("hidden");
-            document.getElementById("no-data-doughnut").classList.add("hidden");
-            
-            chartDoughnutInstance = new Chart(document.getElementById('canvasDistribusiKategori'), {
-                type: 'doughnut',
-                data: {
-                    labels: katLabels,
-                    datasets: [{
-                        data: katData,
-                        backgroundColor: ['#4f46e5', '#10b981', '#f43f5e', '#f59e0b', '#06b6d4', '#8b5cf6', '#ec4899', '#64748b']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { family: 'Plus Jakarta Sans', size: 11 } } } }
-                }
-            });
-        } else {
-            document.getElementById("canvasDistribusiKategori").classList.add("hidden");
-            document.getElementById("no-data-doughnut").classList.remove("hidden");
-        }
-        
-        // 2. Render Tren Bulanan (Multi-Month Trend)
-        const targetYear = filterT === "all" ? new Date().getFullYear().toString() : filterT;
-        const bulananIn = Array(12).fill(0);
-        const bulananOut = Array(12).fill(0);
-        
-        globalTransactions.forEach(trx => {
-            if(!trx.timestamp) return;
-            const date = new Date(trx.timestamp);
-            if(date.getFullYear().toString() === targetYear) {
-                const matchPencatat = (filterP === "all" || (trx.pencatat || "").toLowerCase() === filterP);
-                if(matchPencatat) {
-                    const m = date.getMonth();
-                    const n = parseFloat(trx.nominal) || 0;
-                    if((trx.jenis || "").toLowerCase() === 'pemasukan') bulananIn[m] += n;
-                    else if((trx.jenis || "").toLowerCase() === 'pengeluaran') bulananOut[m] += n;
-                }
-            }
-        });
-        
-        const namaBulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
-        if(chartTrendInstance) chartTrendInstance.destroy();
-        
-        // Melanjutkan kode Anda yang terpotong di sini:
-        chartTrendInstance = new Chart(document.getElementById('canvasTrenBulanan'), {
-            type: 'bar',
-            data: {
-                labels: namaBulan,
-                datasets: [
-                    { label: 'Pemasukan', data: bulananIn, backgroundColor: '#10b981', borderRadius: 4 },
-                    { label: 'Pengeluaran', data: bulananOut, backgroundColor: '#f43f5e', borderRadius: 4 }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } }
-            }
-        });
-
-        // 3. Render Komparasi Finansial Dinamis (Otomatis Grup Berdasarkan Pencatat)
-        const adminCompSection = document.getElementById("admin-comparison-section");
-        if (filterP === "all") {
-            adminCompSection.classList.remove("hidden");
-            
-            // Logika ekstrak dinamis
-            const pengeluaranPencatat = {};
+      const labels = []; const data = []; 
+      
+      if (filterB === "all") {
+          // Menampilkan 7 Hari Terakhir jika Semua Bulan terpilih
+          const today = new Date();
+          for(let i = 6; i >= 0; i--) {
+            const d = new Date(); d.setDate(today.getDate() - i);
+            labels.push(d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }));
+            let ds = 0;
             globalTransactions.forEach(trx => {
-                if(!trx.timestamp || (trx.jenis || "").toLowerCase() !== 'pengeluaran') return;
-                
-                const date = new Date(trx.timestamp);
-                const matchBulan = (filterB === "all" || date.getMonth().toString() === filterB);
-                const matchTahun = (filterT === "all" || date.getFullYear().toString() === filterT);
-                
-                if (matchBulan && matchTahun) {
-                    const p = trx.pencatat ? trx.pencatat.trim() : "Lainnya";
-                    pengeluaranPencatat[p] = (pengeluaranPencatat[p] || 0) + (parseFloat(trx.nominal) || 0);
-                }
+              if(!trx.timestamp) return;
+              const tD = new Date(trx.timestamp);
+              const matchPencatat = (filterP === "all" || (trx.pencatat || "").toLowerCase() === filterP);
+              
+              if (tD.getDate() === d.getDate() && tD.getMonth() === d.getMonth() && tD.getFullYear() === d.getFullYear() && matchPencatat && (trx.jenis || "").toLowerCase() === 'pengeluaran') {
+                  ds += parseFloat(trx.nominal) || 0;
+              }
             });
-
-            const compLabels = Object.keys(pengeluaranPencatat);
-            const compData = Object.values(pengeluaranPencatat);
-
-            if(chartCompareInstance) chartCompareInstance.destroy();
-            chartCompareInstance = new Chart(document.getElementById('canvasKomparasiPasangan'), {
-                type: 'bar',
-                data: {
-                    labels: compLabels,
-                    datasets: [{
-                        label: 'Total Pengeluaran',
-                        data: compData,
-                        backgroundColor: ['#3b82f6', '#ec4899', '#8b5cf6', '#10b981', '#f59e0b'],
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
-                }
-            });
-        } else {
-            adminCompSection.classList.add("hidden");
-        }
-    }
-
-    // Inisialisasi awal (bypass login untuk preview jika mau)
-    // Jika tidak butuh bypass hapus baris di bawah, gunakan logika login asli
-    window.onload = () => {
-        if(localStorage.getItem("fw_user")) {
-            document.getElementById("login-section").classList.add("hidden");
-            document.getElementById("app-section").classList.remove("hidden");
-            document.getElementById("bottom-nav").classList.remove("hidden");
-            document.getElementById("btn-reload").classList.remove("hidden");
-            loadDataFromServer();
-        } else {
-            document.getElementById("login-section").classList.remove("hidden");
-        }
-    };
-  </script>
-</body>
-</html>
+            data.push(ds);
+          }
+      } else {
+          // Menampilkan Tren Pengeluaran sepanjang bulan yang dipilih
+          const monthInt = parseInt(filterB);
+          const year = new Date().getFullYear();
+          const daysInMonth = new Date(year, monthInt + 1, 0).getDate();
+          
+          for (let i = 1; i <= daysInMonth; i++) {
+              labels.
