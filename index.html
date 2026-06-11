@@ -124,22 +124,15 @@
         <select id="filter-laporan-tahun" onchange="renderLaporanKeuangan()" class="border-none shadow-sm"><option value="all">Semua Tahun</option></select>
       </div>
 
-      <div class="card p-6 space-y-4">
-        <div class="flex justify-between items-center">
-          <div>
-            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Selisih Arus Kas</p>
-            <h2 id="rep-net-flow" class="text-2xl font-bold mt-1">Rp 0</h2>
-          </div>
-          <span id="rep-net-status" class="text-xs font-bold px-3 py-1 rounded-full">Memuat...</span>
-        </div>
-        <div class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
+      <div class="card p-6">
+        <div class="grid grid-cols-2 gap-4">
           <div>
             <p class="text-[10px] text-slate-400 font-bold uppercase">Total Pemasukan</p>
-            <p id="rep-total-masuk" class="text-sm font-bold text-emerald-500 mt-0.5">Rp 0</p>
+            <p id="rep-total-masuk" class="text-xl font-bold text-emerald-500 mt-1">Rp 0</p>
           </div>
           <div>
             <p class="text-[10px] text-slate-400 font-bold uppercase">Total Pengeluaran</p>
-            <p id="rep-total-keluar" class="text-sm font-bold text-rose-500 mt-0.5">Rp 0</p>
+            <p id="rep-total-keluar" class="text-xl font-bold text-rose-500 mt-1">Rp 0</p>
           </div>
         </div>
       </div>
@@ -153,7 +146,7 @@
       </div>
 
       <div id="admin-comparison-section" class="card p-5 hidden">
-        <h3 class="font-bold text-sm text-slate-700 mb-4">Komparasi Finansial (Suami vs Istri)</h3>
+        <h3 id="title-komparasi" class="font-bold text-sm text-slate-700 mb-4">Komparasi Finansial</h3>
         <div class="h-52">
           <canvas id="canvasKomparasiPasangan"></canvas>
         </div>
@@ -302,7 +295,6 @@
             }
         });
 
-        // Set Tahun ke filter Riwayat dan Laporan
         Array.from(tahunSet).sort((a,b) => b - a).forEach(thn => { 
             let opt1 = document.createElement("option"); opt1.value = thn; opt1.text = thn; selectTahun.appendChild(opt1); 
             let opt2 = document.createElement("option"); opt2.value = thn; opt2.text = thn; selectLaporanTahun.appendChild(opt2); 
@@ -315,7 +307,6 @@
         if(currLapTahun && currLapTahun !== "all") selectLaporanTahun.value = currLapTahun;
         else { if(document.querySelector(`#filter-laporan-tahun option[value="${currentYear}"]`)) selectLaporanTahun.value = currentYear; }
 
-        // Set Kategori
         Array.from(kategoriSet).sort().forEach(kat => {
             let option = document.createElement("option"); option.value = kat.toLowerCase(); option.text = kat; selectKategori.appendChild(option);
         });
@@ -370,10 +361,10 @@
         
         if (filterP !== "all" && (trx.pencatat || "").toLowerCase() !== filterP) return;
         
-        if (filterB === "all") { if (trx.jenis === "Pemasukan") saldoAwal += n; } 
-        else { if (parseInt(m) < parseInt(filterB)) { saldoAwal += (trx.jenis === "Pemasukan" ? n : -n); } }
+        if (filterB === "all") { if ((trx.jenis || "").toLowerCase() === "pemasukan") saldoAwal += n; } 
+        else { if (parseInt(m) < parseInt(filterB)) { saldoAwal += ((trx.jenis || "").toLowerCase() === "pemasukan" ? n : -n); } }
         
-        if (filterB === "all" || m === filterB) { if (trx.jenis === "Pemasukan") totalP += n; else totalK += n; }
+        if (filterB === "all" || m === filterB) { if ((trx.jenis || "").toLowerCase() === "pemasukan") totalP += n; else totalK += n; }
       });
       
       document.getElementById("txt-saldo-awal").innerText = formatter.format(filterB === "all" ? totalP : saldoAwal);
@@ -419,7 +410,6 @@
       });
     }
 
-    // LOGIKA DI MENU LAPORAN (NEW)
     function renderLaporanKeuangan() {
         const currentUser = (localStorage.getItem("fw_user") || "").toLowerCase();
         const rawFilterP = document.getElementById("filter-pencatat").value.toLowerCase();
@@ -455,24 +445,9 @@
             }
         });
         
-        // Render Ringkasan Arus Kas
+        // Render Ringkasan Arus Kas (Tanpa Selisih)
         document.getElementById("rep-total-masuk").innerText = formatter.format(totalPemasukan);
         document.getElementById("rep-total-keluar").innerText = formatter.format(totalPengeluaran);
-        
-        const netFlow = totalPemasukan - totalPengeluaran;
-        const statusEl = document.getElementById("rep-net-status");
-        const netFlowEl = document.getElementById("rep-net-flow");
-        
-        netFlowEl.innerText = formatter.format(Math.abs(netFlow));
-        if(netFlow >= 0) {
-            statusEl.innerText = "Surplus Keuangan";
-            statusEl.className = "text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full";
-            netFlowEl.className = "text-2xl font-bold mt-1 text-emerald-600";
-        } else {
-            statusEl.innerText = "Defisit Keuangan";
-            statusEl.className = "text-xs font-bold text-rose-600 bg-rose-50 px-3 py-1 rounded-full";
-            netFlowEl.className = "text-2xl font-bold mt-1 text-rose-500";
-        }
         
         // Render Pie/Doughnut Chart Distribusi Kategori
         const katLabels = Object.keys(kategoriMap);
@@ -504,7 +479,7 @@
             document.getElementById("no-data-doughnut").classList.remove("hidden");
         }
         
-        // 2. Render Tren Bulanan (Multi-Month Trend) sepanjang tahun terpilih/berjalan
+        // 2. Render Tren Bulanan (Multi-Month Trend)
         const targetYear = filterT === "all" ? new Date().getFullYear().toString() : filterT;
         const bulananIn = Array(12).fill(0);
         const bulananOut = Array(12).fill(0);
@@ -525,77 +500,84 @@
         
         const namaBulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
         if(chartTrendInstance) chartTrendInstance.destroy();
+        
+        // Melanjutkan kode Anda yang terpotong di sini:
         chartTrendInstance = new Chart(document.getElementById('canvasTrenBulanan'), {
             type: 'bar',
             data: {
                 labels: namaBulan,
                 datasets: [
-                    { label: 'Pemasukan', data: bulananIn, backgroundColor: 'rgba(16, 185, 129, 0.85)', borderRadius: 6 },
-                    { label: 'Pengeluaran', data: bulananOut, backgroundColor: 'rgba(244, 63, 94, 0.85)', borderRadius: 6 }
+                    { label: 'Pemasukan', data: bulananIn, backgroundColor: '#10b981', borderRadius: 4 },
+                    { label: 'Pengeluaran', data: bulananOut, backgroundColor: '#f43f5e', borderRadius: 4 }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: { y: { display: false }, x: { grid: { display: false }, ticks: { font: { family: 'Plus Jakarta Sans', size: 10 } } } },
-                plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { family: 'Plus Jakarta Sans', size: 11 } } } }
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } }
             }
         });
-        
-        // 3. Render Laporan Komparasi Pasangan (Khusus Admin)
-        const compSection = document.getElementById("admin-comparison-section");
-        if(currentUser === "admin") {
-            compSection.classList.remove("hidden");
+
+        // 3. Render Komparasi Finansial Dinamis (Otomatis Grup Berdasarkan Pencatat)
+        const adminCompSection = document.getElementById("admin-comparison-section");
+        if (filterP === "all") {
+            adminCompSection.classList.remove("hidden");
             
-            let suamiIn = 0, suamiOut = 0;
-            let istriIn = 0, istriOut = 0;
-            
+            // Logika ekstrak dinamis
+            const pengeluaranPencatat = {};
             globalTransactions.forEach(trx => {
-                if(!trx.timestamp) return;
+                if(!trx.timestamp || (trx.jenis || "").toLowerCase() !== 'pengeluaran') return;
+                
                 const date = new Date(trx.timestamp);
                 const matchBulan = (filterB === "all" || date.getMonth().toString() === filterB);
                 const matchTahun = (filterT === "all" || date.getFullYear().toString() === filterT);
                 
-                if(matchBulan && matchTahun) {
-                    const pencatat = (trx.pencatat || "").toLowerCase();
-                    const n = parseFloat(trx.nominal) || 0;
-                    const jenis = (trx.jenis || "").toLowerCase();
-                    
-                    if(pencatat === "suami") {
-                        if(jenis === "pemasukan") suamiIn += n; else if(jenis === "pengeluaran") suamiOut += n;
-                    } else if(pencatat === "istri") {
-                        if(jenis === "pemasukan") istriIn += n; else if(jenis === "pengeluaran") istriOut += n;
-                    }
+                if (matchBulan && matchTahun) {
+                    const p = trx.pencatat ? trx.pencatat.trim() : "Lainnya";
+                    pengeluaranPencatat[p] = (pengeluaranPencatat[p] || 0) + (parseFloat(trx.nominal) || 0);
                 }
             });
-            
+
+            const compLabels = Object.keys(pengeluaranPencatat);
+            const compData = Object.values(pengeluaranPencatat);
+
             if(chartCompareInstance) chartCompareInstance.destroy();
             chartCompareInstance = new Chart(document.getElementById('canvasKomparasiPasangan'), {
                 type: 'bar',
                 data: {
-                    labels: ['Suami', 'Istri'],
-                    datasets: [
-                        { label: 'Pemasukan', data: [suamiIn, istriIn], backgroundColor: '#10b981', borderRadius: 6 },
-                        { label: 'Pengeluaran', data: [suamiOut, istriOut], backgroundColor: '#f43f5e', borderRadius: 6 }
-                    ]
+                    labels: compLabels,
+                    datasets: [{
+                        label: 'Total Pengeluaran',
+                        data: compData,
+                        backgroundColor: ['#3b82f6', '#ec4899', '#8b5cf6', '#10b981', '#f59e0b'],
+                        borderRadius: 6
+                    }]
                 },
                 options: {
-                    indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { x: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } }, y: { grid: { display: false }, ticks: { font: { fontStyle: 'bold' } } } },
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } }
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
                 }
             });
         } else {
-            compSection.classList.add("hidden");
+            adminCompSection.classList.add("hidden");
         }
     }
 
-    if(localStorage.getItem("fw_user")) {
-      document.getElementById("login-section").classList.add("hidden"); document.getElementById("app-section").classList.remove("hidden"); document.getElementById("bottom-nav").classList.remove("hidden"); document.getElementById("btn-reload").classList.remove("hidden");
-      loadDataFromServer(false);
-    } else { document.getElementById("login-section").classList.remove("hidden"); document.getElementById("loader").classList.add("hidden"); }
+    // Inisialisasi awal (bypass login untuk preview jika mau)
+    // Jika tidak butuh bypass hapus baris di bawah, gunakan logika login asli
+    window.onload = () => {
+        if(localStorage.getItem("fw_user")) {
+            document.getElementById("login-section").classList.add("hidden");
+            document.getElementById("app-section").classList.remove("hidden");
+            document.getElementById("bottom-nav").classList.remove("hidden");
+            document.getElementById("btn-reload").classList.remove("hidden");
+            loadDataFromServer();
+        } else {
+            document.getElementById("login-section").classList.remove("hidden");
+        }
+    };
   </script>
 </body>
 </html>
