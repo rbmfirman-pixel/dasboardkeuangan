@@ -21,7 +21,7 @@
     ::-webkit-scrollbar { width: 0px; background: transparent; }
   </style>
 </head>
-<body class="min-h-screen text-slate-800 pb-20">
+<body class="min-h-screen text-slate-800 pb-24">
 
   <div id="loader" class="loader-overlay">
     <div class="spinner mb-4"></div>
@@ -50,7 +50,7 @@
 
     <main id="view-home" class="px-6 space-y-6">
       <div class="grid grid-cols-2 gap-4">
-        <select id="filter-pencatat" onchange="renderFilteredData()">
+        <select id="filter-pencatat" onchange="renderFilteredData(); refreshActiveTab();">
           <option value="all">Semua Orang</option>
           <option value="Suami">Suami</option>
           <option value="Istri">Istri</option>
@@ -111,6 +111,61 @@
 
       <div id="list-riwayat-lengkap" class="space-y-3 pb-6"></div>
     </main>
+
+    <main id="view-laporan" class="hidden px-6 space-y-6 fade-in">
+      <div class="grid grid-cols-2 gap-4">
+        <select id="filter-laporan-bulan" onchange="renderLaporanKeuangan()" class="border-none shadow-sm">
+          <option value="all">Semua Bulan</option>
+          <option value="0">Januari</option><option value="1">Februari</option><option value="2">Maret</option>
+          <option value="3">April</option><option value="4">Mei</option><option value="5">Juni</option>
+          <option value="6">Juli</option><option value="7">Agustus</option><option value="8">September</option>
+          <option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
+        </select>
+        <select id="filter-laporan-tahun" onchange="renderLaporanKeuangan()" class="border-none shadow-sm"><option value="all">Semua Tahun</option></select>
+      </div>
+
+      <div class="card p-6 space-y-4">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Selisih Arus Kas</p>
+            <h2 id="rep-net-flow" class="text-2xl font-bold mt-1">Rp 0</h2>
+          </div>
+          <span id="rep-net-status" class="text-xs font-bold px-3 py-1 rounded-full">Memuat...</span>
+        </div>
+        <div class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
+          <div>
+            <p class="text-[10px] text-slate-400 font-bold uppercase">Total Pemasukan</p>
+            <p id="rep-total-masuk" class="text-sm font-bold text-emerald-500 mt-0.5">Rp 0</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-slate-400 font-bold uppercase">Total Pengeluaran</p>
+            <p id="rep-total-keluar" class="text-sm font-bold text-rose-500 mt-0.5">Rp 0</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-5">
+        <h3 class="font-bold text-sm text-slate-700 mb-4">Distribusi Pengeluaran Kategori</h3>
+        <div class="h-64 relative flex items-center justify-center">
+          <canvas id="canvasDistribusiKategori"></canvas>
+          <p id="no-data-doughnut" class="hidden text-sm text-slate-400 text-center">Tidak ada transaksi pengeluaran pada periode ini.</p>
+        </div>
+      </div>
+
+      <div id="admin-comparison-section" class="card p-5 hidden">
+        <h3 class="font-bold text-sm text-slate-700 mb-4">Komparasi Finansial (Suami vs Istri)</h3>
+        <div class="h-52">
+          <canvas id="canvasKomparasiPasangan"></canvas>
+        </div>
+      </div>
+
+      <div class="card p-5">
+        <h3 class="font-bold text-sm text-slate-700 mb-4">Tren Bulanan Arus Kas</h3>
+        <div class="h-64">
+          <canvas id="canvasTrenBulanan"></canvas>
+        </div>
+      </div>
+    </main>
   </div>
 
   <button onclick="loadDataFromServer(true)" id="btn-reload" class="hidden fixed bottom-24 right-6 bg-white/70 backdrop-blur-lg border border-white/50 text-indigo-600 w-14 h-14 rounded-full shadow-[0_12px_30px_rgba(79,70,229,0.25)] flex items-center justify-center z-50 active:scale-90 transition-all duration-200 select-none">
@@ -127,12 +182,21 @@
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 mb-1"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
         <span class="text-[10px] font-bold">Riwayat</span>
       </button>
+      <button onclick="switchTab('laporan')" id="nav-laporan" class="flex flex-col items-center p-2 text-slate-400 transition active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 mb-1"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" /></svg>
+        <span class="text-[10px] font-bold">Laporan</span>
+      </button>
     </div>
   </nav>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwzGOv26svKIlGAJg7pmzVfixFVPYtdAPjX9X8g2qYcGK8cwa0dNJTfjAUc2qNsXtQ/exec";
-    let globalTransactions = []; let chartInstance = null;
+    let globalTransactions = []; 
+    let chartInstance = null;
+    let chartDoughnutInstance = null;
+    let chartTrendInstance = null;
+    let chartCompareInstance = null;
+    
     const formatter = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
 
     function togglePassword() { const p = document.getElementById("password"); const i = document.getElementById("eye-icon"); if(p.type === "password") { p.type = "text"; i.innerText = "🙈"; } else { p.type = "password"; i.innerText = "👁️"; } }
@@ -152,8 +216,30 @@
     function handleLogout() { localStorage.clear(); location.reload(); }
 
     function switchTab(tab) {
-        if(tab === 'home') { document.getElementById("view-home").classList.remove("hidden"); document.getElementById("view-riwayat").classList.add("hidden"); document.getElementById("header-title").innerText = "Dashboard"; document.getElementById("nav-home").classList.replace("text-slate-400", "text-indigo-600"); document.getElementById("nav-riwayat").classList.replace("text-indigo-600", "text-slate-400"); } 
-        else { document.getElementById("view-home").classList.add("hidden"); document.getElementById("view-riwayat").classList.remove("hidden"); document.getElementById("header-title").innerText = "Riwayat Transaksi"; document.getElementById("nav-riwayat").classList.replace("text-slate-400", "text-indigo-600"); document.getElementById("nav-home").classList.replace("text-indigo-600", "text-slate-400"); renderRiwayatLengkap(); }
+        const views = ['home', 'riwayat', 'laporan'];
+        const titles = { 'home': 'Dashboard', 'riwayat': 'Riwayat Transaksi', 'laporan': 'Laporan Keuangan' };
+        
+        views.forEach(v => {
+            const viewEl = document.getElementById(`view-${v}`);
+            const navEl = document.getElementById(`nav-${v}`);
+            if(v === tab) {
+                viewEl.classList.remove("hidden");
+                navEl.classList.replace("text-slate-400", "text-indigo-600");
+            } else {
+                viewEl.classList.add("hidden");
+                navEl.classList.replace("text-indigo-600", "text-slate-400");
+            }
+        });
+        
+        document.getElementById("header-title").innerText = titles[tab];
+        
+        if(tab === 'riwayat') renderRiwayatLengkap();
+        if(tab === 'laporan') renderLaporanKeuangan();
+    }
+
+    function refreshActiveTab() {
+        if(!document.getElementById("view-riwayat").classList.contains("hidden")) renderRiwayatLengkap();
+        if(!document.getElementById("view-laporan").classList.contains("hidden")) renderLaporanKeuangan();
     }
 
     function loadDataFromServer(isReload = false) {
@@ -166,6 +252,7 @@
                 const curM = new Date().getMonth().toString();
                 document.getElementById("filter-bulan").value = curM;
                 document.getElementById("filter-riwayat-bulan").value = curM;
+                document.getElementById("filter-laporan-bulan").value = curM;
                 
                 // LOGIKA ADMIN VS USER (Frontend Enforcement)
                 const user = localStorage.getItem("fw_user");
@@ -183,20 +270,23 @@
                     filterPencatat.classList.remove("bg-slate-100", "text-slate-500", "cursor-not-allowed");
                 }
             }
-            initRiwayatFilters(); renderFilteredData(); renderRiwayatLengkap();
+            initRiwayatFilters(); renderFilteredData(); refreshActiveTab();
         } else { alert("Gagal memuat data: " + res.message); }
         document.getElementById("loader").classList.add("hidden"); 
       }).catch(err => { document.getElementById("loader").classList.add("hidden"); alert("Gagal mengambil data."); });
     }
 
     function initRiwayatFilters() {
-        // --- Populate Filter Tahun ---
         const selectTahun = document.getElementById("filter-riwayat-tahun");
-        const currTahun = selectTahun.value;
-        selectTahun.innerHTML = '<option value="all">Semua Tahun</option>';
-        const tahunSet = new Set();
+        const selectLaporanTahun = document.getElementById("filter-laporan-tahun");
         
-        // --- Populate Filter Kategori ---
+        const currTahun = selectTahun.value;
+        const currLapTahun = selectLaporanTahun.value;
+        
+        selectTahun.innerHTML = '<option value="all">Semua Tahun</option>';
+        selectLaporanTahun.innerHTML = '<option value="all">Semua Tahun</option>';
+        
+        const tahunSet = new Set();
         const selectKategori = document.getElementById("filter-riwayat-kategori");
         const currKategori = selectKategori.value;
         selectKategori.innerHTML = '<option value="all">Semua Kategori</option>';
@@ -212,12 +302,18 @@
             }
         });
 
-        // Set Tahun
+        // Set Tahun ke filter Riwayat dan Laporan
         Array.from(tahunSet).sort((a,b) => b - a).forEach(thn => { 
-            let option = document.createElement("option"); option.value = thn; option.text = thn; selectTahun.appendChild(option); 
+            let opt1 = document.createElement("option"); opt1.value = thn; opt1.text = thn; selectTahun.appendChild(opt1); 
+            let opt2 = document.createElement("option"); opt2.value = thn; opt2.text = thn; selectLaporanTahun.appendChild(opt2); 
         });
+        
+        const currentYear = new Date().getFullYear().toString();
         if(currTahun && currTahun !== "all") selectTahun.value = currTahun;
-        else { const currentYear = new Date().getFullYear().toString(); if(document.querySelector(`#filter-riwayat-tahun option[value="${currentYear}"]`)) selectTahun.value = currentYear; }
+        else { if(document.querySelector(`#filter-riwayat-tahun option[value="${currentYear}"]`)) selectTahun.value = currentYear; }
+
+        if(currLapTahun && currLapTahun !== "all") selectLaporanTahun.value = currLapTahun;
+        else { if(document.querySelector(`#filter-laporan-tahun option[value="${currentYear}"]`)) selectLaporanTahun.value = currentYear; }
 
         // Set Kategori
         Array.from(kategoriSet).sort().forEach(kat => {
@@ -233,7 +329,7 @@
 
         const filterB = document.getElementById("filter-riwayat-bulan").value;
         const filterT = document.getElementById("filter-riwayat-tahun").value;
-        const filterK = document.getElementById("filter-riwayat-kategori").value.toLowerCase(); // Ambil value kategori
+        const filterK = document.getElementById("filter-riwayat-kategori").value.toLowerCase(); 
         const searchVal = document.getElementById("search-riwayat").value.toLowerCase();
         
         let filtered = globalTransactions.filter(trx => {
@@ -242,10 +338,7 @@
             const matchPencatat = (filterP === "all" || (trx.pencatat || "").toLowerCase() === filterP);
             const matchBulan = (filterB === "all" || date.getMonth().toString() === filterB);
             const matchTahun = (filterT === "all" || date.getFullYear().toString() === filterT);
-            
-            // Logika filter kategori
             const matchKategori = (filterK === "all" || (trx.kategori && trx.kategori.toLowerCase().trim() === filterK)); 
-            
             const matchSearch = (searchVal === "" || (trx.kategori && trx.kategori.toLowerCase().includes(searchVal)) || (trx.keterangan && trx.keterangan.toLowerCase().includes(searchVal)));
             
             return matchPencatat && matchBulan && matchTahun && matchKategori && matchSearch;
@@ -321,9 +414,182 @@
       if(chartInstance) chartInstance.destroy();
       chartInstance = new Chart(document.getElementById('canvasTrenSaldo'), {
         type: 'line',
-        data: { labels: labels, datasets: [{ label: 'Pengeluaran', data: data, borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)', fill: true, tension: 0.4, pointRadius: 6, pointBackgroundColor: '#4f46e5' }] },
+        data: { labels: labels, datasets: [{ label: 'Pengeluaran 7 Hari Terakhir', data: data, borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)', fill: true, tension: 0.4, pointRadius: 6, pointBackgroundColor: '#4f46e5' }] },
         options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, elements: { point: { hitRadius: 25 } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
       });
+    }
+
+    // LOGIKA DI MENU LAPORAN (NEW)
+    function renderLaporanKeuangan() {
+        const currentUser = (localStorage.getItem("fw_user") || "").toLowerCase();
+        const rawFilterP = document.getElementById("filter-pencatat").value.toLowerCase();
+        const filterP = (currentUser === "admin") ? rawFilterP : currentUser; 
+        
+        const filterB = document.getElementById("filter-laporan-bulan").value;
+        const filterT = document.getElementById("filter-laporan-tahun").value;
+        
+        let totalPemasukan = 0;
+        let totalPengeluaran = 0;
+        const kategoriMap = {};
+        
+        // 1. Filter data untuk ringkasan & pie chart
+        globalTransactions.forEach(trx => {
+            if(!trx.timestamp) return;
+            const date = new Date(trx.timestamp);
+            
+            const matchPencatat = (filterP === "all" || (trx.pencatat || "").toLowerCase() === filterP);
+            const matchBulan = (filterB === "all" || date.getMonth().toString() === filterB);
+            const matchTahun = (filterT === "all" || date.getFullYear().toString() === filterT);
+            
+            if(matchPencatat && matchBulan && matchTahun) {
+                const nominal = parseFloat(trx.nominal) || 0;
+                const jenis = (trx.jenis || "").toLowerCase();
+                
+                if(jenis === 'pemasukan') {
+                    totalPemasukan += nominal;
+                } else if(jenis === 'pengeluaran') {
+                    totalPengeluaran += nominal;
+                    const kat = trx.kategori ? trx.kategori.trim() : "Lainnya";
+                    kategoriMap[kat] = (kategoriMap[kat] || 0) + nominal;
+                }
+            }
+        });
+        
+        // Render Ringkasan Arus Kas
+        document.getElementById("rep-total-masuk").innerText = formatter.format(totalPemasukan);
+        document.getElementById("rep-total-keluar").innerText = formatter.format(totalPengeluaran);
+        
+        const netFlow = totalPemasukan - totalPengeluaran;
+        const statusEl = document.getElementById("rep-net-status");
+        const netFlowEl = document.getElementById("rep-net-flow");
+        
+        netFlowEl.innerText = formatter.format(Math.abs(netFlow));
+        if(netFlow >= 0) {
+            statusEl.innerText = "Surplus Keuangan";
+            statusEl.className = "text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full";
+            netFlowEl.className = "text-2xl font-bold mt-1 text-emerald-600";
+        } else {
+            statusEl.innerText = "Defisit Keuangan";
+            statusEl.className = "text-xs font-bold text-rose-600 bg-rose-50 px-3 py-1 rounded-full";
+            netFlowEl.className = "text-2xl font-bold mt-1 text-rose-500";
+        }
+        
+        // Render Pie/Doughnut Chart Distribusi Kategori
+        const katLabels = Object.keys(kategoriMap);
+        const katData = Object.values(kategoriMap);
+        
+        if(chartDoughnutInstance) chartDoughnutInstance.destroy();
+        
+        if(katData.length > 0) {
+            document.getElementById("canvasDistribusiKategori").classList.remove("hidden");
+            document.getElementById("no-data-doughnut").classList.add("hidden");
+            
+            chartDoughnutInstance = new Chart(document.getElementById('canvasDistribusiKategori'), {
+                type: 'doughnut',
+                data: {
+                    labels: katLabels,
+                    datasets: [{
+                        data: katData,
+                        backgroundColor: ['#4f46e5', '#10b981', '#f43f5e', '#f59e0b', '#06b6d4', '#8b5cf6', '#ec4899', '#64748b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { family: 'Plus Jakarta Sans', size: 11 } } } }
+                }
+            });
+        } else {
+            document.getElementById("canvasDistribusiKategori").classList.add("hidden");
+            document.getElementById("no-data-doughnut").classList.remove("hidden");
+        }
+        
+        // 2. Render Tren Bulanan (Multi-Month Trend) sepanjang tahun terpilih/berjalan
+        const targetYear = filterT === "all" ? new Date().getFullYear().toString() : filterT;
+        const bulananIn = Array(12).fill(0);
+        const bulananOut = Array(12).fill(0);
+        
+        globalTransactions.forEach(trx => {
+            if(!trx.timestamp) return;
+            const date = new Date(trx.timestamp);
+            if(date.getFullYear().toString() === targetYear) {
+                const matchPencatat = (filterP === "all" || (trx.pencatat || "").toLowerCase() === filterP);
+                if(matchPencatat) {
+                    const m = date.getMonth();
+                    const n = parseFloat(trx.nominal) || 0;
+                    if((trx.jenis || "").toLowerCase() === 'pemasukan') bulananIn[m] += n;
+                    else if((trx.jenis || "").toLowerCase() === 'pengeluaran') bulananOut[m] += n;
+                }
+            }
+        });
+        
+        const namaBulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+        if(chartTrendInstance) chartTrendInstance.destroy();
+        chartTrendInstance = new Chart(document.getElementById('canvasTrenBulanan'), {
+            type: 'bar',
+            data: {
+                labels: namaBulan,
+                datasets: [
+                    { label: 'Pemasukan', data: bulananIn, backgroundColor: 'rgba(16, 185, 129, 0.85)', borderRadius: 6 },
+                    { label: 'Pengeluaran', data: bulananOut, backgroundColor: 'rgba(244, 63, 94, 0.85)', borderRadius: 6 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { display: false }, x: { grid: { display: false }, ticks: { font: { family: 'Plus Jakarta Sans', size: 10 } } } },
+                plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { family: 'Plus Jakarta Sans', size: 11 } } } }
+            }
+        });
+        
+        // 3. Render Laporan Komparasi Pasangan (Khusus Admin)
+        const compSection = document.getElementById("admin-comparison-section");
+        if(currentUser === "admin") {
+            compSection.classList.remove("hidden");
+            
+            let suamiIn = 0, suamiOut = 0;
+            let istriIn = 0, istriOut = 0;
+            
+            globalTransactions.forEach(trx => {
+                if(!trx.timestamp) return;
+                const date = new Date(trx.timestamp);
+                const matchBulan = (filterB === "all" || date.getMonth().toString() === filterB);
+                const matchTahun = (filterT === "all" || date.getFullYear().toString() === filterT);
+                
+                if(matchBulan && matchTahun) {
+                    const pencatat = (trx.pencatat || "").toLowerCase();
+                    const n = parseFloat(trx.nominal) || 0;
+                    const jenis = (trx.jenis || "").toLowerCase();
+                    
+                    if(pencatat === "suami") {
+                        if(jenis === "pemasukan") suamiIn += n; else if(jenis === "pengeluaran") suamiOut += n;
+                    } else if(pencatat === "istri") {
+                        if(jenis === "pemasukan") istriIn += n; else if(jenis === "pengeluaran") istriOut += n;
+                    }
+                }
+            });
+            
+            if(chartCompareInstance) chartCompareInstance.destroy();
+            chartCompareInstance = new Chart(document.getElementById('canvasKomparasiPasangan'), {
+                type: 'bar',
+                data: {
+                    labels: ['Suami', 'Istri'],
+                    datasets: [
+                        { label: 'Pemasukan', data: [suamiIn, istriIn], backgroundColor: '#10b981', borderRadius: 6 },
+                        { label: 'Pengeluaran', data: [suamiOut, istriOut], backgroundColor: '#f43f5e', borderRadius: 6 }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { x: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } }, y: { grid: { display: false }, ticks: { font: { fontStyle: 'bold' } } } },
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } }
+                }
+            });
+        } else {
+            compSection.classList.add("hidden");
+        }
     }
 
     if(localStorage.getItem("fw_user")) {
