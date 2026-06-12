@@ -6,18 +6,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
   <title>FamilyWealth</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
+  
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
     body { 
         font-family: 'Plus Jakarta Sans', sans-serif; 
-        background-color: #f8fafc; 
         -webkit-tap-highlight-color: transparent; 
         -webkit-overflow-scrolling: touch;
     }
-    .card { background: white; border-radius: 20px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); border: 1px solid #f1f5f9; }
-    .fade-in { animation: fadeIn 0.4s ease-in; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* UPDATE: Dukungan CSS Khusus untuk Mode Gelap pada kelas Card & Input */
+    .card { background: white; border-radius: 20px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); border: 1px solid #f1f5f9; transition: all 0.3s ease; }
+    .dark .card { background: #1e293b; border-color: #334155; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.2); }
     
     input, select { 
         height: 52px !important; 
@@ -31,44 +38,48 @@
         transition: all 0.2s; 
         touch-action: manipulation;
     }
-    button, a { 
-        border-radius: 16px; 
-        touch-action: manipulation; 
-        user-select: none; 
-        -webkit-user-select: none; 
-    }
+    .dark input, .dark select { background-color: #334155; border-color: #475569; color: #f8fafc; }
     
-    .loader-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .fade-in { animation: fadeIn 0.4s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    button, a { border-radius: 16px; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+    
+    .loader-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.3s; }
+    .dark .loader-overlay { background: rgba(15,23,42,0.95); }
+    
     .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; animation: spin 1s linear infinite; }
+    .dark .spinner { border-color: #334155; border-top-color: #818cf8; }
+    
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     ::-webkit-scrollbar { width: 0px; background: transparent; }
   </style>
 </head>
-<body class="min-h-screen text-slate-800 pb-24">
+<body class="min-h-screen text-slate-800 dark:text-slate-100 bg-[#f8fafc] dark:bg-slate-900 pb-24 transition-colors duration-300">
 
   <div id="loader" class="loader-overlay">
     <div class="spinner mb-4"></div>
-    <p class="font-bold text-slate-500 select-none">Memuat Data...</p>
+    <p class="font-bold text-slate-500 dark:text-slate-400 select-none">Memuat Data...</p>
   </div>
 
-  <div id="login-section" class="fixed inset-0 flex items-center justify-center p-4 z-50 bg-slate-50 hidden">
-    <div class="w-full max-w-sm bg-white p-8 rounded-3xl shadow-2xl border border-slate-100">
-      <h1 class="text-2xl font-bold text-center mb-8 text-slate-800 select-none">FamilyWealth</h1>
+  <div id="login-section" class="fixed inset-0 flex items-center justify-center p-4 z-50 bg-slate-50 dark:bg-slate-900 hidden transition-colors duration-300">
+    <div class="w-full max-w-sm bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-700">
+      <h1 class="text-2xl font-bold text-center mb-8 text-slate-800 dark:text-slate-100 select-none">FamilyWealth</h1>
       <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
         <input type="text" id="username" placeholder="Username" required>
         <div class="relative">
           <input type="password" id="password" placeholder="Password" required>
           <span onclick="togglePassword()" class="absolute right-5 top-4 cursor-pointer text-slate-400 select-none text-xl flex items-center justify-center h-full pb-4 w-10" id="eye-icon">👁️</span>
         </div>
-        <button type="submit" class="w-full h-[56px] bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition active:scale-95">Masuk</button>
+        <button type="submit" class="w-full h-[56px] bg-indigo-600 dark:bg-indigo-500 text-white font-bold hover:bg-indigo-700 transition active:scale-95">Masuk</button>
       </form>
     </div>
   </div>
 
   <div id="app-section" class="hidden max-w-lg mx-auto fade-in">
-    <header class="p-6 flex justify-between items-center bg-[#f8fafc] sticky top-0 z-30 select-none">
-      <h2 id="header-title" class="font-bold text-xl text-slate-800">Dashboard</h2>
-      <button onclick="toggleSettings()" class="w-10 h-10 flex items-center justify-center bg-white border border-slate-100 shadow-sm rounded-full active:scale-95 transition-transform text-slate-600">
+    <header class="p-6 flex justify-between items-center bg-[#f8fafc] dark:bg-slate-900 sticky top-0 z-30 select-none transition-colors duration-300">
+      <h2 id="header-title" class="font-bold text-xl text-slate-800 dark:text-slate-100">Dashboard</h2>
+      <button onclick="toggleSettings()" class="w-10 h-10 flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm rounded-full active:scale-95 transition-transform text-slate-600 dark:text-slate-300">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
       </button>
     </header>
@@ -89,26 +100,26 @@
         </select>
       </div>
 
-      <div class="bg-indigo-600 text-white p-7 rounded-3xl shadow-lg shadow-indigo-200 select-none">
-        <p class="text-indigo-200 text-[11px] uppercase tracking-widest font-bold">Total Sisa Saldo</p>
+      <div class="bg-indigo-600 dark:bg-indigo-500 text-white p-7 rounded-3xl shadow-lg shadow-indigo-200 dark:shadow-none select-none transition-colors">
+        <p class="text-indigo-200 dark:text-indigo-100 text-[11px] uppercase tracking-widest font-bold">Total Sisa Saldo</p>
         <h1 id="txt-saldo" class="text-3xl font-bold mt-1">Rp 0</h1>
       </div>
 
       <div class="grid grid-cols-2 gap-4 select-none">
         <div class="card p-5">
-          <p class="text-[10px] text-slate-400 font-bold uppercase">Saldo Awal</p>
-          <p id="txt-saldo-awal" class="text-sm font-bold mt-1 text-slate-700">Rp 0</p>
+          <p class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">Saldo Awal</p>
+          <p id="txt-saldo-awal" class="text-sm font-bold mt-1 text-slate-700 dark:text-slate-200">Rp 0</p>
         </div>
         <div class="card p-5">
-          <p class="text-[10px] text-slate-400 font-bold uppercase">Pengeluaran</p>
-          <p id="txt-pengeluaran" class="text-sm font-bold mt-1 text-rose-500">Rp 0</p>
+          <p class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">Pengeluaran</p>
+          <p id="txt-pengeluaran" class="text-sm font-bold mt-1 text-rose-500 dark:text-rose-400">Rp 0</p>
         </div>
       </div>
 
       <div class="card p-5 h-72"><canvas id="canvasTrenSaldo"></canvas></div>
 
       <div class="card p-6 mb-4">
-        <h3 class="font-bold text-sm text-slate-700 mb-4 select-none">Transaksi Terbaru</h3>
+        <h3 class="font-bold text-sm text-slate-700 dark:text-slate-200 mb-4 select-none">Transaksi Terbaru</h3>
         <div id="list-riwayat-singkat" class="space-y-2"></div>
       </div>
     </main>
@@ -152,18 +163,18 @@
       <div class="card p-6 select-none">
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <p class="text-[10px] text-slate-400 font-bold uppercase">Total Pemasukan</p>
-            <p id="rep-total-masuk" class="text-xl font-bold text-emerald-500 mt-1">Rp 0</p>
+            <p class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">Total Pemasukan</p>
+            <p id="rep-total-masuk" class="text-xl font-bold text-emerald-500 dark:text-emerald-400 mt-1">Rp 0</p>
           </div>
           <div>
-            <p class="text-[10px] text-slate-400 font-bold uppercase">Total Pengeluaran</p>
-            <p id="rep-total-keluar" class="text-xl font-bold text-rose-500 mt-1">Rp 0</p>
+            <p class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">Total Pengeluaran</p>
+            <p id="rep-total-keluar" class="text-xl font-bold text-rose-500 dark:text-rose-400 mt-1">Rp 0</p>
           </div>
         </div>
       </div>
 
       <div class="card p-5">
-        <h3 class="font-bold text-sm text-slate-700 mb-4 select-none">Distribusi Pengeluaran Kategori</h3>
+        <h3 class="font-bold text-sm text-slate-700 dark:text-slate-200 mb-4 select-none">Distribusi Pengeluaran Kategori</h3>
         <div class="h-64 relative flex items-center justify-center">
           <canvas id="canvasDistribusiKategori"></canvas>
           <p id="no-data-doughnut" class="hidden text-sm text-slate-400 text-center select-none">Tidak ada transaksi pengeluaran pada periode ini.</p>
@@ -171,14 +182,14 @@
       </div>
 
       <div id="admin-comparison-section" class="card p-5 hidden">
-        <h3 class="font-bold text-sm text-slate-700 mb-4 select-none">Komparasi Finansial Pencatat</h3>
+        <h3 class="font-bold text-sm text-slate-700 dark:text-slate-200 mb-4 select-none">Komparasi Finansial Pencatat</h3>
         <div class="h-52">
           <canvas id="canvasKomparasiPasangan"></canvas>
         </div>
       </div>
 
       <div class="card p-5">
-        <h3 class="font-bold text-sm text-slate-700 mb-4 select-none">Tren Bulanan Arus Kas</h3>
+        <h3 class="font-bold text-sm text-slate-700 dark:text-slate-200 mb-4 select-none">Tren Bulanan Arus Kas</h3>
         <div class="h-64">
           <canvas id="canvasTrenBulanan"></canvas>
         </div>
@@ -186,54 +197,63 @@
     </main>
   </div>
 
-  <div id="settings-modal" class="hidden fixed inset-0 z-50 bg-slate-800/40 backdrop-blur-sm p-6 overflow-y-auto fade-in flex items-center justify-center">
-    <div class="w-full max-w-sm bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden">
-      <div class="p-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
-        <h2 class="text-lg font-bold text-slate-800">Pengaturan</h2>
-        <button onclick="toggleSettings()" class="w-8 h-8 flex items-center justify-center bg-slate-200 text-slate-500 rounded-full font-bold active:scale-95 transition-transform text-sm">✕</button>
+  <div id="settings-modal" class="opacity-0 pointer-events-none fixed inset-0 z-50 bg-slate-800/40 backdrop-blur-sm p-6 overflow-y-auto flex items-center justify-center transition-opacity duration-300">
+    <div id="settings-modal-box" class="w-full max-w-sm bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden transform scale-95 translate-y-4 transition-all duration-300">
+      <div class="p-6 border-b border-slate-50 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+        <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100">Pengaturan</h2>
+        <button onclick="toggleSettings()" class="w-8 h-8 flex items-center justify-center bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-300 rounded-full font-bold active:scale-95 transition-transform text-sm">✕</button>
       </div>
       
       <div class="p-6 space-y-4">
-        <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100 flex items-center gap-4">
-          <div class="w-12 h-12 bg-white text-indigo-600 rounded-full flex items-center justify-center text-xl font-bold shadow-sm">
+        <div class="bg-indigo-50 dark:bg-indigo-900/30 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-800 flex items-center gap-4 transition-colors">
+          <div class="w-12 h-12 bg-white dark:bg-indigo-800 text-indigo-600 dark:text-indigo-300 rounded-full flex items-center justify-center text-xl font-bold shadow-sm">
             👤
           </div>
           <div>
             <p class="text-[10px] uppercase text-indigo-400 font-bold tracking-wider">Akun Aktif</p>
-            <p id="txt-user-display" class="font-bold text-indigo-900 capitalize text-lg">-</p>
+            <p id="txt-user-display" class="font-bold text-indigo-900 dark:text-indigo-100 capitalize text-lg">-</p>
           </div>
         </div>
 
-        <button onclick="clearCache()" class="w-full flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 active:bg-slate-50 transition-colors shadow-sm mt-4">
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
+          <p class="text-[10px] uppercase text-slate-400 font-bold mb-3 tracking-wider">Tampilan (Tema)</p>
+          <div class="grid grid-cols-3 gap-2 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl relative">
+            <button onclick="setTheme('light')" id="btn-theme-light" class="py-2 text-xs font-bold rounded-lg transition-all text-slate-500">Terang</button>
+            <button onclick="setTheme('dark')" id="btn-theme-dark" class="py-2 text-xs font-bold rounded-lg transition-all text-slate-500">Gelap</button>
+            <button onclick="setTheme('auto')" id="btn-theme-auto" class="py-2 text-xs font-bold rounded-lg transition-all text-slate-500">Auto</button>
+          </div>
+        </div>
+
+        <button onclick="clearCache()" class="w-full flex items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 active:bg-slate-50 dark:active:bg-slate-700 transition-colors shadow-sm">
           <div class="flex items-center gap-3">
             <span class="text-xl">🧹</span>
-            <span class="font-bold text-slate-700 text-sm">Bersihkan Cache Data</span>
+            <span class="font-bold text-slate-700 dark:text-slate-200 text-sm">Bersihkan Cache Data</span>
           </div>
-          <span class="text-slate-400 text-xs font-bold bg-slate-100 px-2 py-1 rounded-md">Refresh</span>
+          <span class="text-slate-400 dark:text-slate-500 text-xs font-bold bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-md">Refresh</span>
         </button>
 
-        <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-2 bg-rose-50 text-rose-600 p-4 rounded-2xl font-bold active:bg-rose-100 transition-colors mt-8 border border-rose-100">
+        <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-2 bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 p-4 rounded-2xl font-bold active:bg-rose-100 dark:active:bg-rose-900/50 transition-colors mt-8 border border-rose-100 dark:border-rose-900">
           <span class="text-lg">🚪</span> Keluar Aplikasi
         </button>
       </div>
     </div>
   </div>
 
-  <button onclick="loadDataFromServer(true)" id="btn-reload" class="hidden fixed bottom-24 right-6 bg-white/70 backdrop-blur-lg border border-white/50 text-indigo-600 w-14 h-14 rounded-full shadow-[0_12px_30px_rgba(79,70,229,0.25)] flex items-center justify-center z-50 active:scale-90 transition-all duration-200 select-none touch-manipulation">
+  <button onclick="loadDataFromServer(true)" id="btn-reload" class="hidden fixed bottom-24 right-6 bg-white/70 dark:bg-slate-800/80 backdrop-blur-lg border border-white/50 dark:border-slate-700/50 text-indigo-600 dark:text-indigo-400 w-14 h-14 rounded-full shadow-[0_12px_30px_rgba(79,70,229,0.25)] flex items-center justify-center z-50 active:scale-90 transition-all duration-200 select-none touch-manipulation">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
   </button>
 
-  <nav id="bottom-nav" class="hidden fixed bottom-0 w-full bg-white/70 backdrop-blur-lg border-t border-white/50 px-6 py-3 z-40 pb-safe shadow-[0_-4px_12px_rgba(0,0,0,0.03)] select-none">
+  <nav id="bottom-nav" class="hidden fixed bottom-0 w-full bg-white/80 dark:bg-slate-800/90 backdrop-blur-lg border-t border-white/50 dark:border-slate-700/50 px-6 py-3 z-40 pb-safe shadow-[0_-4px_12px_rgba(0,0,0,0.03)] select-none transition-colors duration-300">
     <div class="max-w-lg mx-auto flex justify-around items-center">
-      <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center p-2 text-indigo-600 transition active:scale-95 touch-manipulation w-20">
+      <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center p-2 text-indigo-600 dark:text-indigo-400 transition active:scale-95 touch-manipulation w-20">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 mb-1"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
         <span class="text-[10px] font-bold">Home</span>
       </button>
-      <button onclick="switchTab('riwayat')" id="nav-riwayat" class="flex flex-col items-center p-2 text-slate-400 transition active:scale-95 touch-manipulation w-20">
+      <button onclick="switchTab('riwayat')" id="nav-riwayat" class="flex flex-col items-center p-2 text-slate-400 dark:text-slate-500 transition active:scale-95 touch-manipulation w-20">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 mb-1"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
         <span class="text-[10px] font-bold">Riwayat</span>
       </button>
-      <button onclick="switchTab('laporan')" id="nav-laporan" class="flex flex-col items-center p-2 text-slate-400 transition active:scale-95 touch-manipulation w-20">
+      <button onclick="switchTab('laporan')" id="nav-laporan" class="flex flex-col items-center p-2 text-slate-400 dark:text-slate-500 transition active:scale-95 touch-manipulation w-20">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 mb-1"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" /></svg>
         <span class="text-[10px] font-bold">Laporan</span>
       </button>
@@ -249,6 +269,53 @@
     let chartCompareInstance = null;
     
     const formatter = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
+
+    // UPDATE: Logika Sistem Tema (Dark/Light/Auto)
+    function initTheme() {
+        const savedTheme = localStorage.getItem('fw_theme') || 'auto';
+        setTheme(savedTheme);
+        
+        // Listen untuk perubahan sistem otomatis jika opsi "auto" dipilih
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if (localStorage.getItem('fw_theme') === 'auto') {
+                applyDarkClass(e.matches);
+            }
+        });
+    }
+
+    function applyDarkClass(isDark) {
+        if (isDark) { document.documentElement.classList.add('dark'); } 
+        else { document.documentElement.classList.remove('dark'); }
+        
+        // Update Chart font colors dynamically if needed
+        Chart.defaults.color = isDark ? '#94a3b8' : '#64748b';
+        if(chartInstance) chartInstance.update();
+        if(chartDoughnutInstance) chartDoughnutInstance.update();
+        if(chartTrendInstance) chartTrendInstance.update();
+        if(chartCompareInstance) chartCompareInstance.update();
+    }
+
+    function setTheme(theme) {
+        localStorage.setItem('fw_theme', theme);
+        
+        if (theme === 'dark') { applyDarkClass(true); } 
+        else if (theme === 'light') { applyDarkClass(false); } 
+        else { applyDarkClass(window.matchMedia('(prefers-color-scheme: dark)').matches); }
+
+        // Update UI Button states di Settings Modal
+        ['light', 'dark', 'auto'].forEach(t => {
+            const btn = document.getElementById(`btn-theme-${t}`);
+            if(btn) {
+                if (t === theme) {
+                    btn.classList.add('bg-white', 'dark:bg-slate-700', 'text-slate-800', 'dark:text-white', 'shadow-sm');
+                    btn.classList.remove('text-slate-500', 'dark:text-slate-400');
+                } else {
+                    btn.classList.remove('bg-white', 'dark:bg-slate-700', 'text-slate-800', 'dark:text-white', 'shadow-sm');
+                    btn.classList.add('text-slate-500', 'dark:text-slate-400');
+                }
+            }
+        });
+    }
 
     function togglePassword() { const p = document.getElementById("password"); const i = document.getElementById("eye-icon"); if(p.type === "password") { p.type = "text"; i.innerText = "🙈"; } else { p.type = "password"; i.innerText = "👁️"; } }
     
@@ -270,15 +337,27 @@
     
     function handleLogout() { localStorage.clear(); location.reload(); }
 
-    // UPDATE: Tambahan fungsi untuk toggle modal Settings dan memuat username
+    // UPDATE: Smooth Modal Toggle (Menggunakan opacity & transform CSS, bukan display hidden langsung)
     function toggleSettings() {
         const modal = document.getElementById("settings-modal");
+        const modalBox = document.getElementById("settings-modal-box");
         const user = localStorage.getItem("fw_user") || "Guest";
+        
         document.getElementById("txt-user-display").innerText = user;
-        modal.classList.toggle("hidden");
+        
+        if (modal.classList.contains("opacity-0")) {
+            // Animasi Masuk
+            modal.classList.remove("opacity-0", "pointer-events-none");
+            modalBox.classList.remove("scale-95", "translate-y-4");
+            modalBox.classList.add("scale-100", "translate-y-0");
+        } else {
+            // Animasi Keluar
+            modal.classList.add("opacity-0", "pointer-events-none");
+            modalBox.classList.remove("scale-100", "translate-y-0");
+            modalBox.classList.add("scale-95", "translate-y-4");
+        }
     }
 
-    // UPDATE: Tambahan fungsi untuk Clear Cache
     function clearCache() {
         if(confirm("Apakah Anda ingin memuat ulang semua data dari server?")) {
             toggleSettings();
@@ -296,9 +375,11 @@
             if(v === tab) {
                 viewEl.classList.remove("hidden");
                 navEl.classList.replace("text-slate-400", "text-indigo-600");
+                navEl.classList.replace("dark:text-slate-500", "dark:text-indigo-400");
             } else {
                 viewEl.classList.add("hidden");
                 navEl.classList.replace("text-indigo-600", "text-slate-400");
+                navEl.classList.replace("dark:text-indigo-400", "dark:text-slate-500");
             }
         });
         
@@ -307,7 +388,6 @@
         if(tab === 'riwayat') renderRiwayatLengkap();
         if(tab === 'laporan') renderLaporanKeuangan();
         
-        // Agar kembali ke atas saat ganti tab (seperti aplikasi native)
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -317,7 +397,7 @@
     }
 
     function loadDataFromServer(isReload = false) {
-      document.getElementById("loader").classList.remove("hidden");
+      document.getElementById("loader").classList.remove("opacity-0", "pointer-events-none");
       
       fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getTransactions" }) })
       .then(response => response.json())
@@ -339,10 +419,10 @@
                     else { filterPencatat.innerHTML = `<option value="${user}">${user}</option>`; }
                     
                     filterPencatat.disabled = true;
-                    filterPencatat.classList.add("bg-slate-100", "text-slate-500", "cursor-not-allowed");
+                    filterPencatat.classList.add("bg-slate-100", "text-slate-500", "cursor-not-allowed", "dark:bg-slate-800");
                 } else {
                     filterPencatat.disabled = false;
-                    filterPencatat.classList.remove("bg-slate-100", "text-slate-500", "cursor-not-allowed");
+                    filterPencatat.classList.remove("bg-slate-100", "text-slate-500", "cursor-not-allowed", "dark:bg-slate-800");
                 }
             }
             initRiwayatFilters(); 
@@ -351,10 +431,10 @@
         } else { 
             alert("Gagal memuat data: " + res.message); 
         }
-        document.getElementById("loader").classList.add("hidden"); 
+        document.getElementById("loader").classList.add("opacity-0", "pointer-events-none"); 
       }).catch(err => { 
           console.error("Fetch Error:", err);
-          document.getElementById("loader").classList.add("hidden"); 
+          document.getElementById("loader").classList.add("opacity-0", "pointer-events-none"); 
           alert("Gagal mengambil data dari Google Sheet. Periksa koneksi internet Anda."); 
       });
     }
@@ -436,13 +516,14 @@
         filtered.forEach(trx => {
             const isPengeluaran = (trx.jenis || "").toString().toLowerCase() === 'pengeluaran';
             const pencatatText = trx.pencatat ? trx.pencatat.toString() : '?';
-            const badgeColor = pencatatText.toLowerCase() === 'suami' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700';
-            html += `<div class="card p-4 flex flex-col gap-2 select-none">
-                <div class="flex justify-between items-center border-b border-slate-50 pb-2"><span class="text-[10px] font-bold text-slate-400">📅 ${new Date(trx.timestamp).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</span><span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${badgeColor}">${pencatatText}</span></div>
-                <div class="flex justify-between items-center pt-1"><div class="min-w-0 pr-3 flex-1"><p class="text-sm font-bold text-slate-800 truncate">${trx.kategori || "-"}</p><p class="text-[11px] text-slate-500 truncate mt-0.5">${trx.keterangan || "-"}</p></div><span class="${isPengeluaran ? 'text-rose-500' : 'text-emerald-500'} font-bold text-sm">${isPengeluaran ? '-' : '+'}${formatter.format(trx.nominal)}</span></div>
+            // Ubah badge color sedikit untuk dark mode compatibility
+            const badgeColor = pencatatText.toLowerCase() === 'suami' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400';
+            html += `<div class="card p-4 flex flex-col gap-2 select-none transition-colors">
+                <div class="flex justify-between items-center border-b border-slate-50 dark:border-slate-700/50 pb-2"><span class="text-[10px] font-bold text-slate-400 dark:text-slate-500">📅 ${new Date(trx.timestamp).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</span><span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${badgeColor}">${pencatatText}</span></div>
+                <div class="flex justify-between items-center pt-1"><div class="min-w-0 pr-3 flex-1"><p class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">${trx.kategori || "-"}</p><p class="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">${trx.keterangan || "-"}</p></div><span class="${isPengeluaran ? 'text-rose-500 dark:text-rose-400' : 'text-emerald-500 dark:text-emerald-400'} font-bold text-sm">${isPengeluaran ? '-' : '+'}${formatter.format(trx.nominal)}</span></div>
             </div>`;
         });
-        document.getElementById("list-riwayat-lengkap").innerHTML = html || '<div class="text-center py-10 select-none"><p class="text-sm text-slate-500">Tidak ada transaksi.</p></div>';
+        document.getElementById("list-riwayat-lengkap").innerHTML = html || '<div class="text-center py-10 select-none"><p class="text-sm text-slate-500 dark:text-slate-400">Tidak ada transaksi.</p></div>';
     }
 
     function renderFilteredData() {
@@ -489,9 +570,9 @@
           return matchP && matchB;
       }).slice(-5).reverse().forEach(trx => {
         const isPengeluaran = (trx.jenis || "").toString().toLowerCase() === 'pengeluaran';
-        html += `<div class="flex justify-between items-center py-2 border-b border-slate-50 last:border-0 select-none"><div class="min-w-0 pr-4 flex-1"><p class="text-sm font-semibold text-slate-800 truncate">${trx.kategori || "-"}</p><p class="text-[11px] text-slate-400 truncate mt-0.5">${trx.keterangan || "-"}</p></div><span class="${isPengeluaran ? 'text-rose-500' : 'text-emerald-500'} font-bold text-sm">${isPengeluaran ? '-' : '+'}${formatter.format(trx.nominal)}</span></div>`;
+        html += `<div class="flex justify-between items-center py-2 border-b border-slate-50 dark:border-slate-700/50 last:border-0 select-none transition-colors"><div class="min-w-0 pr-4 flex-1"><p class="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">${trx.kategori || "-"}</p><p class="text-[11px] text-slate-400 dark:text-slate-500 truncate mt-0.5">${trx.keterangan || "-"}</p></div><span class="${isPengeluaran ? 'text-rose-500 dark:text-rose-400' : 'text-emerald-500 dark:text-emerald-400'} font-bold text-sm">${isPengeluaran ? '-' : '+'}${formatter.format(trx.nominal)}</span></div>`;
       });
-      document.getElementById("list-riwayat-singkat").innerHTML = html || `<p class="text-sm text-slate-400 text-center py-4 select-none">Belum ada transaksi.</p>`;
+      document.getElementById("list-riwayat-singkat").innerHTML = html || `<p class="text-sm text-slate-400 dark:text-slate-500 text-center py-4 select-none">Belum ada transaksi.</p>`;
       renderDailyChart();
     }
 
@@ -580,7 +661,8 @@
                     labels: katLabels,
                     datasets: [{
                         data: katData,
-                        backgroundColor: ['#4f46e5', '#10b981', '#f43f5e', '#f59e0b', '#06b6d4', '#8b5cf6', '#ec4899', '#64748b']
+                        backgroundColor: ['#4f46e5', '#10b981', '#f43f5e', '#f59e0b', '#06b6d4', '#8b5cf6', '#ec4899', '#64748b'],
+                        borderWidth: 0 // Menghilangkan border agar lebih clean di mode gelap
                     }]
                 },
                 options: {
@@ -684,7 +766,7 @@
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { x: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } }, y: { grid: { display: false }, ticks: { font: { fontStyle: 'bold' } } } },
+                    scales: { x: { grid: { color: 'rgba(148, 163, 184, 0.1)' }, ticks: { font: { size: 10 } } }, y: { grid: { display: false }, ticks: { font: { fontStyle: 'bold' } } } },
                     plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } }
                 }
             });
@@ -693,7 +775,9 @@
         }
     }
 
+    // UPDATE: Panggil inisialisasi tema saat aplikasi pertama kali dimuat
     window.onload = () => {
+        initTheme(); // Set tema Light/Dark
         if(localStorage.getItem("fw_user")) {
             document.getElementById("login-section").classList.add("hidden");
             document.getElementById("app-section").classList.remove("hidden");
@@ -702,7 +786,7 @@
             loadDataFromServer();
         } else {
             document.getElementById("login-section").classList.remove("hidden");
-            document.getElementById("loader").classList.add("hidden");
+            document.getElementById("loader").classList.add("opacity-0", "pointer-events-none");
         }
     };
   </script>
