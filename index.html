@@ -13,14 +13,12 @@
         font-family: 'Plus Jakarta Sans', sans-serif; 
         background-color: #f8fafc; 
         -webkit-tap-highlight-color: transparent; 
-        /* Ekstra smooth scroll untuk iOS */
         -webkit-overflow-scrolling: touch;
     }
     .card { background: white; border-radius: 20px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); border: 1px solid #f1f5f9; }
     .fade-in { animation: fadeIn 0.4s ease-in; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     
-    /* UPDATE: Font 16px wajib agar HP (khususnya iPhone) tidak auto-zoom saat klik dropdown/input */
     input, select { 
         height: 52px !important; 
         padding: 0 16px !important; 
@@ -33,7 +31,6 @@
         transition: all 0.2s; 
         touch-action: manipulation;
     }
-    /* UPDATE: Mempercepat responsivitas tap di layar HP */
     button, a { 
         border-radius: 16px; 
         touch-action: manipulation; 
@@ -71,7 +68,9 @@
   <div id="app-section" class="hidden max-w-lg mx-auto fade-in">
     <header class="p-6 flex justify-between items-center bg-[#f8fafc] sticky top-0 z-30 select-none">
       <h2 id="header-title" class="font-bold text-xl text-slate-800">Dashboard</h2>
-      <button onclick="handleLogout()" class="text-sm text-rose-500 font-bold bg-rose-50 px-5 py-2 rounded-full active:scale-95 transition-transform">Keluar</button>
+      <button onclick="toggleSettings()" class="w-10 h-10 flex items-center justify-center bg-white border border-slate-100 shadow-sm rounded-full active:scale-95 transition-transform text-slate-600">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+      </button>
     </header>
 
     <main id="view-home" class="px-6 space-y-6">
@@ -187,6 +186,39 @@
     </main>
   </div>
 
+  <div id="settings-modal" class="hidden fixed inset-0 z-50 bg-slate-800/40 backdrop-blur-sm p-6 overflow-y-auto fade-in flex items-center justify-center">
+    <div class="w-full max-w-sm bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden">
+      <div class="p-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+        <h2 class="text-lg font-bold text-slate-800">Pengaturan</h2>
+        <button onclick="toggleSettings()" class="w-8 h-8 flex items-center justify-center bg-slate-200 text-slate-500 rounded-full font-bold active:scale-95 transition-transform text-sm">✕</button>
+      </div>
+      
+      <div class="p-6 space-y-4">
+        <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100 flex items-center gap-4">
+          <div class="w-12 h-12 bg-white text-indigo-600 rounded-full flex items-center justify-center text-xl font-bold shadow-sm">
+            👤
+          </div>
+          <div>
+            <p class="text-[10px] uppercase text-indigo-400 font-bold tracking-wider">Akun Aktif</p>
+            <p id="txt-user-display" class="font-bold text-indigo-900 capitalize text-lg">-</p>
+          </div>
+        </div>
+
+        <button onclick="clearCache()" class="w-full flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 active:bg-slate-50 transition-colors shadow-sm mt-4">
+          <div class="flex items-center gap-3">
+            <span class="text-xl">🧹</span>
+            <span class="font-bold text-slate-700 text-sm">Bersihkan Cache Data</span>
+          </div>
+          <span class="text-slate-400 text-xs font-bold bg-slate-100 px-2 py-1 rounded-md">Refresh</span>
+        </button>
+
+        <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-2 bg-rose-50 text-rose-600 p-4 rounded-2xl font-bold active:bg-rose-100 transition-colors mt-8 border border-rose-100">
+          <span class="text-lg">🚪</span> Keluar Aplikasi
+        </button>
+      </div>
+    </div>
+  </div>
+
   <button onclick="loadDataFromServer(true)" id="btn-reload" class="hidden fixed bottom-24 right-6 bg-white/70 backdrop-blur-lg border border-white/50 text-indigo-600 w-14 h-14 rounded-full shadow-[0_12px_30px_rgba(79,70,229,0.25)] flex items-center justify-center z-50 active:scale-90 transition-all duration-200 select-none touch-manipulation">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
   </button>
@@ -237,6 +269,22 @@
     }
     
     function handleLogout() { localStorage.clear(); location.reload(); }
+
+    // UPDATE: Tambahan fungsi untuk toggle modal Settings dan memuat username
+    function toggleSettings() {
+        const modal = document.getElementById("settings-modal");
+        const user = localStorage.getItem("fw_user") || "Guest";
+        document.getElementById("txt-user-display").innerText = user;
+        modal.classList.toggle("hidden");
+    }
+
+    // UPDATE: Tambahan fungsi untuk Clear Cache
+    function clearCache() {
+        if(confirm("Apakah Anda ingin memuat ulang semua data dari server?")) {
+            toggleSettings();
+            loadDataFromServer(true);
+        }
+    }
 
     function switchTab(tab) {
         const views = ['home', 'riwayat', 'laporan'];
@@ -491,7 +539,6 @@
         let totalPengeluaran = 0;
         const kategoriMap = {};
         
-        // 1. Filter data untuk ringkasan & pie chart
         globalTransactions.forEach(trx => {
             if(!trx.timestamp) return;
             const date = new Date(trx.timestamp);
@@ -518,7 +565,6 @@
         document.getElementById("rep-total-masuk").innerText = formatter.format(totalPemasukan);
         document.getElementById("rep-total-keluar").innerText = formatter.format(totalPengeluaran);
         
-        // 2. Render Pie/Doughnut Chart Distribusi Kategori
         const katLabels = Object.keys(kategoriMap);
         const katData = Object.values(kategoriMap);
         
@@ -548,7 +594,6 @@
             document.getElementById("no-data-doughnut").classList.remove("hidden");
         }
         
-        // 3. Render Tren Bulanan
         const targetYear = filterT === "all" ? new Date().getFullYear().toString() : filterT;
         const bulananIn = Array(12).fill(0);
         const bulananOut = Array(12).fill(0);
@@ -590,7 +635,6 @@
             }
         });
         
-        // 4. Laporan Komparasi Pasangan Dinamis (Khusus Admin)
         const compSection = document.getElementById("admin-comparison-section");
         if(currentUser === "admin") {
             compSection.classList.remove("hidden");
