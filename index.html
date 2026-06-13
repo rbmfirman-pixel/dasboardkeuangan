@@ -271,20 +271,34 @@
 
     // FUNGSI PERBAIKAN TANGGAL - Menggunakan parsing manual DD/MM/YYYY
     function getTrxDate(trx) {
-        // Coba baca dari kolom "Tgl" (contoh: "12/06/2026")
-        if (trx.Tgl) {
-            const parts = trx.Tgl.toString().split('/');
-            if (parts.length === 3) {
-                // parts[0]=hari, parts[1]=bulan, parts[2]=tahun
-                // Bulan dikurangi 1 karena JS hitung bulan dari 0 (Jan=0, Jun=5)
-                return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+    // 1. Cek apakah kolom Tgl ada di data
+    // Pastikan penulisan "Tgl" di sini SAMA PERSIS dengan header di Google Sheet Anda
+    if (trx.Tgl) {
+        // Konversi ke string agar aman
+        const tglString = trx.Tgl.toString();
+        
+        // Split berdasarkan garis miring "/"
+        // Contoh "12/06/2026" menjadi ["12", "06", "2026"]
+        const parts = tglString.split('/');
+        
+        if (parts.length === 3) {
+            const hari = parseInt(parts[0], 10);
+            const bulan = parseInt(parts[1], 10) - 1; // Bulan di JS dimulai dari 0 (Jan=0, Jun=5)
+            const tahun = parseInt(parts[2], 10);
+            
+            const dateObj = new Date(tahun, bulan, hari);
+            
+            // Cek apakah hasilnya valid (bukan NaN)
+            if (!isNaN(dateObj.getTime())) {
+                return dateObj;
             }
         }
-        // Fallback jika Tgl tidak ada
-        const d = new Date(trx.timestamp);
-        return isNaN(d) ? new Date() : d;
     }
-
+    
+    // 2. Jika Tgl tidak ditemukan atau rusak, baru gunakan timestamp
+    return new Date(trx.timestamp);
+}
+    
     function initTheme() {
         const savedTheme = localStorage.getItem('fw_theme') || 'auto';
         setTheme(savedTheme);
