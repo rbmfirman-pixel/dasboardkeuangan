@@ -242,7 +242,7 @@
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
   </button>
 
-  <nav id="bottom-nav" class="hidden fixed bottom-0 w-full bg-white/80 dark:bg-slate-800/90 backdrop-blur-lg border-t border-white/50 dark:border-slate-700/50 px-6 py-3 z-40 pb-safe shadow-[0_-4px 12px_rgba(0,0,0,0.03)] select-none transition-colors duration-300">
+  <nav id="bottom-nav" class="hidden fixed bottom-0 w-full bg-white/80 dark:bg-slate-800/90 backdrop-blur-lg border-t border-white/50 dark:border-slate-700/50 px-6 py-3 z-40 pb-safe shadow-[0_-4px_12px_rgba(0,0,0,0.03)] select-none transition-colors duration-300">
     <div class="max-w-lg mx-auto flex justify-around items-center">
       <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center p-2 text-indigo-600 dark:text-indigo-400 transition active:scale-95 touch-manipulation w-20">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 mb-1"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
@@ -269,23 +269,14 @@
     
     const formatter = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
 
-function getTrxDate(trx) {
-    const tglData = trx.Tgl || trx.tgl || ""; 
-
-    if (tglData) {
-        const parts = tglData.toString().split('/');
-        if (parts.length === 3) {
-            const hari = parseInt(parts[0], 10);
-            const bulan = parseInt(parts[1], 10) - 1;
-            const tahun = parseInt(parts[2], 10);
-            return new Date(tahun, bulan, hari);
-        }
+    // FUNGSI PERBAIKAN TANGGAL
+    function getTrxDate(trx) {
+        if (!trx) return new Date();
+        // Coba gunakan trx.Tgl jika ada, jika tidak gunakan trx.timestamp
+        const d = new Date(trx.Tgl || trx.timestamp);
+        return isNaN(d) ? new Date() : d;
     }
 
-    console.warn("Data tidak memiliki kolom Tgl:", trx);
-    return new Date(); // Atau kembalikan null
-}
-    
     function initTheme() {
         const savedTheme = localStorage.getItem('fw_theme') || 'auto';
         setTheme(savedTheme);
