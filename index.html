@@ -269,34 +269,21 @@
     
     const formatter = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
 
-    // FUNGSI PERBAIKAN TANGGAL - Menggunakan parsing manual DD/MM/YYYY
-    function getTrxDate(trx) {
-    // 1. Cek apakah kolom Tgl ada di data
-    // Pastikan penulisan "Tgl" di sini SAMA PERSIS dengan header di Google Sheet Anda
-    if (trx.Tgl) {
-        // Konversi ke string agar aman
-        const tglString = trx.Tgl.toString();
-        
-        // Split berdasarkan garis miring "/"
-        // Contoh "12/06/2026" menjadi ["12", "06", "2026"]
-        const parts = tglString.split('/');
-        
+function getTrxDate(trx) {
+    const tglData = trx.Tgl || trx.tgl || ""; 
+
+    if (tglData) {
+        const parts = tglData.toString().split('/');
         if (parts.length === 3) {
             const hari = parseInt(parts[0], 10);
-            const bulan = parseInt(parts[1], 10) - 1; // Bulan di JS dimulai dari 0 (Jan=0, Jun=5)
+            const bulan = parseInt(parts[1], 10) - 1;
             const tahun = parseInt(parts[2], 10);
-            
-            const dateObj = new Date(tahun, bulan, hari);
-            
-            // Cek apakah hasilnya valid (bukan NaN)
-            if (!isNaN(dateObj.getTime())) {
-                return dateObj;
-            }
+            return new Date(tahun, bulan, hari);
         }
     }
-    
-    // 2. Jika Tgl tidak ditemukan atau rusak, baru gunakan timestamp
-    return new Date(trx.timestamp);
+
+    console.warn("Data tidak memiliki kolom Tgl:", trx);
+    return new Date(); // Atau kembalikan null
 }
     
     function initTheme() {
