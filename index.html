@@ -269,12 +269,31 @@
     
     const formatter = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
 
-    // FUNGSI PERBAIKAN TANGGAL
+    // FUNGSI PERBAIKAN TANGGAL (FIXED: Penanganan DD/MM/YYYY)
     function getTrxDate(trx) {
         if (!trx) return new Date();
-        // Coba gunakan trx.Tgl jika ada, jika tidak gunakan trx.timestamp
-        const d = new Date(trx.Tgl || trx.timestamp);
-        return isNaN(d) ? new Date() : d;
+        
+        // Prioritaskan kolom Tgl dengan format DD/MM/YYYY (contoh: 12/06/2026)
+        if (trx.Tgl) {
+            const parts = String(trx.Tgl).split('/');
+            if (parts.length === 3) {
+                const day = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10) - 1; // Bulan di JS berbasis 0 (Jan = 0)
+                const year = parseInt(parts[2], 10);
+                const dateFromTgl = new Date(year, month, day);
+                if (!isNaN(dateFromTgl)) return dateFromTgl;
+            }
+            const parsedTgl = new Date(trx.Tgl);
+            if (!isNaN(parsedTgl)) return parsedTgl;
+        }
+        
+        // Fallback ke timestamp jika kolom Tgl kosong atau tidak terbaca
+        if (trx.timestamp) {
+            const parsedTs = new Date(trx.timestamp);
+            if (!isNaN(parsedTs)) return parsedTs;
+        }
+        
+        return new Date();
     }
 
     function initTheme() {
