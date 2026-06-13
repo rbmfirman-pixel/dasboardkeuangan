@@ -242,7 +242,7 @@
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
   </button>
 
-  <nav id="bottom-nav" class="hidden fixed bottom-0 w-full bg-white/80 dark:bg-slate-800/90 backdrop-blur-lg border-t border-white/50 dark:border-slate-700/50 px-6 py-3 z-40 pb-safe shadow-[0_-4px_12px_rgba(0,0,0,0.03)] select-none transition-colors duration-300">
+  <nav id="bottom-nav" class="hidden fixed bottom-0 w-full bg-white/80 dark:bg-slate-800/90 backdrop-blur-lg border-t border-white/50 dark:border-slate-700/50 px-6 py-3 z-40 pb-safe shadow-[0_-4px 12px_rgba(0,0,0,0.03)] select-none transition-colors duration-300">
     <div class="max-w-lg mx-auto flex justify-around items-center">
       <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center p-2 text-indigo-600 dark:text-indigo-400 transition active:scale-95 touch-manipulation w-20">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 mb-1"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
@@ -269,31 +269,20 @@
     
     const formatter = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
 
-    // FUNGSI PERBAIKAN TANGGAL (FIXED: Penanganan DD/MM/YYYY)
+    // FUNGSI PERBAIKAN TANGGAL - Menggunakan parsing manual DD/MM/YYYY
     function getTrxDate(trx) {
-        if (!trx) return new Date();
-        
-        // Prioritaskan kolom Tgl dengan format DD/MM/YYYY (contoh: 12/06/2026)
+        // Coba baca dari kolom "Tgl" (contoh: "12/06/2026")
         if (trx.Tgl) {
-            const parts = String(trx.Tgl).split('/');
+            const parts = trx.Tgl.toString().split('/');
             if (parts.length === 3) {
-                const day = parseInt(parts[0], 10);
-                const month = parseInt(parts[1], 10) - 1; // Bulan di JS berbasis 0 (Jan = 0)
-                const year = parseInt(parts[2], 10);
-                const dateFromTgl = new Date(year, month, day);
-                if (!isNaN(dateFromTgl)) return dateFromTgl;
+                // parts[0]=hari, parts[1]=bulan, parts[2]=tahun
+                // Bulan dikurangi 1 karena JS hitung bulan dari 0 (Jan=0, Jun=5)
+                return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
             }
-            const parsedTgl = new Date(trx.Tgl);
-            if (!isNaN(parsedTgl)) return parsedTgl;
         }
-        
-        // Fallback ke timestamp jika kolom Tgl kosong atau tidak terbaca
-        if (trx.timestamp) {
-            const parsedTs = new Date(trx.timestamp);
-            if (!isNaN(parsedTs)) return parsedTs;
-        }
-        
-        return new Date();
+        // Fallback jika Tgl tidak ada
+        const d = new Date(trx.timestamp);
+        return isNaN(d) ? new Date() : d;
     }
 
     function initTheme() {
