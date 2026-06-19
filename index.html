@@ -339,7 +339,6 @@
 
         <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
           
-          <!-- LOGIKA DIPISAH: Baris 1 untuk Terang/Gelap/Auto -->
           <p class="text-[10px] uppercase text-slate-400 font-bold mb-3 tracking-wider">Mode Tampilan</p>
           <div class="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl relative mb-4">
             <button onclick="setTheme('light')" id="btn-theme-light" class="py-2 text-[11px] font-bold rounded-lg transition-all text-slate-500">Terang</button>
@@ -347,7 +346,6 @@
             <button onclick="setTheme('auto')" id="btn-theme-auto" class="py-2 text-[11px] font-bold rounded-lg transition-all text-slate-500">Auto</button>
           </div>
 
-          <!-- LOGIKA DIPISAH: Baris 2 untuk Bawaan/Mint Glassmorphism -->
           <p class="text-[10px] uppercase text-slate-400 font-bold mb-3 tracking-wider">Gaya Visual</p>
           <div class="grid grid-cols-2 gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl relative">
             <button onclick="setStyle('default')" id="btn-style-default" class="py-2 text-[11px] font-bold rounded-lg transition-all text-slate-500">Bawaan</button>
@@ -402,7 +400,6 @@
     
     const formatter = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
 
-    // INISIALISASI TEMA & GAYA TERPISAH
     function initTheme() {
         const savedTheme = localStorage.getItem('fw_theme') || 'auto';
         const savedStyle = localStorage.getItem('fw_style') || 'default';
@@ -571,6 +568,10 @@
       .then(res => { 
         if(res.status === "success") {
             globalTransactions = res.data;
+            
+            // MODIFIKASI: Menyimpan urutan asli (baris pada Google Sheet) ke dalam data
+            globalTransactions.forEach((trx, index) => { trx._originalIndex = index; });
+
             if(!isReload) {
                 const curM = new Date().getMonth().toString();
                 document.getElementById("filter-bulan").value = curM;
@@ -680,7 +681,16 @@
             return matchPencatat && matchBulan && matchTahun && matchKategori && matchSearch;
         });
         
-        filtered.sort((a, b) => new Date(b.tgl) - new Date(a.tgl));
+        // MODIFIKASI: Mengurutkan dari Tanggal terbaru. Jika tanggal sama, urutkan dari Baris (Index) Sheet terbawah
+        filtered.sort((a, b) => {
+            const dateA = new Date(a.tgl);
+            const dateB = new Date(b.tgl);
+            if (dateB.getTime() !== dateA.getTime()) {
+                return dateB - dateA;
+            }
+            return (b._originalIndex || 0) - (a._originalIndex || 0);
+        });
+
         let html = "";
         filtered.forEach(trx => {
             const isPengeluaran = (trx.jenis || "").toString().toLowerCase() === 'pengeluaran';
@@ -734,13 +744,22 @@
       document.getElementById("txt-saldo").innerText = formatter.format((filterB === "all" ? totalP : saldoAwal) + totalP - totalK);
       
       let html = "";
+      
+      // MODIFIKASI: Disesuaikan juga dengan logika pengurutan yang baru untuk widget "Transaksi Terbaru" di Home
       globalTransactions.filter(t => {
           const tDate = t.tgl;
           if(!tDate || isNaN(new Date(tDate))) return false;
           const matchP = filterP === "all" || (t.pencatat || "").toString().toLowerCase() === filterP;
           const matchB = filterB === "all" || new Date(tDate).getMonth().toString() === filterB;
           return matchP && matchB;
-      }).sort((a,b) => new Date(a.tgl) - new Date(b.tgl)).slice(-5).reverse().forEach(trx => {
+      }).sort((a,b) => {
+          const dateA = new Date(a.tgl);
+          const dateB = new Date(b.tgl);
+          if (dateA.getTime() !== dateB.getTime()) {
+              return dateA - dateB;
+          }
+          return (a._originalIndex || 0) - (b._originalIndex || 0);
+      }).slice(-5).reverse().forEach(trx => {
         const isPengeluaran = (trx.jenis || "").toString().toLowerCase() === 'pengeluaran';
         html += `<div class="flex justify-between items-center py-2 border-b border-slate-50 dark:border-slate-700/50 last:border-0 select-none transition-colors"><div class="min-w-0 pr-4 flex-1"><p class="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">${trx.kategori || "-"}</p><p class="text-[11px] text-slate-400 dark:text-slate-500 truncate mt-0.5">${trx.keterangan || "-"}</p></div><span class="${isPengeluaran ? 'text-rose-500 dark:text-rose-400' : 'text-emerald-500 dark:text-emerald-400'} font-bold text-sm">${isPengeluaran ? '-' : '+'}${formatter.format(trx.nominal)}</span></div>`;
       });
