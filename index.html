@@ -15,7 +15,7 @@
   
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;600;700&display=swap');
     body { 
         font-family: 'Plus Jakarta Sans', sans-serif; 
         -webkit-tap-highlight-color: transparent; 
@@ -52,6 +52,69 @@
     
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     ::-webkit-scrollbar { width: 0px; background: transparent; }
+
+    /* ==========================================================================
+       UPGRADE TAMPILAN: TEMA MINT GLASSMORPHISM (Inspirasi image_591685.png)
+       ========================================================================== */
+    html.mint body {
+        background: linear-gradient(135deg, #e6fffa 0%, #b2f5ea 50%, #81e6d9 100%) !important;
+        color: #1a202c !important;
+    }
+    html.mint body::before {
+        content: ""; position: fixed; top: -10%; left: -20%; width: 400px; height: 400px;
+        background: radial-gradient(circle, rgba(79,209,197,0.4) 0%, rgba(255,255,255,0) 70%);
+        filter: blur(50px); z-index: -1; pointer-events: none;
+    }
+    html.mint body::after {
+        content: ""; position: fixed; bottom: -10%; right: -20%; width: 400px; height: 400px;
+        background: radial-gradient(circle, rgba(49,151,149,0.3) 0%, rgba(255,255,255,0) 70%);
+        filter: blur(50px); z-index: -1; pointer-events: none;
+    }
+    html.mint header { background: transparent !important; }
+    html.mint .card {
+        background: rgba(255, 255, 255, 0.45) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.6) !important;
+        box-shadow: 0 8px 32px 0 rgba(49, 151, 149, 0.08) !important;
+    }
+    html.mint input, html.mint select {
+        background: rgba(255, 255, 255, 0.5) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.6) !important;
+        color: #1a202c !important;
+    }
+    html.mint input::placeholder { color: #4a5568 !important; }
+    html.mint .bg-indigo-600, html.mint .dark\:bg-indigo-500 {
+        background: linear-gradient(135deg, #319795 0%, #2c7a7b 100%) !important;
+        box-shadow: 0 12px 24px -6px rgba(44, 122, 123, 0.35) !important;
+    }
+    html.mint .text-indigo-200 { color: #e6fffa !important; }
+    html.mint .text-indigo-600, html.mint .dark\:text-indigo-400 { color: #2c7a7b !important; }
+    html.mint #bottom-nav {
+        background: rgba(255, 255, 255, 0.5) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.4) !important;
+    }
+    html.mint .text-slate-800, html.mint .text-slate-700, html.mint .text-slate-600, html.mint #header-title { color: #234e52 !important; }
+    html.mint .text-slate-500, html.mint .text-slate-400 { color: #4a5568 !important; }
+    html.mint .bg-indigo-50 { background: rgba(230, 255, 250, 0.5) !important; border-color: rgba(178, 245, 234, 0.6) !important; }
+    html.mint .text-indigo-900 { color: #234e52 !important; }
+    html.mint .text-indigo-400 { color: #319795 !important; }
+    html.mint button[type="submit"] { background: linear-gradient(135deg, #319795 0%, #2c7a7b 100%) !important; }
+    html.mint #btn-reload { background: rgba(255, 255, 255, 0.5) !important; border-color: rgba(255, 255, 255, 0.6) !important; color: #2c7a7b !important; }
+    html.mint #settings-modal-box {
+        background: rgba(255, 255, 255, 0.75) !important;
+        backdrop-filter: blur(24px) !important;
+        -webkit-backdrop-filter: blur(24px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.8) !important;
+    }
+    html.mint #settings-modal-box .bg-slate-50\/50 { background: rgba(255, 255, 255, 0.3) !important; }
+    html.mint #settings-modal-box .bg-slate-100 { background: rgba(0, 0, 0, 0.05) !important; }
+    html.mint .loader-overlay { background: linear-gradient(135deg, #e6fffa 0%, #b2f5ea 100%) !important; }
+    html.mint .spinner { border-color: rgba(255,255,255,0.5); border-top-color: #319795; }
   </style>
 </head>
 <body class="min-h-screen text-slate-800 dark:text-slate-100 bg-[#f8fafc] dark:bg-slate-900 pb-24 transition-colors duration-300">
@@ -216,10 +279,12 @@
 
         <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
           <p class="text-[10px] uppercase text-slate-400 font-bold mb-3 tracking-wider">Tampilan (Tema)</p>
-          <div class="grid grid-cols-3 gap-2 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl relative">
-            <button onclick="setTheme('light')" id="btn-theme-light" class="py-2 text-xs font-bold rounded-lg transition-all text-slate-500">Terang</button>
-            <button onclick="setTheme('dark')" id="btn-theme-dark" class="py-2 text-xs font-bold rounded-lg transition-all text-slate-500">Gelap</button>
-            <button onclick="setTheme('auto')" id="btn-theme-auto" class="py-2 text-xs font-bold rounded-lg transition-all text-slate-500">Auto</button>
+          <!-- MODIFIKASI: Mengubah grid-cols-3 menjadi grid-cols-4 untuk menyisipkan opsi tema Mint -->
+          <div class="grid grid-cols-4 gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl relative">
+            <button onclick="setTheme('light')" id="btn-theme-light" class="py-2 text-[11px] font-bold rounded-lg transition-all text-slate-500">Terang</button>
+            <button onclick="setTheme('dark')" id="btn-theme-dark" class="py-2 text-[11px] font-bold rounded-lg transition-all text-slate-500">Gelap</button>
+            <button onclick="setTheme('auto')" id="btn-theme-auto" class="py-2 text-[11px] font-bold rounded-lg transition-all text-slate-500">Auto</button>
+            <button onclick="setTheme('mint')" id="btn-theme-mint" class="py-2 text-[11px] font-bold rounded-lg transition-all text-slate-500">Mint</button>
           </div>
         </div>
 
@@ -291,14 +356,22 @@
         if(chartCompareInstance) chartCompareInstance.update();
     }
 
+    // MODIFIKASI LOGIKA: Menambahkan dukungan tema 'mint' sebagai opsional tema baru
     function setTheme(theme) {
         localStorage.setItem('fw_theme', theme);
         
-        if (theme === 'dark') { applyDarkClass(true); } 
-        else if (theme === 'light') { applyDarkClass(false); } 
-        else { applyDarkClass(window.matchMedia('(prefers-color-scheme: dark)').matches); }
+        if (theme === 'mint') {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('mint');
+            Chart.defaults.color = '#234e52';
+        } else {
+            document.documentElement.classList.remove('mint');
+            if (theme === 'dark') { applyDarkClass(true); } 
+            else if (theme === 'light') { applyDarkClass(false); } 
+            else { applyDarkClass(window.matchMedia('(prefers-color-scheme: dark)').matches); }
+        }
 
-        ['light', 'dark', 'auto'].forEach(t => {
+        ['light', 'dark', 'auto', 'mint'].forEach(t => {
             const btn = document.getElementById(`btn-theme-${t}`);
             if(btn) {
                 if (t === theme) {
@@ -310,6 +383,11 @@
                 }
             }
         });
+
+        if(chartInstance) chartInstance.update();
+        if(chartDoughnutInstance) chartDoughnutInstance.update();
+        if(chartTrendInstance) chartTrendInstance.update();
+        if(chartCompareInstance) chartCompareInstance.update();
     }
 
     function togglePassword() { const p = document.getElementById("password"); const i = document.getElementById("eye-icon"); if(p.type === "password") { p.type = "text"; i.innerText = "🙈"; } else { p.type = "password"; i.innerText = "👁️"; } }
@@ -431,7 +509,6 @@
       });
     }
 
-    // UPDATE: HANYA MENGGUNAKAN trx.tgl
     function initRiwayatFilters() {
         const selectTahun = document.getElementById("filter-riwayat-tahun");
         const selectLaporanTahun = document.getElementById("filter-laporan-tahun");
@@ -477,7 +554,6 @@
         if(currKategori && currKategori !== "all") selectKategori.value = currKategori;
     }
 
-    // UPDATE: HANYA MENGGUNAKAN trx.tgl
     function renderRiwayatLengkap() {
         const currentUser = (localStorage.getItem("fw_user") || "").toLowerCase();
         const rawFilterP = document.getElementById("filter-pencatat").value.toLowerCase();
@@ -523,7 +599,6 @@
         document.getElementById("list-riwayat-lengkap").innerHTML = html || '<div class="text-center py-10 select-none"><p class="text-sm text-slate-500 dark:text-slate-400">Tidak ada transaksi.</p></div>';
     }
 
-    // UPDATE: HANYA MENGGUNAKAN trx.tgl
     function renderFilteredData() {
       const currentUser = (localStorage.getItem("fw_user") || "").toLowerCase();
       const rawFilterP = document.getElementById("filter-pencatat").value.toLowerCase();
@@ -576,7 +651,6 @@
       renderDailyChart();
     }
 
-    // UPDATE: HANYA MENGGUNAKAN trx.tgl
     function renderDailyChart() {
       const currentUser = (localStorage.getItem("fw_user") || "").toLowerCase();
       const rawFilterP = document.getElementById("filter-pencatat").value.toLowerCase();
@@ -610,7 +684,6 @@
       });
     }
 
-    // UPDATE: HANYA MENGGUNAKAN trx.tgl
     function renderLaporanKeuangan() {
         const currentUser = (localStorage.getItem("fw_user") || "").toLowerCase();
         const rawFilterP = document.getElementById("filter-pencatat").value.toLowerCase();
