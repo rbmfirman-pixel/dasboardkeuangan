@@ -54,8 +54,10 @@
     ::-webkit-scrollbar { width: 0px; background: transparent; }
 
     /* ==========================================================================
-       UPGRADE TAMPILAN: TEMA MINT GLASSMORPHISM (Inspirasi image_591685.png)
+       UPGRADE TAMPILAN: MINT GLASSMORPHISM (SUPPORT LIGHT & DARK MODE)
        ========================================================================== */
+    
+    /* ---- MINT: LIGHT MODE (Terang) ---- */
     html.mint body {
         background: linear-gradient(135deg, #e6fffa 0%, #b2f5ea 50%, #81e6d9 100%) !important;
         color: #1a202c !important;
@@ -86,12 +88,12 @@
         color: #1a202c !important;
     }
     html.mint input::placeholder { color: #4a5568 !important; }
-    html.mint .bg-indigo-600, html.mint .dark\:bg-indigo-500 {
+    html.mint .bg-indigo-600 {
         background: linear-gradient(135deg, #319795 0%, #2c7a7b 100%) !important;
         box-shadow: 0 12px 24px -6px rgba(44, 122, 123, 0.35) !important;
     }
     html.mint .text-indigo-200 { color: #e6fffa !important; }
-    html.mint .text-indigo-600, html.mint .dark\:text-indigo-400 { color: #2c7a7b !important; }
+    html.mint .text-indigo-600 { color: #2c7a7b !important; }
     html.mint #bottom-nav {
         background: rgba(255, 255, 255, 0.5) !important;
         backdrop-filter: blur(20px) !important;
@@ -102,7 +104,6 @@
     html.mint .text-slate-500, html.mint .text-slate-400 { color: #4a5568 !important; }
     html.mint .bg-indigo-50 { background: rgba(230, 255, 250, 0.5) !important; border-color: rgba(178, 245, 234, 0.6) !important; }
     html.mint .text-indigo-900 { color: #234e52 !important; }
-    html.mint .text-indigo-400 { color: #319795 !important; }
     html.mint button[type="submit"] { background: linear-gradient(135deg, #319795 0%, #2c7a7b 100%) !important; }
     html.mint #btn-reload { background: rgba(255, 255, 255, 0.5) !important; border-color: rgba(255, 255, 255, 0.6) !important; color: #2c7a7b !important; }
     html.mint #settings-modal-box {
@@ -115,6 +116,65 @@
     html.mint #settings-modal-box .bg-slate-100 { background: rgba(0, 0, 0, 0.05) !important; }
     html.mint .loader-overlay { background: linear-gradient(135deg, #e6fffa 0%, #b2f5ea 100%) !important; }
     html.mint .spinner { border-color: rgba(255,255,255,0.5); border-top-color: #319795; }
+
+    /* ---- MINT: DARK MODE (Gelap) ---- */
+    html.mint.dark body {
+        background: linear-gradient(135deg, #064e3b 0%, #0f172a 100%) !important;
+        color: #f8fafc !important;
+    }
+    html.mint.dark body::before { background: radial-gradient(circle, rgba(20,184,166,0.15) 0%, rgba(255,255,255,0) 70%); }
+    html.mint.dark body::after { background: radial-gradient(circle, rgba(13,148,136,0.15) 0%, rgba(255,255,255,0) 70%); }
+    html.mint.dark .card {
+        background: rgba(30, 41, 59, 0.45) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+    }
+    html.mint.dark input, html.mint.dark select {
+        background: rgba(15, 23, 42, 0.5) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #ccfbf1 !important;
+    }
+    html.mint.dark input::placeholder { color: #5eead4 !important; opacity: 0.6; }
+    html.mint.dark .bg-indigo-600, html.mint.dark .dark\:bg-indigo-500, html.mint.dark button[type="submit"] {
+        background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%) !important;
+        box-shadow: 0 12px 24px -6px rgba(13, 148, 136, 0.35) !important;
+    }
+    html.mint.dark .text-indigo-200, html.mint.dark .dark\:text-indigo-100 { color: #99f6e4 !important; }
+    html.mint.dark .text-indigo-600, html.mint.dark .dark\:text-indigo-400 { color: #2dd4bf !important; }
+    html.mint.dark #bottom-nav {
+        background: rgba(15, 23, 42, 0.65) !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+    html.mint.dark .text-slate-800, html.mint.dark .text-slate-700, html.mint.dark .text-slate-600, 
+    html.mint.dark .dark\:text-slate-100, html.mint.dark .dark\:text-slate-200, html.mint.dark #header-title { 
+        color: #ccfbf1 !important; 
+    }
+    html.mint.dark .text-slate-500, html.mint.dark .text-slate-400,
+    html.mint.dark .dark\:text-slate-400, html.mint.dark .dark\:text-slate-500 { 
+        color: #5eead4 !important; 
+    }
+    html.mint.dark .bg-indigo-50, html.mint.dark .dark\:bg-indigo-900\/30 { 
+        background: rgba(13, 148, 136, 0.15) !important; 
+        border-color: rgba(20, 184, 166, 0.2) !important; 
+    }
+    html.mint.dark .text-indigo-900, html.mint.dark .dark\:text-indigo-300 { color: #99f6e4 !important; }
+    html.mint.dark #btn-reload { 
+        background: rgba(30, 41, 59, 0.6) !important; 
+        border-color: rgba(255, 255, 255, 0.1) !important; 
+        color: #2dd4bf !important; 
+    }
+    html.mint.dark #settings-modal-box {
+        background: rgba(15, 23, 42, 0.75) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+    html.mint.dark #settings-modal-box .bg-slate-50\/50, html.mint.dark #settings-modal-box .dark\:bg-slate-800\/50 { 
+        background: rgba(0, 0, 0, 0.3) !important; 
+    }
+    html.mint.dark #settings-modal-box .bg-slate-100, html.mint.dark #settings-modal-box .dark\:bg-slate-900 { 
+        background: rgba(0, 0, 0, 0.4) !important; 
+    }
+    html.mint.dark .loader-overlay { background: linear-gradient(135deg, #064e3b 0%, #0f172a 100%) !important; }
+    html.mint.dark .spinner { border-color: rgba(255,255,255,0.1); border-top-color: #2dd4bf; }
   </style>
 </head>
 <body class="min-h-screen text-slate-800 dark:text-slate-100 bg-[#f8fafc] dark:bg-slate-900 pb-24 transition-colors duration-300">
@@ -278,14 +338,22 @@
         </div>
 
         <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
-          <p class="text-[10px] uppercase text-slate-400 font-bold mb-3 tracking-wider">Tampilan (Tema)</p>
-          <!-- MODIFIKASI: Mengubah grid-cols-3 menjadi grid-cols-4 untuk menyisipkan opsi tema Mint -->
-          <div class="grid grid-cols-4 gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl relative">
+          
+          <!-- LOGIKA DIPISAH: Baris 1 untuk Terang/Gelap/Auto -->
+          <p class="text-[10px] uppercase text-slate-400 font-bold mb-3 tracking-wider">Mode Tampilan</p>
+          <div class="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl relative mb-4">
             <button onclick="setTheme('light')" id="btn-theme-light" class="py-2 text-[11px] font-bold rounded-lg transition-all text-slate-500">Terang</button>
             <button onclick="setTheme('dark')" id="btn-theme-dark" class="py-2 text-[11px] font-bold rounded-lg transition-all text-slate-500">Gelap</button>
             <button onclick="setTheme('auto')" id="btn-theme-auto" class="py-2 text-[11px] font-bold rounded-lg transition-all text-slate-500">Auto</button>
-            <button onclick="setTheme('mint')" id="btn-theme-mint" class="py-2 text-[11px] font-bold rounded-lg transition-all text-slate-500">Mint</button>
           </div>
+
+          <!-- LOGIKA DIPISAH: Baris 2 untuk Bawaan/Mint Glassmorphism -->
+          <p class="text-[10px] uppercase text-slate-400 font-bold mb-3 tracking-wider">Gaya Visual</p>
+          <div class="grid grid-cols-2 gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl relative">
+            <button onclick="setStyle('default')" id="btn-style-default" class="py-2 text-[11px] font-bold rounded-lg transition-all text-slate-500">Bawaan</button>
+            <button onclick="setStyle('mint')" id="btn-style-mint" class="py-2 text-[11px] font-bold rounded-lg transition-all text-slate-500">Mint Glass</button>
+          </div>
+
         </div>
 
         <button onclick="clearCache()" class="w-full flex items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 active:bg-slate-50 dark:active:bg-slate-700 transition-colors shadow-sm">
@@ -334,44 +402,54 @@
     
     const formatter = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
 
+    // INISIALISASI TEMA & GAYA TERPISAH
     function initTheme() {
         const savedTheme = localStorage.getItem('fw_theme') || 'auto';
-        setTheme(savedTheme);
+        const savedStyle = localStorage.getItem('fw_style') || 'default';
+        
+        setStyle(savedStyle, false);
+        setTheme(savedTheme, false);
         
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
             if (localStorage.getItem('fw_theme') === 'auto') {
-                applyDarkClass(e.matches);
+                applyDarkClass(e.matches, true);
             }
         });
     }
 
-    function applyDarkClass(isDark) {
-        if (isDark) { document.documentElement.classList.add('dark'); } 
-        else { document.documentElement.classList.remove('dark'); }
+    function setStyle(style, updateCharts = true) {
+        localStorage.setItem('fw_style', style);
         
-        Chart.defaults.color = isDark ? '#94a3b8' : '#64748b';
-        if(chartInstance) chartInstance.update();
-        if(chartDoughnutInstance) chartDoughnutInstance.update();
-        if(chartTrendInstance) chartTrendInstance.update();
-        if(chartCompareInstance) chartCompareInstance.update();
+        if (style === 'mint') { document.documentElement.classList.add('mint'); } 
+        else { document.documentElement.classList.remove('mint'); }
+
+        ['default', 'mint'].forEach(s => {
+            const btn = document.getElementById(`btn-style-${s}`);
+            if(btn) {
+                if (s === style) {
+                    btn.classList.add('bg-white', 'dark:bg-slate-700', 'text-slate-800', 'dark:text-white', 'shadow-sm');
+                    btn.classList.remove('text-slate-500', 'dark:text-slate-400');
+                } else {
+                    btn.classList.remove('bg-white', 'dark:bg-slate-700', 'text-slate-800', 'dark:text-white', 'shadow-sm');
+                    btn.classList.add('text-slate-500', 'dark:text-slate-400');
+                }
+            }
+        });
+
+        if(updateCharts) updateChartColors();
     }
 
-    // MODIFIKASI LOGIKA: Menambahkan dukungan tema 'mint' sebagai opsional tema baru
-    function setTheme(theme) {
+    function setTheme(theme, updateCharts = true) {
         localStorage.setItem('fw_theme', theme);
         
-        if (theme === 'mint') {
-            document.documentElement.classList.remove('dark');
-            document.documentElement.classList.add('mint');
-            Chart.defaults.color = '#234e52';
-        } else {
-            document.documentElement.classList.remove('mint');
-            if (theme === 'dark') { applyDarkClass(true); } 
-            else if (theme === 'light') { applyDarkClass(false); } 
-            else { applyDarkClass(window.matchMedia('(prefers-color-scheme: dark)').matches); }
-        }
+        let isDark = false;
+        if (theme === 'dark') { isDark = true; } 
+        else if (theme === 'light') { isDark = false; } 
+        else { isDark = window.matchMedia('(prefers-color-scheme: dark)').matches; }
 
-        ['light', 'dark', 'auto', 'mint'].forEach(t => {
+        applyDarkClass(isDark, false);
+
+        ['light', 'dark', 'auto'].forEach(t => {
             const btn = document.getElementById(`btn-theme-${t}`);
             if(btn) {
                 if (t === theme) {
@@ -383,6 +461,25 @@
                 }
             }
         });
+
+        if(updateCharts) updateChartColors();
+    }
+
+    function applyDarkClass(isDark, updateCharts = true) {
+        if (isDark) { document.documentElement.classList.add('dark'); } 
+        else { document.documentElement.classList.remove('dark'); }
+        if(updateCharts) updateChartColors();
+    }
+
+    function updateChartColors() {
+        const isDark = document.documentElement.classList.contains('dark');
+        const isMint = document.documentElement.classList.contains('mint');
+        
+        if (isMint) {
+            Chart.defaults.color = isDark ? '#99f6e4' : '#234e52';
+        } else {
+            Chart.defaults.color = isDark ? '#94a3b8' : '#64748b';
+        }
 
         if(chartInstance) chartInstance.update();
         if(chartDoughnutInstance) chartDoughnutInstance.update();
